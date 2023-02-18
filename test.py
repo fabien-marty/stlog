@@ -22,3 +22,8 @@ with logger.bind(bar="wooooo"):
 
 logger.info("It works again", foo="bar", x=123)
 # {"message": "It works again", "bar": "foo", "y": 456, "foo": "bar", "x": 123, "timestamp": "2023-02-18T12:35:50.184772+00:00", "status": "info", "logger": {"name": "__main__"}}
+
+# to check that the context is not linked to the original logger
+logger2 = getLogger("foo")
+logger2.info("plop")
+# {"message": "plop", "bar": "foo", "y": 456, "timestamp": "2023-02-18T12:37:21.951642+00:00", "status": "info", "logger": {"name": "foo"}}

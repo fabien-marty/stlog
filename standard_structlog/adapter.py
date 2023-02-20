@@ -13,7 +13,7 @@ class ContextVarsAdapter(daiquiri.KeywordArgumentAdapter):
     def process(
         self, msg: typing.Any, kwargs: collections.abc.MutableMapping[str, typing.Any]
     ) -> tuple[typing.Any, collections.abc.MutableMapping[str, typing.Any]]:
-        new_kwargs = {**ExecutionContext.get(), **kwargs}
+        new_kwargs = {**ExecutionContext._get(), **kwargs}
         return super().process(msg, new_kwargs)
 
 

@@ -26,8 +26,11 @@ jobs:
       - name: Install requirements
         run: |
           $POETRY_HOME/bin/poetry install
+      - name: Fix github path
+        run: |
+          echo "$POETRY_HOME/bin" >> $GITHUB_PATH
       - name: Run lint
         run: |
-          $POETRY_HOME/bin/poetry run poe lint
+          poetry run poe lint
       
       

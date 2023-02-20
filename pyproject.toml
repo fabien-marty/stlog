@@ -11,12 +11,12 @@ packages = [{include = "standard_structlog"}]
 python = "^3.7"
 daiquiri = "^3.2.1"
 
-
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.247"
 mypy = "^1.0.1"
 black = "^23.1.0"
 poethepoet = "^0.18.1"
+pytest = "*"
 
 [build-system]
 requires = ["poetry-core"]

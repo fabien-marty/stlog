@@ -38,22 +38,28 @@ jobs:
         with:
           path: |
             ${{ env.POETRY_HOME }}
-            ${{ env.HOME }}/.cache/pypoetry
+            .poetry
           key: cachepoetry-${{ needs.hashfiles.outputs.poetrylock-hash }}-${{ vars.CACHE_VERSION }}
       - name: Install poetry
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
           python3 -m venv $POETRY_HOME
           $POETRY_HOME/bin/pip install poetry
+      - name: Fix github path
+        run: |
+          echo "$POETRY_HOME/bin" >> "$GITHUB_PATH"
+      - name: Configure poetry
+        run: |
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project false
+          poetry config cache-dir ~/.poetry
+          poetry config virtualenvs.path ~/.poetry/venv
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Install requirements
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
-          $POETRY_HOME/bin/poetry install
-      - name: Fix github path
-        run: |
-          echo "$POETRY_HOME/bin" >> "$GITHUB_PATH"
+          poetry install
       - name: Run lint
         run: |
           poetry run poe lint

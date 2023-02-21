@@ -17,7 +17,15 @@ jobs:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Cache poetry install
+        id: cache-poetry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ env.POETRY_HOME }}
+          key: cache-${{ hashFiles('.github/workflows/**') }}-${{ vars.CACHE_VERSION }}
       - name: Install poetry
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
           python3 -m venv $POETRY_HOME
           $POETRY_HOME/bin/pip install poetry

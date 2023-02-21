@@ -38,7 +38,7 @@ jobs:
         with:
           path: |
             ${{ env.POETRY_HOME }}
-            ${{ env.HOME }}/.cache/pypoetry/virtualenvs
+            ${{ env.HOME }}/.cache/pypoetry
           key: cachepoetry-${{ needs.hashfiles.outputs.poetrylock-hash }}-${{ vars.CACHE_VERSION }}
       - name: Install poetry
         if: steps.cache-deps.outputs.cache-hit != 'true'

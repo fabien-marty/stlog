@@ -77,31 +77,31 @@ jobs:
         with:
           name: apidoc
           path: api/
-githubpages:
-  runs-on: ubuntu-latest
-  needs: lint
-  permissions:
-    contents: read
-    pages: write
-    id-token: write
-  concurrency:
-    group: "pages"
-    cancel-in-progress: true
-  environment:
-    name: github-pages
-    url: ${{ steps.deployment.outputs.page_url }}
-  steps: 
-    - name: Download API doc artifact
-      uses: actions/download-artifact@v3
-      with:
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v1
-      with:
-        # Upload entire repository
-        path: '.'
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v1
+  githubpages:
+    runs-on: ubuntu-latest
+    needs: lint
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: "pages"
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+    steps: 
+      - name: Download API doc artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: apidoc
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          # Upload entire repository
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
 
 
         

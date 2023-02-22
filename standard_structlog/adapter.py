@@ -6,14 +6,15 @@ import typing
 
 import daiquiri
 
-from standard_structlog.context import ExecutionContext
+from standard_structlog.base import STLOG_MANAGED_KEY
+from standard_structlog.context import ExecutionLogContext
 
 
 class ContextVarsAdapter(daiquiri.KeywordArgumentAdapter):
     def process(
         self, msg: typing.Any, kwargs: collections.abc.MutableMapping[str, typing.Any]
     ) -> tuple[typing.Any, collections.abc.MutableMapping[str, typing.Any]]:
-        new_kwargs = {**ExecutionContext._get(), **kwargs}
+        new_kwargs = {**ExecutionLogContext._get(), **kwargs, STLOG_MANAGED_KEY: True}
         return super().process(msg, new_kwargs)
 
 

@@ -19,6 +19,8 @@ ruff = "^0.0.247"
 mypy = "^1.0.1"
 black = "^23.1.0"
 poethepoet = "^0.18.1"
+pdoc3 = "^0.10.0"
+mkdocs-material = "^9.0.13"
 
 [build-system]
 requires = ["poetry-core"]
@@ -42,3 +44,8 @@ lint_ruff   = "ruff --fix ."
 lint_black = "black ."
 lint_mypy = "mypy --check-untyped-defs ."
 lint = ["lint_black", "lint_ruff", "lint_mypy"]
+_clean_api_doc = "rm -Rf api"
+_make_api_doc = "pdoc3 --html --output-dir=api standard_structlog"
+make_api_doc = ["_clean_api_doc", "_make_api_doc"]
+make_doc = ["make_api_doc"]
+clean = ["_clean_api_doc"]

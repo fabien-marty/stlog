@@ -5,14 +5,10 @@ description = ""
 authors = ["Fabien MARTY <fabien.marty@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "standard_structlog"}]
+packages = [{include = "stlog"}]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-daiquiri = "^3.2.1"
-fastapi = "^0.92.0"
-uvicorn = "^0.20.0"
-
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.247"
@@ -40,12 +36,15 @@ target-version = "py37"
 required-imports = ["from __future__ import annotations"]
 
 [tool.poe.tasks]
-lint_ruff   = "ruff --fix ."
+lint_ruff   = "ruff ."
+reformat_ruff   = "ruff --fix ."
 lint_black = "black ."
+reformat_black = "black ."
 lint_mypy = "mypy --check-untyped-defs ."
 lint = ["lint_black", "lint_ruff", "lint_mypy"]
+reformat = ["reformat_black", "reformat_ruff"]
 _clean_api_doc = "rm -Rf api"
-_make_api_doc = "pdoc3 --html --output-dir=api standard_structlog"
+_make_api_doc = "pdoc3 --html --output-dir=api stlog"
 make_api_doc = ["_clean_api_doc", "_make_api_doc"]
 make_doc = ["make_api_doc"]
 clean = ["_clean_api_doc"]

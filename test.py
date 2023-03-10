@@ -5,7 +5,6 @@ import sys
 import time
 
 from stlog import ExecutionLogContext, getLogger, setup
-from stlog.formatter import HUMAN_FORMATTER, RICH_FORMATTER
 from stlog.output import Stream
 
 # setup (globally)
@@ -13,12 +12,10 @@ setup(
     level=logging.INFO,
     outputs=(
         Stream(
-            formatter=HUMAN_FORMATTER,
             stream=sys.stdout,
             use_fancy_rich_output=False,
         ),
         Stream(
-            formatter=RICH_FORMATTER,
             stream=sys.stderr,
             use_fancy_rich_output=True,
         ),

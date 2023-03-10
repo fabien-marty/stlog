@@ -7,14 +7,17 @@ import sys
 import typing
 from dataclasses import dataclass, field
 
-from stlog.base import RICH_INSTALLED, get_program_name
-from stlog.formatter import HUMAN_FORMATTER
+from stlog.base import GLOBAL_LOGGING_CONFIG, RICH_INSTALLED
+from stlog.formatter import (
+    DEFAULT_STLOG_HUMAN_FORMAT,
+    DEFAULT_STLOG_RICH_FORMAT,
+    StLogHumanFormatter,
+)
 
 
 def _get_log_file_path(
     logfile: str | None = None,
     logdir: str | None = None,
-    program_name: str | None = None,
     logfile_suffix: str = ".log",
 ) -> str:
     ret_path = None
@@ -26,8 +29,9 @@ def _get_log_file_path(
         ret_path = os.path.join(logdir, logfile)
 
     if not ret_path and logdir:
-        program_name = program_name or get_program_name()
-        ret_path = os.path.join(logdir, program_name) + logfile_suffix
+        ret_path = (
+            os.path.join(logdir, GLOBAL_LOGGING_CONFIG.program_name) + logfile_suffix
+        )
 
     if not ret_path:
         raise ValueError("Unable to determine log file destination")
@@ -46,12 +50,24 @@ class Output:
     """
 
     _handler: logging.Handler = field(init=False, default_factory=logging.NullHandler)
-    formatter: logging.Formatter = HUMAN_FORMATTER
+    formatter: logging.Formatter = field(default_factory=StLogHumanFormatter)
     level: int | None = None
 
-    def set_handler(self, handler: logging.Handler):
+    def set_handler(
+        self,
+        handler: logging.Handler,
+        force_formatter_fmt_if_not_set: str | None = None,
+    ):
         """Configure the Python logging Handler to use."""
         self._handler = handler
+        if force_formatter_fmt_if_not_set is not None and isinstance(
+            self.formatter, StLogHumanFormatter
+        ):
+            # We can only do that with StLogHumanFormatter
+            # because it is lazy (the point is to be able to change dynamically the default
+            # format depending on the use of Rich or not)
+            if self.formatter.fmt is None:
+                self.formatter.fmt = force_formatter_fmt_if_not_set
         self._handler.setFormatter(self.formatter)
         if self.level is not None:
             self._handler.setLevel(self.level)
@@ -87,14 +103,20 @@ class Stream(Output):
         self._set_standard_stream_handler()
 
     def _set_standard_stream_handler(self) -> None:
-        self.set_handler(logging.StreamHandler(self.stream))
+        self.set_handler(
+            logging.StreamHandler(self.stream),
+            force_formatter_fmt_if_not_set=DEFAULT_STLOG_HUMAN_FORMAT,
+        )
 
     def _set_rich_stream_handler(self, force_terminal: bool = False) -> None:
         from rich.console import Console
         from rich.logging import RichHandler
 
         c = Console(file=self.stream, force_terminal=force_terminal)
-        self.set_handler(RichHandler(console=c))
+        self.set_handler(
+            RichHandler(console=c),
+            force_formatter_fmt_if_not_set=DEFAULT_STLOG_RICH_FORMAT,
+        )
 
 
 @dataclass
@@ -102,11 +124,8 @@ class File(Output):
     filename: str | None = None
     directory: str | None = None
     suffix: str = ".log"
-    program_name: str | None = None
 
     def __post_init__(self):
-        logpath = _get_log_file_path(
-            self.filename, self.directory, self.program_name, self.suffix
-        )
+        logpath = _get_log_file_path(self.filename, self.directory, self.suffix)
         handler = logging.handlers.WatchedFileHandler(logpath)
         self.set_handler(handler)

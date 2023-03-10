@@ -17,6 +17,7 @@ black = "^23.1.0"
 poethepoet = "^0.18.1"
 pdoc3 = "^0.10.0"
 mkdocs-material = "^9.0.13"
+rich = "^13.3.2"
 
 [build-system]
 requires = ["poetry-core"]

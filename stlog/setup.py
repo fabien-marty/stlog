@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import sys
 import traceback
-import types as _ptypes
+import types
 import typing
 
 from stlog.adapter import getLogger
@@ -20,18 +20,17 @@ except ImportError:
 DEFAULT_OUTPUTS = [Stream(stream=sys.stderr)]
 
 
-def logging_excepthook(
-    program_name: str | None,
+def _logging_excepthook(
     exc_type: type[BaseException],
     value: BaseException,
-    tb: _ptypes.TracebackType,
+    tb: types.TracebackType | None,
 ) -> None:
     try:
-        program_logger = getLogger(program_name)
+        program_logger = getLogger(GLOBAL_LOGGING_CONFIG.program_name)
         program_logger.critical(
             "".join(traceback.format_exception(exc_type, value, tb))
         )
-        dump_exception_on_console(exc_type, value, tb)
+        _dump_exception_on_console(exc_type, value, tb)
     except Exception:
         print(
             "ERROR: Exception during exception handling => let's dump this on standard output"
@@ -39,10 +38,10 @@ def logging_excepthook(
         print(traceback.format_exc(), file=sys.stderr)
 
 
-def dump_exception_on_console(
+def _dump_exception_on_console(
     exc_type: type[BaseException],
     value: BaseException,
-    tb: _ptypes.TracebackType,
+    tb: types.TracebackType | None,
 ) -> None:
     if RICH_AVAILABLE:
         from rich.console import Console
@@ -74,25 +73,36 @@ def dump_exception_on_console(
 
 def setup(
     *,
-    level: int = logging.WARNING,
-    outputs: typing.Iterable[Output] | None = None,
+    level: str | int = logging.WARNING,
+    outputs: typing.Iterable[Output] = DEFAULT_OUTPUTS,
     program_name: str | None = None,
     capture_warnings: bool = True,
-    logging_excepthook=logging_excepthook,
+    logging_excepthook: typing.Callable[
+        [type[BaseException], BaseException, types.TracebackType | None],
+        typing.Any,
+    ]
+    | None = _logging_excepthook,
     extra_levels: typing.Iterable[tuple[str, str | int]] = [],
     reinject_context_in_standard_logging: bool = True,
 ) -> None:
-    """Set up Python logging.
+    """Set up the Python logging with stlog (globally).
 
-    This sets up basic handlers for Python logging.
+    This removes all existing handlers and
+    sets up handlers/formatters/... for Python logging.
 
-    :param level: Root log level.
-    :param outputs: Iterable of outputs to log to.
-    :param program_name: The name of the program. Auto-detected if not set.
-    :param capture_warnings: Capture warnings from the `warnings` module.
+    Args:
+        level: the root log level as int or as a string representation (in uppercase)
+            (see https://docs.python.org/3/library/logging.html#levels)
+        outputs: iterable of Output to log to.
+        program_name: the name of the program (auto-detected if not set).
+        capture_warnings: capture warnings from the `warnings` module.
+        logging_excepthook: if not None, override sys.excepthook with the given callable
+            See https://docs.python.org/3/library/sys.html#sys.excepthook for details.
+        extra_levels: iterable of tuples (logger name, log level) for quick override of
+            the root log level.
+        reinject_context_in_standard_logging: if True, reinject the ExecutionLogContext
+            in log record emitted with python standard loggers.
     """
-    if outputs is None:
-        outputs = DEFAULT_OUTPUTS
     root_logger = logging.getLogger(None)
     GLOBAL_LOGGING_CONFIG.reinject_context_in_standard_logging = (
         reinject_context_in_standard_logging
@@ -116,6 +126,4 @@ def setup(
         logging.captureWarnings(True)
 
     for lgger, lvel in extra_levels:
-        if isinstance(lvel, str):
-            lvel = lvel.upper()
         logging.getLogger(lgger).setLevel(lvel)

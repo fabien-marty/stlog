@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import inspect
 import logging
 import logging.handlers
 import os
@@ -8,13 +7,8 @@ import sys
 import typing
 from dataclasses import dataclass, field
 
-from stlog.base import RICH_INSTALLED
+from stlog.base import RICH_INSTALLED, get_program_name
 from stlog.formatter import HUMAN_FORMATTER
-
-
-def get_program_name() -> str:
-    """Return the name of the running program."""
-    return os.path.basename(inspect.stack()[-1][1])
 
 
 def _get_log_file_path(
@@ -43,53 +37,64 @@ def _get_log_file_path(
 
 @dataclass
 class Output:
+    """Abstract output base class.
+
+    Attributes:
+        formatter: the Python logging Formatter to use.
+        level: FIXME.
+
+    """
+
     _handler: logging.Handler = field(init=False, default_factory=logging.NullHandler)
     formatter: logging.Formatter = HUMAN_FORMATTER
     level: int | None = None
 
     def set_handler(self, handler: logging.Handler):
+        """Configure the Python logging Handler to use."""
         self._handler = handler
         self._handler.setFormatter(self.formatter)
         if self.level is not None:
             self._handler.setLevel(self.level)
 
     def get_handler(self) -> logging.Handler:
+        """Get the configured Python logging Handler."""
         return self._handler
 
 
 @dataclass
 class Stream(Output):
+    """Represent an output to a stream (stdout, stderr...).
+
+    Attributes:
+        stream: the stream to use (`typing.TextIO`), default to `sys.stderr`.
+        use_fancy_rich_output: if None, use fancy rich output if possible (rich installed and supported tty),
+            if True/False force the usage (or not).
+
+    """
+
     stream: typing.TextIO = sys.stderr
     use_fancy_rich_output: bool | None = None
 
     def __post_init__(self):
         if self.use_fancy_rich_output is False:
-            self.set_standard_stream_handler()
+            self._set_standard_stream_handler()
             return
         if RICH_INSTALLED:
-            self.set_rich_stream_handler(
+            self._set_rich_stream_handler(
                 force_terminal=self.use_fancy_rich_output is True
             )
             return
-        self.set_standard_stream_handler()
+        self._set_standard_stream_handler()
 
-    def set_standard_stream_handler(self) -> None:
+    def _set_standard_stream_handler(self) -> None:
         self.set_handler(logging.StreamHandler(self.stream))
 
-    def set_rich_stream_handler(self, force_terminal: bool = False) -> None:
+    def _set_rich_stream_handler(self, force_terminal: bool = False) -> None:
         from rich.console import Console
         from rich.logging import RichHandler
 
         c = Console(file=self.stream, force_terminal=force_terminal)
         self.set_handler(RichHandler(console=c))
-
-
-@dataclass
-class RichStream(Output):
-    def __post_init__(self):
-        from rich.logging import RichHandler
-
-        self.set_handler(RichHandler())
 
 
 @dataclass

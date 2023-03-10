@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import inspect
 import logging
+import os
 from dataclasses import dataclass
 
 STLOG_MANAGED_KEY = "_stdlog_managed"
@@ -30,3 +32,8 @@ class ExtrasLogRecord(logging.LogRecord):
 
 
 GLOBAL_LOGGING_CONFIG = GlobalLoggingConfig()
+
+
+def get_program_name() -> str:
+    """Return the name of the running program."""
+    return os.path.basename(inspect.stack()[-1][1])

@@ -44,8 +44,11 @@ reformat_black = "black ."
 lint_mypy = "mypy --check-untyped-defs ."
 lint = ["lint_black", "lint_ruff", "lint_mypy"]
 reformat = ["reformat_black", "reformat_ruff"]
-_clean_api_doc = "rm -Rf api"
-_make_api_doc = "pdoc3 --html --output-dir=api stlog"
+_clean_api_doc = "rm -Rf apihtml"
+_clean_doc = "rm -Rf html"
+_make_api_doc = "pdoc3 --html --output-dir=apihtml stlog"
+_make_doc = "mkdocs build --site-dir html"
 make_api_doc = ["_clean_api_doc", "_make_api_doc"]
-make_doc = ["make_api_doc"]
+make_doc = ["_clean_doc", "_make_doc"]
+make_docs = ["make_doc", "make_api_doc"]
 clean = ["_clean_api_doc"]

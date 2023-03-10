@@ -49,14 +49,19 @@ jobs:
       - name: Run lint
         run: |
           poetry run poe lint
-      - name: Make API doc
+      - name: Make docs
         run: |
-          poetry run poe make_api_doc
+          poetry run poe make_docs
       - name: Upload API doc as an artifact
         uses: actions/upload-artifact@v3
         with:
           name: apidoc
-          path: api/
+          path: apihtml/
+      - name: Upload PUBLIC doc as an artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: publicdoc
+          path: html/
   githubpages:
     runs-on: ubuntu-latest
     needs: lint
@@ -74,11 +79,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: apidoc
+      - name: Download API doc artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: publicdoc
       - name: Fix directory structure
         run: |
-          mv api apitmp
-          mkdir api
-          mv apitmp/stlog/* api/
+          mv apihtml html/api
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:

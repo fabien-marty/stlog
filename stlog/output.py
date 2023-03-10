@@ -11,7 +11,8 @@ from stlog.base import GLOBAL_LOGGING_CONFIG, RICH_INSTALLED
 from stlog.formatter import (
     DEFAULT_STLOG_HUMAN_FORMAT,
     DEFAULT_STLOG_RICH_FORMAT,
-    StLogHumanFormatter,
+    HumanFormatter,
+    JsonFormatter,
 )
 
 
@@ -50,7 +51,7 @@ class Output:
     """
 
     _handler: logging.Handler = field(init=False, default_factory=logging.NullHandler)
-    formatter: logging.Formatter = field(default_factory=StLogHumanFormatter)
+    formatter: logging.Formatter = field(default_factory=HumanFormatter)
     level: int | None = None
 
     def set_handler(
@@ -61,7 +62,7 @@ class Output:
         """Configure the Python logging Handler to use."""
         self._handler = handler
         if force_formatter_fmt_if_not_set is not None and isinstance(
-            self.formatter, StLogHumanFormatter
+            self.formatter, HumanFormatter
         ):
             # We can only do that with StLogHumanFormatter
             # because it is lazy (the point is to be able to change dynamically the default
@@ -89,17 +90,16 @@ class Stream(Output):
     """
 
     stream: typing.TextIO = sys.stderr
-    use_fancy_rich_output: bool | None = None
+    use_rich: bool | None = None
 
     def __post_init__(self):
-        if self.use_fancy_rich_output is False:
+        if self.use_rich is False:
             self._set_standard_stream_handler()
             return
         if RICH_INSTALLED:
-            self._set_rich_stream_handler(
-                force_terminal=self.use_fancy_rich_output is True
-            )
-            return
+            if not isinstance(self.formatter, JsonFormatter):
+                self._set_rich_stream_handler(force_terminal=self.use_rich is True)
+                return
         self._set_standard_stream_handler()
 
     def _set_standard_stream_handler(self) -> None:

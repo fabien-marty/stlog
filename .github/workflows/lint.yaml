@@ -2,8 +2,7 @@ name: lint
 
 on:
   push:
-    branches: 
-      - main
+  pull_request:
 
 env:
   POETRY_HOME: /opt/poetry
@@ -49,6 +48,9 @@ jobs:
       - name: Run lint
         run: |
           poetry run poe lint
+      - name: Run tests
+        run: |
+          poetry run poe test
       - name: Make docs
         run: |
           poetry run poe make_docs
@@ -74,6 +76,7 @@ jobs:
       cancel-in-progress: true
     environment:
       name: github-pages
+    if: github.ref == 'refs/heads/main'
     steps: 
       - name: Download API doc artifact
         uses: actions/download-artifact@v3

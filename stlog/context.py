@@ -1,14 +1,39 @@
 from __future__ import annotations
 
+import copy
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from typing import Any, Mapping
 
+from stlog.base import StLogError
+
 _LOGGING_CONTEXT_VAR: ContextVar = ContextVar("stlog_logging_context", default={})
 
 
+def _check_json_type_or_raise(to_check: Any):
+    if to_check is None:
+        return
+    if not isinstance(to_check, (dict, list, bool, str, int, float, bool)):
+        raise StLogError(
+            "to_check should be a dict/list/bool/str/int/float/bool/None, found %s"
+            % type(to_check)
+        )
+    if isinstance(to_check, list):
+        for item in to_check:
+            _check_json_type_or_raise(item)
+    elif isinstance(to_check, dict):
+        for key, value in to_check.items():
+            if not isinstance(key, str):
+                raise StLogError("dict keys should be str, found %s" % type(key))
+            _check_json_type_or_raise(value)
+
+
 class ExecutionLogContext:
-    """This is a static class which hosts some utility (static) methods around a "log context" (global but by execution (worker/thread/async) thanks to contextvars)."""
+    """This is a static class which hosts some utility (static) methods around a "log context"
+    (global but by execution (worker/thread/async) thanks to contextvars).
+
+    All values are (deeply) copied to avoid any changes after adding them to the context.
+    """
 
     def __new__(cls):
         raise TypeError("This is a static class: do not instanciate it")
@@ -20,15 +45,18 @@ class ExecutionLogContext:
 
     @classmethod
     def _add(cls, **kwargs: Any) -> Token:
+        for val in kwargs.values():
+            _check_json_type_or_raise(val)
         new_context = _LOGGING_CONTEXT_VAR.get()
         # we create a new dict here as set() does a shallow copy
-        return _LOGGING_CONTEXT_VAR.set({**new_context, **kwargs})
+        return _LOGGING_CONTEXT_VAR.set(copy.deepcopy({**new_context, **kwargs}))
 
     @classmethod
     def add(cls, **kwargs: Any) -> None:
         """Add some key / values to the execution context.
 
-        WARNING: use only immutable values in kwargs (or be sure to never change them after add() call)
+        Only dict, list, int, str, float, bool and None types are allowed
+        (or composition of these types).
         """
         cls._add(**kwargs)
 
@@ -42,20 +70,18 @@ class ExecutionLogContext:
 
     @classmethod
     def _get(cls) -> Mapping[str, Any]:
-        """Get the context as a dict.
-
-        WARNING: this is a "private" method and be sure to never modify the result dict.
-        """
+        """Get the context as a dict."""
         return _LOGGING_CONTEXT_VAR.get()
+
+    @classmethod
+    def get(cls, key: str, default=None) -> Any:
+        """Get a context key."""
+        return copy.deepcopy(cls._get().get(key, default))
 
     @classmethod
     @contextmanager
     def bind(cls, **kwargs: Any):
-        """Temporary bind some key / values to the execution log context (context manager).
-
-        WARNING: use only immutable values in kwargs (or be sure to never change them after bind() call)
-
-        """
+        """Temporary bind some key / values to the execution log context (context manager)."""
         try:
             token = cls._add(**kwargs)
             yield

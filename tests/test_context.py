@@ -1,0 +1,42 @@
+from __future__ import annotations
+
+import datetime
+
+import pytest
+
+from stlog import ExecutionLogContext
+from stlog.base import StLogError
+
+
+@pytest.fixture
+def context():
+    context = ExecutionLogContext
+    context.reset_context()
+    yield context
+    context.reset_context()
+
+
+def test_basic(context):
+    context.add(foo="bar")
+    assert context.get("foo") == "bar"
+    context.remove("foo")
+    assert context.get("foo") is None
+    with context.bind(foo="bar"):
+        assert context.get("foo") == "bar"
+    assert context.get("foo") is None
+
+
+def test_bad_types(context):
+    with pytest.raises(StLogError):
+        context.add(foo=set())
+    with pytest.raises(StLogError):
+        context.add(foo=[{"foo", datetime.datetime.now()}])
+    with pytest.raises(StLogError):
+        context.add(foo={123: True})
+
+
+def test_deepcopy(context):
+    v = [{"foo": "bar"}]
+    context.add(foo=v)
+    v[0]["foo"] = "foo"
+    assert context.get("foo")[0]["foo"] == "bar"

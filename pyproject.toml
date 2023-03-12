@@ -18,6 +18,7 @@ poethepoet = "^0.18.1"
 pdoc3 = "^0.10.0"
 mkdocs-material = "^9.0.13"
 rich = "^13.3.2"
+pytest = "^7.2.2"
 
 [build-system]
 requires = ["poetry-core"]
@@ -52,3 +53,4 @@ make_api_doc = ["_clean_api_doc", "_make_api_doc"]
 make_doc = ["_clean_doc", "_make_doc"]
 make_docs = ["make_doc", "make_api_doc"]
 clean = ["_clean_api_doc"]
+test = "pytest ."

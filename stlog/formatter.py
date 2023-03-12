@@ -215,6 +215,10 @@ class JsonFormatter(_JsonFormatter):
         log_record["logger"] = {
             "name": record.name,
         }
+        log_record["source"] = {
+            "path": record.pathname,
+            "lineno": record.lineno,
+        }
         if record.exc_info and record.exc_info[0]:
             log_record["error"] = {
                 "kind": record.exc_info[0].__name__,

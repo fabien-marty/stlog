@@ -16,6 +16,10 @@ except ImportError:
 STLOG_EXTRA_KEYS_KEY = "_stlog_extra_keys"
 
 
+class StLogError(Exception):
+    pass
+
+
 @dataclass
 class GlobalLoggingConfig:
     program_name: str = field(

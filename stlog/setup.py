@@ -112,9 +112,6 @@ def setup(
             in log record emitted with python standard loggers.
     """
     root_logger = logging.getLogger(None)
-    GLOBAL_LOGGING_CONFIG.reinject_context_in_standard_logging = (
-        reinject_context_in_standard_logging
-    )
     if program_name is not None:
         GLOBAL_LOGGING_CONFIG.program_name = program_name
 
@@ -124,7 +121,11 @@ def setup(
 
     # Add configured handlers
     for out in outputs:
-        root_logger.addHandler(ContextReinjectHandlerWrapper(out.get_handler()))  # type: ignore
+        if reinject_context_in_standard_logging:
+            handler = ContextReinjectHandlerWrapper(wrapped=out.get_handler())
+        else:
+            handler = out.get_handler()
+        root_logger.addHandler(handler)
 
     root_logger.setLevel(level)
 

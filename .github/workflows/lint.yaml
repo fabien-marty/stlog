@@ -48,9 +48,9 @@ jobs:
       - name: Run lint
         run: |
           poetry run poe lint
-      - name: Run tests
+      - name: Run tests / coverage
         run: |
-          poetry run poe test
+          poetry run poe coverage
       - name: Make docs
         run: |
           poetry run poe make_docs
@@ -64,6 +64,11 @@ jobs:
         with:
           name: publicdoc
           path: html/
+      - name: Upload COVERAGE as an artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: htmlcov
   githubpages:
     runs-on: ubuntu-latest
     needs: lint
@@ -86,6 +91,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: publicdoc
+      - name: Download COVERAGE artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:

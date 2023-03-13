@@ -8,56 +8,97 @@ import typing
 from typing import Any, Callable, Literal, Sequence
 
 from stlog._json_formatter import _JsonFormatter
-from stlog.base import STLOG_EXTRA_KEYS_KEY, ExtrasLogRecord
+from stlog.base import STLOG_EXTRA_KEY
 
 DEFAULT_STLOG_HUMAN_FORMAT = (
     "%(asctime)s %(slevel_name)-10.10s %(name)s#%(process)d: %(message)s %(extras)s"
 )
 DEFAULT_STLOG_RICH_FORMAT = "%(name)s#%(process)d: %(message)s %(extras)s"
-DEFAULT_STLOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S (utc)"
+DEFAULT_STLOG_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+
+
+class _Formatter(logging.Formatter):
+    def __init__(
+        self,
+        fmt: str | None = None,
+        datefmt: str | None = DEFAULT_STLOG_DATE_FORMAT,
+        style: Literal["%", "{", "$"] = "%",
+        validate: bool = True,
+        *,
+        include_extras_keys_fnmatchs: Sequence[str] = ("*",),
+        exclude_extras_keys_fnmatchs: Sequence[str] = ("_*",),
+        converter: Callable[[float | None], time.struct_time] = time.gmtime,
+    ):
+        super().__init__(
+            fmt=fmt,
+            datefmt=datefmt,
+            style=style,
+            validate=validate,
+        )
+        self.include_extra_keys_patterns: list[re.Pattern] = [
+            re.compile(fnmatch.translate(x)) for x in include_extras_keys_fnmatchs
+        ]
+        self.exclude_extra_keys_patterns: list[re.Pattern] = [
+            re.compile(fnmatch.translate(x)) for x in exclude_extras_keys_fnmatchs
+        ]
+        self.converter: Callable[[float | None], time.struct_time] = converter
+
+    def _use_extra_key(self, extra_key: str) -> bool:
+        for pattern in self.include_extra_keys_patterns:
+            if re.match(pattern, extra_key):
+                break
+        else:
+            # not found
+            return False
+        for pattern in self.exclude_extra_keys_patterns:
+            if re.match(pattern, extra_key):
+                return False
+        return True
 
 
 # Adapted from https://github.com/Mergifyio/daiquiri/blob/main/daiquiri/formatter.py
-class HumanFormatter(logging.Formatter):
-    """Formats extra keywords into %(extras)s placeholder.
+class HumanFormatter(_Formatter):
+    """Formatter for a "human" output.
 
-    Any keywords passed to a logging call will be formatted into a
-    "extras" string and included in a logging message.
+    Extra keywords are merged into a `%(extras)s` placeholder.
+
+    If you use this placeholder on your `fmt`, any keywords
+    passed to a logging call will be formatted into a "extras" string and
+    included in a logging message.
 
     Example:
-        logger.info('my message', extra='keyword')
+        logger.info("my message", foo="bar", foo2=123)
 
     will cause an "extras" string of:
-        [extra: keyword]
+        [foo: bar] [foo2: 123]
 
-    to be inserted into the format in place of %(extras)s.
+    Note: a `%(slevel_name)s` placeholder is also added containing the uppercase
+        level name under brackets, example: `[CRITICAL]`, `[WARNING]`, ...
 
-    The optional `keywords` argument must be passed into the init
-    function to enable this functionality. Without it normal daiquiri
-    formatting will be applied. Any keywords included in the
-    `keywords` parameter will not be included in the "extras" string.
+    Args:
+        extras_template: the template to format a key/value.
+        extras_separator: the separator between multiple key/values.
+        extras_prefix: the prefix before key/value parts.
+        extras_suffix: the suffix after key/values parts.
+        include_extras_keys_fnmatchs: fnmatch patterns list for including keys in `%(extras)s` placeholder.
+        exclude_extras_keys_fnmatchs: fnmatch patterns list for excluding keys in `%(extras)s` placeholder.
+        extra_value_serialized_types: accepted value types for including the key/value in `%(extras)s` placeholder.
+        extra_key_max_length: maximum size of extra keys to be included in `%(extras)s` placeholder
+            (after this limit, the value will be truncated and ... will be added at the end, 0 means "no limit").
+        extra_value_max_serialized_length: maximum size of extra values to be included in `%(extras)s` placeholder
+            (after this limit, the value will be truncated and ... will be added at the end, 0 means "no limit").
+        converter: time converter function (use `time.gmtime` (default) for UTC date/times, use `time.time`
+            for local date/times), if you change the default, please change also `datefmt` keyword.
 
-    Special keywords:
-
-    keywords
-        A set of strings containing keywords to filter out of the
-        "extras" string.
-
-    extras_template
-        A format string to use instead of '[{0}: {1}]'
-
-    extras_separator
-        What string to "join" multiple "extras" with.
-
-    extras_prefix and extras_suffix
-        Strings which will be prepended and appended to the "extras"
-        string respectively. These will only be prepended if the
-        "extras" string is not empty.
     """
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
-        keywords: set[str] | None = None,
+        fmt: str | None = None,
+        datefmt: str | None = DEFAULT_STLOG_DATE_FORMAT,
+        style: Literal["%", "{", "$"] = "%",
+        validate: bool = True,
+        *,
         extras_template: str = "[{0}: {1}]",
         extras_separator: str = " ",
         extras_prefix: str = " ",
@@ -73,13 +114,15 @@ class HumanFormatter(logging.Formatter):
         ),
         extra_key_max_length: int = 32,
         extra_value_max_serialized_length: int = 40,
-        fmt: str | None = None,
-        datefmt: str | None = DEFAULT_STLOG_DATE_FORMAT,
-        style: Literal["%", "{", "$"] = "%",
-        validate: bool = True,
-        converter: Callable[[float | None], time.struct_time] | None = time.gmtime,
     ) -> None:
-        self.keywords = set() if keywords is None else keywords
+        super().__init__(
+            fmt=fmt,
+            datefmt=datefmt,
+            style=style,
+            validate=validate,
+            exclude_extras_keys_fnmatchs=exclude_extras_keys_fnmatchs,
+            include_extras_keys_fnmatchs=include_extras_keys_fnmatchs,
+        )
         self.extras_template = extras_template
         self.extras_separator = extras_separator
         self.extras_prefix = extras_prefix
@@ -87,43 +130,6 @@ class HumanFormatter(logging.Formatter):
         self.extra_key_max_length = extra_key_max_length
         self.extra_value_max_serialized_length = extra_value_max_serialized_length
         self.extra_value_serialized_types = extra_value_serialized_types
-        self.include_extra_keys_patterns: list[re.Pattern] = [
-            re.compile(fnmatch.translate(x)) for x in include_extras_keys_fnmatchs
-        ]
-        self.exclude_extra_keys_patterns: list[re.Pattern] = [
-            re.compile(fnmatch.translate(x)) for x in exclude_extras_keys_fnmatchs
-        ]
-        self.fmt = fmt
-        self.datefmt = datefmt
-        self.style = style
-        self.validate = validate
-        self.__super: logging.Formatter | None = None
-        self._converter: Callable[[float | None], time.struct_time] | None = converter
-
-    @property
-    def _super(self) -> logging.Formatter:
-        if self.__super is None:
-            self.__super = logging.Formatter(
-                fmt=self.fmt,
-                datefmt=self.datefmt,
-                style=self.style,
-                validate=self.validate,
-            )
-        return self.__super
-
-    def _use_extra_key(self, extra_key: str) -> bool:
-        if extra_key == STLOG_EXTRA_KEYS_KEY:
-            return False
-        for pattern in self.include_extra_keys_patterns:
-            if re.match(pattern, extra_key):
-                break
-        else:
-            # not found
-            return False
-        for pattern in self.exclude_extra_keys_patterns:
-            if re.match(pattern, extra_key):
-                return False
-        return True
 
     def _limit_extra_key(self, extra_key: str) -> str:
         if self.extra_key_max_length <= 0:
@@ -147,12 +153,13 @@ class HumanFormatter(logging.Formatter):
             return serialized[0 : (self.extra_value_max_serialized_length - 3)] + "..."
         return serialized
 
-    def add_extras(self, record: ExtrasLogRecord) -> None:
-        if not hasattr(record, STLOG_EXTRA_KEYS_KEY):
+    def add_extras(self, record: logging.LogRecord) -> None:
+        record.slevel_name = f"[{record.levelname}]"
+        if not hasattr(record, STLOG_EXTRA_KEY):
             record.extras = ""
             return
         tmp = []
-        for k in getattr(record, STLOG_EXTRA_KEYS_KEY):
+        for k in getattr(record, STLOG_EXTRA_KEY):
             if not self._use_extra_key(k):
                 continue
             serialized = self._serialize_extra_value(getattr(record, k))
@@ -165,42 +172,21 @@ class HumanFormatter(logging.Formatter):
         if extras != "":
             extras = self.extras_prefix + extras + self.extras_suffix
         record.extras = extras
-        record.slevel_name = f"[{record.levelname}]"
 
-    def remove_extras(self, record: ExtrasLogRecord) -> None:
-        del record.extras
-        del record.slevel_name
-
-    def formatTime(self, record, datefmt=None):  # noqa: N802
-        return self._super.formatTime(record, datefmt=datefmt)
-
-    def formatException(self, ei):  # noqa: N802
-        return self._super.formatException(ei)
-
-    def usesTime(self):  # noqa: N802
-        return self._super.usesTime()
-
-    def formatMessage(self, record):  # noqa: N802
-        return self._super.formatMessage(record)
-
-    def formatStack(self, stack_info):  # noqa: N802
-        return self._super.formatStack(stack_info)
+    def remove_extras(self, record: logging.LogRecord) -> None:
+        delattr(record, "extras")
+        delattr(record, "slevel_name")
 
     def format(self, record: logging.LogRecord) -> str:
-        record = typing.cast(ExtrasLogRecord, record)
         self.add_extras(record)
-        s = self._super.format(record)
+        s = super().format(record)
         self.remove_extras(record)
         return s
 
-    @property
-    def converter(self) -> Callable[[float | None], time.struct_time]:  # type: ignore
-        if self._converter is None:
-            return self._super.converter
-        return self._converter
-
 
 class JsonFormatter(_JsonFormatter):
+    """Formatter for a JSON / parsing friendly output."""
+
     def __init__(self) -> None:
         super().__init__(timestamp=True)
 

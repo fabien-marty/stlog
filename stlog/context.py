@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from typing import Any, Mapping
 
-from stlog.base import StLogError
+from stlog.base import RESERVED_ATTRS, StLogError
 
 _LOGGING_CONTEXT_VAR: ContextVar = ContextVar("stlog_logging_context", default={})
 
@@ -45,6 +45,9 @@ class ExecutionLogContext:
 
     @classmethod
     def _add(cls, **kwargs: Any) -> Token:
+        for key in kwargs.keys():
+            if key in RESERVED_ATTRS:
+                raise StLogError("key: %s is not allowed (reserved key)" % key)
         for val in kwargs.values():
             _check_json_type_or_raise(val)
         new_context = _LOGGING_CONTEXT_VAR.get()
@@ -70,13 +73,13 @@ class ExecutionLogContext:
 
     @classmethod
     def _get(cls) -> Mapping[str, Any]:
-        """Get the context as a dict."""
-        return _LOGGING_CONTEXT_VAR.get()
+        """Get the whole context as a dict."""
+        return copy.deepcopy(_LOGGING_CONTEXT_VAR.get())
 
     @classmethod
     def get(cls, key: str, default=None) -> Any:
         """Get a context key."""
-        return copy.deepcopy(cls._get().get(key, default))
+        return copy.deepcopy(_LOGGING_CONTEXT_VAR.get().get(key, default))
 
     @classmethod
     @contextmanager

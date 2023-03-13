@@ -5,39 +5,12 @@ import json
 import logging
 import re
 import traceback
-import typing
 from collections import OrderedDict
 from datetime import date, datetime, time, timezone
 from inspect import istraceback
 from typing import Any
 
-# skip natural LogRecord attributes
-# http://docs.python.org/library/logging.html#logrecord-attributes
-# Stolen from https://github.com/madzak/python-json-logger/blob/master/src/pythonjsonlogger/jsonlogger.py
-RESERVED_ATTRS: tuple[str, ...] = (
-    "args",
-    "asctime",
-    "created",
-    "exc_info",
-    "exc_text",
-    "filename",
-    "funcName",
-    "levelname",
-    "levelno",
-    "lineno",
-    "module",
-    "msecs",
-    "message",
-    "msg",
-    "name",
-    "pathname",
-    "process",
-    "processName",
-    "relativeCreated",
-    "stack_info",
-    "thread",
-    "threadName",
-)
+from stlog.base import RESERVED_ATTRS
 
 
 # Stolen from https://github.com/madzak/python-json-logger/blob/master/src/pythonjsonlogger/jsonlogger.py
@@ -270,28 +243,3 @@ class _JsonFormatter(logging.Formatter):
         log_record = self.process_log_record(log_record)
 
         return self.serialize_log_record(log_record)
-
-
-class DatadogFormatter(_JsonFormatter):  # type: ignore[misc]
-    def __init__(self) -> None:
-        super().__init__(timestamp=True)
-
-    def add_fields(
-        self,
-        log_record: dict[str, typing.Any],
-        record: logging.LogRecord,
-        message_dict: dict[str, str],
-    ) -> None:
-        super().add_fields(log_record, record, message_dict)
-        log_record["status"] = record.levelname.lower()
-        log_record["logger"] = {
-            "name": record.name,
-        }
-        if record.exc_info and record.exc_info[0]:
-            log_record["error"] = {
-                "kind": record.exc_info[0].__name__,
-                "stack": message_dict.get("stack_info"),
-                "message": message_dict.get("exc_info"),
-            }
-            log_record.pop("exc_info", None)
-            log_record.pop("stack_info", None)

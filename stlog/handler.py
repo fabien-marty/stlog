@@ -9,6 +9,9 @@ from stlog.context import ExecutionLogContext
 
 
 class ContextReinjectHandlerWrapper(logging.Handler):
+    """Logging Handler (built as a wrapper/adapter of another handler) to reinject `stlog.ExecutionLogContext`
+    content in log records (if they weren't sent by `stlog` special loggers)."""
+
     def __init__(self, *, wrapped: logging.Handler):
         self._wrapped = wrapped
 

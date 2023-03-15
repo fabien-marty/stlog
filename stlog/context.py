@@ -5,27 +5,9 @@ from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from typing import Any, Mapping
 
-from stlog.base import RESERVED_ATTRS, StLogError
+from stlog.base import RESERVED_ATTRS, StLogError, check_json_types_or_raise
 
 _LOGGING_CONTEXT_VAR: ContextVar = ContextVar("stlog_logging_context", default={})
-
-
-def _check_json_type_or_raise(to_check: Any):
-    if to_check is None:
-        return
-    if not isinstance(to_check, (dict, list, bool, str, int, float, bool)):
-        raise StLogError(
-            "to_check should be a dict/list/bool/str/int/float/bool/None, found %s"
-            % type(to_check)
-        )
-    if isinstance(to_check, list):
-        for item in to_check:
-            _check_json_type_or_raise(item)
-    elif isinstance(to_check, dict):
-        for key, value in to_check.items():
-            if not isinstance(key, str):
-                raise StLogError("dict keys should be str, found %s" % type(key))
-            _check_json_type_or_raise(value)
 
 
 class ExecutionLogContext:
@@ -49,7 +31,7 @@ class ExecutionLogContext:
             if key in RESERVED_ATTRS:
                 raise StLogError("key: %s is not allowed (reserved key)" % key)
         for val in kwargs.values():
-            _check_json_type_or_raise(val)
+            check_json_types_or_raise(val)
         new_context = _LOGGING_CONTEXT_VAR.get()
         # we create a new dict here as set() does a shallow copy
         return _LOGGING_CONTEXT_VAR.set(copy.deepcopy({**new_context, **kwargs}))

@@ -3,6 +3,7 @@ from __future__ import annotations
 import inspect
 import os
 from dataclasses import dataclass, field
+from typing import Any
 
 STLOG_EXTRA_KEY = "_stlog_extra"
 RICH_INSTALLED = False
@@ -54,3 +55,21 @@ RESERVED_ATTRS: tuple[str, ...] = (
     "thread",
     "threadName",
 )
+
+
+def check_json_types_or_raise(to_check: Any) -> None:
+    if to_check is None:
+        return
+    if not isinstance(to_check, (dict, list, bool, str, int, float, bool)):
+        raise StLogError(
+            "to_check should be a dict/list/bool/str/int/float/bool/None, found %s"
+            % type(to_check)
+        )
+    if isinstance(to_check, list):
+        for item in to_check:
+            check_json_types_or_raise(item)
+    elif isinstance(to_check, dict):
+        for key, value in to_check.items():
+            if not isinstance(key, str):
+                raise StLogError("dict keys should be str, found %s" % type(key))
+            check_json_types_or_raise(value)

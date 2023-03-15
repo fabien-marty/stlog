@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import logging
 
 from stlog import ExecutionLogContext, getLogger, setup
@@ -19,16 +20,5 @@ ExecutionLogContext.add(bar="foo")
 ExecutionLogContext.add(y=456)
 
 # from a view, import a logger and log with custom extra kv
-logger = getLogger(__name__)
-logger.info("It works", foo="bar", x=123)
-# {"message": "It works", "bar": "foo", "y": 456, "foo": "bar", "x": 123, "timestamp": "2023-02-18T12:35:50.184540+00:00", "status": "info", "logger": {"name": "__main__"}}
-
-
-def foo():
-    try:
-        1 / 0
-    except ZeroDivisionError:
-        logger.critical("exception catched", exc_info=True)
-
-
-foo()
+logger = getLogger(__name__, foo="bar", fabien=datetime.datetime.now())
+logger.info("It works", foo2="bar", fabien=datetime.datetime.now())

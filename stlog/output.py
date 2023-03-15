@@ -92,8 +92,8 @@ class Stream(Output):
 
     Attributes:
         stream: the stream to use (`typing.TextIO`), default to `sys.stderr`.
-        use_fancy_rich_output: if None, use fancy rich output if possible (rich installed and supported tty),
-            if True/False force the usage (or not).
+        use_rich: if None, use [rich output](https://github.com/Textualize/rich/blob/master/README.md) if possible
+        (rich installed and supported tty), if True/False force the usage (or not).
 
     """
 
@@ -103,31 +103,32 @@ class Stream(Output):
 
     def __post_init__(self):
         self._resolve_rich()
-        self._set_default_formatter_if_not_set()
-        self._set_stream_handler()
+        auto_set = self._set_default_formatter_if_not_set()
+        self._set_stream_handler(auto_set)
 
     def _resolve_rich(self) -> None:
-        self._use_rich = False
-        if self.use_rich is True:
-            self._use_rich = True
-        elif self._use_rich is None:
-            # Automatic
+        if self.use_rich is not None:
+            # manual mode
+            self._use_rich = self.use_rich
+        else:
+            # automatic mode
             if RICH_INSTALLED:
                 from rich.console import Console
 
-                c = Console(self.stream)
-                self._use_rich = c.is_terminal()
+                c = Console(file=self.stream)
+                self._use_rich = c.is_terminal
 
-    def _set_default_formatter_if_not_set(self) -> None:
+    def _set_default_formatter_if_not_set(self) -> bool:
         if self.formatter is not None:
-            return
+            return False
         if self._use_rich:
             self.formatter = HumanFormatter(fmt=DEFAULT_STLOG_RICH_FORMAT)
         else:
             self.formatter = HumanFormatter(fmt=DEFAULT_STLOG_HUMAN_FORMAT)
+        return True
 
-    def _set_stream_handler(self) -> None:
-        if self._use_rich:
+    def _set_stream_handler(self, formatter_automatically_set: bool) -> None:
+        if self.use_rich or (self._use_rich is True and formatter_automatically_set):
             self._set_rich_stream_handler(force_terminal=self.use_rich is True)
         else:
             self._set_standard_stream_handler()

@@ -4,7 +4,7 @@ import collections
 import logging
 import typing
 
-from stlog.base import RESERVED_ATTRS, STLOG_EXTRA_KEY
+from stlog.base import RESERVED_ATTRS, STLOG_EXTRA_KEY, check_json_types_or_raise
 from stlog.context import ExecutionLogContext
 
 
@@ -23,8 +23,11 @@ class _KeywordArgumentAdapter(logging.LoggerAdapter):
         # Make a new extra dictionary combining the values we were
         # given when we were constructed and anything from kwargs.
         if self.extra is not None:
+            # kvs passed during getLogger() call
+            check_json_types_or_raise(self.extra)
             extra = dict(self.extra)
         if "extra" in kwargs:
+            # not sure about which case is handled here
             extra.update(kwargs.pop("extra"))
         # Move any unknown keyword arguments into the extra
         # dictionary.
@@ -38,7 +41,7 @@ class _KeywordArgumentAdapter(logging.LoggerAdapter):
 
 
 class StLogLoggerAdapter(_KeywordArgumentAdapter):
-    """stlog LoggerAdapter with ExecutionLogContext support."""
+    """stlog `LoggerAdapter` with `stlog.ExecutionLogContext` support."""
 
     def process(
         self, msg: typing.Any, kwargs: collections.abc.MutableMapping[str, typing.Any]
@@ -48,11 +51,11 @@ class StLogLoggerAdapter(_KeywordArgumentAdapter):
 
 
 def getLogger(name: str | None = None, **kwargs) -> StLogLoggerAdapter:  # noqa: N802
-    """Return a standard logger (adapted for stlog and ExecutionLogContext support).
+    """Return a standard logger (adapted for `stlog` and `stlog.ExecutionLogContext` support).
 
-    You can pass some context key/values in **kwargs which will be specific to this logger.
+    You can pass some context key/values in `**kwargs` which will be specific to this logger.
 
-    If you want to set more globally available context, use ExecutionLogContext class.
+    If you want to set more globally available context, use `stlog.ExecutionLogContext` class.
 
     Args:
         name: logger name.

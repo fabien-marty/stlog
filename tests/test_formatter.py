@@ -56,9 +56,9 @@ def test_human2(log_record, human_formatter):
     log_record.key2 = 123
     log_record._key3 = 456
     res = human_formatter.format(log_record)
-    assert "[key1: value1]" in res
-    assert "[key2: 123]" in res
-    assert "[_key3: 456]" not in res
+    assert "key1=value1" in res
+    assert "key2=123" in res
+    assert "_key3=456" not in res
 
 
 def test_truncate_keys(log_record):
@@ -71,8 +71,8 @@ def test_truncate_keys(log_record):
         extra_key_max_length=5,
     )
     res = human_formatter.format(log_record)
-    assert "[abc: value1]" in res
-    assert "[ab...: value2]" in res
+    assert "abc=value1" in res
+    assert "ab...=value2" in res
 
 
 def test_json1(log_record, json_formatter):

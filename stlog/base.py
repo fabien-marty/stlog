@@ -1,18 +1,12 @@
 from __future__ import annotations
 
 import inspect
+import numbers
 import os
 from dataclasses import dataclass, field
 from typing import Any
 
 STLOG_EXTRA_KEY = "_stlog_extra"
-RICH_INSTALLED = False
-try:
-    from rich.console import Console  # noqa: F401
-
-    RICH_INSTALLED = True
-except ImportError:
-    pass
 
 
 class StLogError(Exception):
@@ -73,3 +67,39 @@ def check_json_types_or_raise(to_check: Any) -> None:
             if not isinstance(key, str):
                 raise StLogError("dict keys should be str, found %s" % type(key))
             check_json_types_or_raise(value)
+
+
+# Adapted from https://github.com/jteppinette/python-logfmter/blob/main/logfmter/formatter.py
+def logfmt_format_string(value: str) -> str:
+    needs_dquote_escaping = '"' in value
+    needs_newline_escaping = "\n" in value
+    needs_quoting = " " in value or "=" in value
+    if needs_dquote_escaping:
+        value = value.replace('"', '\\"')
+    if needs_newline_escaping:
+        value = value.replace("\n", "\\n")
+    if needs_quoting:
+        value = f'"{value}"'
+    return value if value else '""'
+
+
+# Adapted from https://github.com/jteppinette/python-logfmter/blob/main/logfmter/formatter.py
+def logfmt_format_value(value: Any) -> str:
+    if value is None:
+        return ""
+    elif isinstance(value, bool):
+        return "true" if value else "false"
+    elif isinstance(value, numbers.Number):
+        return str(value)
+    return logfmt_format_string(str(value))
+
+
+# Adapted from https://github.com/jteppinette/python-logfmter/blob/main/logfmter/formatter.py
+def logfmt_format(kvs: dict[str, Any], ignore_compound_types: bool = True) -> str:
+    return " ".join(
+        [
+            f"{key}={logfmt_format_value(value)}"
+            for key, value in kvs.items()
+            if not ignore_compound_types or (not isinstance(value, (dict, list, set)))
+        ]
+    )

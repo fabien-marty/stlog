@@ -3,18 +3,22 @@ from __future__ import annotations
 import fnmatch
 import json
 import logging
+import os
 import re
 import time
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Callable, Literal, Sequence
 
-from stlog.base import STLOG_EXTRA_KEY
+from stlog.base import STLOG_EXTRA_KEY, logfmt_format
 
 DEFAULT_STLOG_HUMAN_FORMAT = (
-    "%(asctime)s %(slevel_name)-10.10s %(name)s#%(process)d: %(message)s %(extras)s"
+    "%(asctime)s %(slevel_name)-10.10s (%(name)s) %(message)s%(extras)s"
 )
-DEFAULT_STLOG_RICH_FORMAT = "%(name)s#%(process)d: %(message)s %(extras)s"
 DEFAULT_STLOG_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES = os.environ.get(
+    "STLOG_LOGFMT_IGNORE_COMPOUND_TYPES", "1"
+).lower() in ("1", "true", "yes")
 
 
 def _truncate_str(str_value: str, limit: int = 0) -> str:
@@ -42,7 +46,8 @@ class Formatter(logging.Formatter):
         datefmt: the format to use for `%(asctime)s` placeholder.
         include_extras_keys_fnmatchs: fnmatch patterns list for including keys in `%(extras)s` placeholder.
         exclude_extras_keys_fnmatchs: fnmatch patterns list for excluding keys in `%(extras)s` placeholder.
-        extra_key_rename_fn: FIXME
+        extra_key_rename_fn: callable which takes a key name and return a renamed key to use
+            (or None to ignore the key/value).
         extra_key_max_length: maximum size of extra keys to be included in `%(extras)s` placeholder
             (after this limit, the value will be truncated and ... will be added at the end, 0 means "no limit").
         converter: time converter function (use `time.gmtime` (default) for UTC date/times, use `time.time`
@@ -89,12 +94,83 @@ class Formatter(logging.Formatter):
         return _truncate_str(new_extra_key, self.extra_key_max_length)
 
 
+@dataclass
+class KVFormatter(ABC):
+    """Abstract base class to format extras key-values."""
+
+    @abstractmethod
+    def format(self, kvs: dict[str, Any]) -> str:
+        pass
+
+
+# Adapted from https://github.com/Mergifyio/daiquiri/blob/main/daiquiri/formatter.py
+@dataclass
+class TemplateKVFormatter(KVFormatter):
+    """Class to format extra key-values as a string with templates.
+
+    Extra keywords are merged into a `%(extras)s` placeholder.
+
+    Example::
+
+        {foo="bar", foo2=123}
+
+    will be formatted as:
+
+        [foo: bar] [foo2: 123]
+
+    Attributes:
+        extras_template: the template to format a key/value:
+            `{0}` placeholder is the key, `{1}` is the value.
+        extras_separator: the separator between multiple key/values.
+        extras_prefix: the prefix before key/value parts.
+        extras_suffix: the suffix after key/values parts.
+        extra_value_max_serialized_length: maximum size of extra values to be included in `%(extras)s` placeholder
+            (after this limit, the value will be truncated and ... will be added at the end, 0 means "no limit").
+
+    """
+
+    extras_template: str = "[{0}: {1}]"
+    extras_separator: str = " "
+    extras_prefix: str = " "
+    extras_suffix: str = ""
+    extra_value_max_serialized_length: int = 40
+
+    def format(self, kvs: dict[str, Any]) -> str:
+        res: str = ""
+        tmp: list[str] = []
+        for k, v in sorted(kvs.items(), key=lambda x: x[0]):
+            serialized = _truncate_serialize(v, self.extra_value_max_serialized_length)
+            if serialized is None:
+                continue
+            tmp.append(self.extras_template.format(k, serialized))
+        res = self.extras_separator.join(tmp)
+        if res != "":
+            res = self.extras_prefix + res + self.extras_suffix
+        return res
+
+
+# Adapted from https://github.com/jteppinette/python-logfmter/blob/main/logfmter/formatter.py
+@dataclass
+class LogFmtKVFormatter(KVFormatter):
+    ignore_compound_types: bool = STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES
+    extras_prefix: str = " {"
+    extras_suffix: str = "}"
+
+    def format(self, kvs: dict[str, Any]) -> str:
+        tmp = logfmt_format(
+            dict(sorted(kvs.items())), ignore_compound_types=self.ignore_compound_types
+        )
+        if not tmp:
+            return ""
+        return f"{self.extras_prefix}{tmp}{self.extras_suffix}"
+
+
 # Adapted from https://github.com/Mergifyio/daiquiri/blob/main/daiquiri/formatter.py
 @dataclass
 class HumanFormatter(Formatter):
     """Formatter for a "human" output.
 
-    Extra keywords are merged into a `%(extras)s` placeholder.
+    Extra keywords are merged into a `%(extras)s` placeholder by a `stlog.formatter.KVFormatter`.
 
     If you use this placeholder on your `fmt`, any keywords
     passed to a logging call will be formatted into a "extras" string and
@@ -111,42 +187,37 @@ class HumanFormatter(Formatter):
     Note: a `%(slevel_name)s` placeholder is also added containing the uppercase
         level name under brackets, example: `[CRITICAL]`, `[WARNING]`, ...
 
+    You can change the way the `%(extras)s` placeholder is formatted
+    by providing a KVFormatter object.
+
     Attributes:
-        extras_template: the template to format a key/value.
-        extras_separator: the separator between multiple key/values.
-        extras_prefix: the prefix before key/value parts.
-        extras_suffix: the suffix after key/values parts.
-        extra_value_max_serialized_length: maximum size of extra values to be included in `%(extras)s` placeholder
-            (after this limit, the value will be truncated and ... will be added at the end, 0 means "no limit").
+        include_reserved_attrs_in_extras: automatical include some reserved
+            logrecord attributes in "extras" (example: `["process", "thread"]`).
+        kvs_formatter: key values special formatter for formatting `%(extra)s`
+            placeholder.
 
     """
 
-    extras_template: str = "[{0}: {1}]"
-    extras_separator: str = " "
-    extras_prefix: str = " "
-    extras_suffix: str = ""
-    extra_value_max_serialized_length: int = 40
+    include_reserved_attrs_in_extras: Sequence[str] = field(
+        default_factory=lambda: ["process"]
+    )
+    kvs_formatter: KVFormatter = field(default_factory=LogFmtKVFormatter)
+
+    def _make_extras_string(self, record: logging.LogRecord) -> str:
+        if not hasattr(record, STLOG_EXTRA_KEY):
+            return ""
+        kvs: dict[str, Any] = {}
+        for k in list(getattr(record, STLOG_EXTRA_KEY)) + list(
+            self.include_reserved_attrs_in_extras
+        ):
+            key = self._make_extra_key_name(k)
+            if key:
+                kvs[key] = getattr(record, k)
+        return self.kvs_formatter.format(kvs)
 
     def _add_extras(self, record: logging.LogRecord) -> None:
         record.slevel_name = f"[{record.levelname}]"
-        if not hasattr(record, STLOG_EXTRA_KEY):
-            record.extras = ""
-            return
-        tmp = []
-        for k in getattr(record, STLOG_EXTRA_KEY):
-            key = self._make_extra_key_name(k)
-            if not key:
-                continue
-            serialized = _truncate_serialize(
-                getattr(record, k), self.extra_value_max_serialized_length
-            )
-            if serialized is None:
-                continue
-            tmp.append(self.extras_template.format(key, serialized))
-        extras = self.extras_separator.join(tmp)
-        if extras != "":
-            extras = self.extras_prefix + extras + self.extras_suffix
-        record.extras = extras
+        record.extras = self._make_extras_string(record)
 
     def _remove_extras(self, record: logging.LogRecord) -> None:
         delattr(record, "extras")
@@ -160,6 +231,7 @@ class HumanFormatter(Formatter):
 
 
 def json_formatter_default_extra_key_rename_fn(key: str) -> str | None:
+    """Simple "extra_key_rename" function to remove leading underscores."""
     if key.startswith("_"):
         return key[1:]
     return key
@@ -176,7 +248,7 @@ class JsonFormatter(Formatter):
     ] | None = json_formatter_default_extra_key_rename_fn
 
     def json_serialize(self, message_dict: dict[str, Any]) -> str:
-        return json.dumps(message_dict, default=lambda x: "[can't serialize]")
+        return json.dumps(message_dict, default=_truncate_serialize)
 
     def format(self, record: logging.LogRecord) -> str:
         message_dict: dict[str, Any] = {

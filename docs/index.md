@@ -1,16 +1,10 @@
 # Home
 
-## What is it?
-
-**ST**andard **ST**ructured **LOG** Python 3.7+ logging library built on [standard python logging](https://docs.python.org/3/library/logging.html) and [contextvars](https://docs.python.org/3/library/contextvars.html) which produces great output for humans and for machines.
-
-This library believes in (Twelve-Factor App)[https://12factor.net/] principles about config and logs.
-
-The library is **dependency free** but:
-
-- borrows plenty of ideas and code from [daiquiri](https://github.com/Mergifyio/daiquiri) library (thanks to [Mergify](https://mergify.com/) and [Julien DANJOU](https://julien.danjou.info/).
-- borrows some code from [python-json-logger](https://github.com/madzak/python-json-logger) (thanks to [Zakaria ZAJAC](https://github.com/madzak))
-- can use fancy stuff (colors, augmented traceback...) from the [rich library](https://github.com/Textualize/rich) *(only if installed)*
+{!
+    include-markdown "../README.md.j2"
+    start="<!--intro-start-->"
+    end="<!--intro-end-->"
+!}
 
 ## Features
 
@@ -109,4 +103,5 @@ setup(
 ## Roadmap
 
 - [ ] add `file` outputs
-- [ ] add `logfmt` formatter
+- [ ] add a full `logfmt` formatter
+

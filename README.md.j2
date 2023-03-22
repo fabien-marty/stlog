@@ -1,7 +1,3 @@
-
-<!-- WARNING: generated from README.md.j2, do not modify this file manually but modify README.md.j2 instead
-     and execute 'poetry run poe make_readme' to regenerate this README.md file -->
-
 # stlog
 
 <!--intro-start-->
@@ -10,30 +6,30 @@
 
 **ST**andard **ST**ructured **LOG** (`stlog`) is Python 3.7+ structured logging library:
 
-- built on [standard python logging](https://docs.python.org/3/library/logging.html) and [contextvars](https://docs.python.org/3/library/contextvars.html)
+- built on {{pythonlogging}} and {{contextvars}}
 - very easy to configure with "good" default values
 - which produces great output **for both humans and machines**
-- which believes in [Twelve-Factor App](https://12factor.net/) principles about config and logs
+- which believes in {{twelvefactorapp}} principles about config and logs
 - dependency free 
-- which can use fancy stuff (colors, augmented traceback...) from the [rich library](https://github.com/Textualize/rich) *(if installed)*
+- which can use fancy stuff (colors, augmented traceback...) from the {{rich}} *(if installed)*
 
 ## Features
 
-- standard, standard, standard: all stlog objects are built on [standard python logging](https://docs.python.org/3/library/logging.html) and are compatible
+- standard, standard, standard: all stlog objects are built on {{pythonlogging}} and are compatible
 with other existing handlers, formatters... or libraries which are using a standard logger
 - structured with 3 levels of context you can choose or combine:
     - a kind of global one (thanks to [contextvars](https://docs.python.org/3/library/contextvars.html)
     - a context linked to the logger object itself (defined during its building)
     - a context linked to the log message itself
 - be able to reinject the global context in log records produced by libraries which don't use `stlog` explicitely
-- a lot of configuration you can do with environment variables (in the spirit of [Twelve-Factor App](https://12factor.net/) principles)
+- a lot of configuration you can do with environment variables (in the spirit of {{twelvefactorapp}} principles)
 
 ## Non-Features
 
 - "A twelve-factor app never concerns itself with routing or storage of its output stream." 
     - we make an exception on this for log files
     - but we don't want to introduce complex/network outputs like syslog, elasticsearch, loki...
-- standard, standard, standard: we do not want to move away from [standard python logging](https://docs.python.org/3/library/logging.html) compatibility 
+- standard, standard, standard: we do not want to move away from {{pythonlogging}} compatibility 
 
 ## What is *structured logging*?
 
@@ -65,7 +61,7 @@ The library has no dependency but:
 - borrows plenty of ideas and code from [daiquiri](https://github.com/Mergifyio/daiquiri) library (thanks to [Mergify](https://mergify.com/) and [Julien DANJOU](https://julien.danjou.info/).
 - borrows some code from [python-json-logger](https://github.com/madzak/python-json-logger) (thanks to [Zakaria ZAJAC](https://github.com/madzak))
 - borrows some code from [python-logmter](https://github.com/jteppinette/python-logfmter) (thanks to [Joshua Taylor Eppinette](https://github.com/jteppinette))
-- can use fancy stuff (colors, augmented traceback...) from the [rich library](https://github.com/Textualize/rich) *(only if installed)*
+- can use fancy stuff (colors, augmented traceback...) from the {{rich}} *(only if installed)*
 
 ## Quickstart
 
@@ -125,3 +121,4 @@ setup(
 
 - [ ] add `file` outputs
 - [ ] add a full `logfmt` formatter
+

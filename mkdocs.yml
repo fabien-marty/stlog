@@ -38,3 +38,4 @@ extra:
   pythonlogging: "[standard python logging](https://docs.python.org/3/library/logging.html)"
   contextvars: "[contextvars](https://docs.python.org/3/library/contextvars.html)"
   rich: "[rich library](https://github.com/Textualize/rich)"
+  pathprefix: ""

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import json
 import numbers
 import os
 from dataclasses import dataclass, field
@@ -103,3 +104,50 @@ def logfmt_format(kvs: dict[str, Any], ignore_compound_types: bool = True) -> st
             if not ignore_compound_types or (not isinstance(value, (dict, list, set)))
         ]
     )
+
+
+def _get_env_json_context() -> dict[str, Any]:
+    """FIXME"""
+    env_key = "STLOG_ENV_JSON_CONTEXT"
+    env_context = os.environ.get(env_key, None)
+    if env_context is not None:
+        try:
+            return json.loads(env_context)
+        except Exception:
+            print(
+                f"WARNING: can't load {env_key} env var value as valid JSON => ignoring"
+            )
+    return {}
+
+
+def _get_env_context() -> dict[str, Any]:
+    prefix = "STLOG_ENV_CONTEXT_"
+    res: dict[str, Any] = {}
+    for env_key in os.environ.keys():
+        if not env_key.startswith(prefix):
+            continue
+        key = env_key[len(prefix) :].lower()
+        if not key:
+            continue
+        res[key] = os.environ[env_key]
+    return res
+
+
+def get_env_context() -> dict[str, Any]:
+    if os.environ.get("STLOG_IGNORE_ENV_CONTEXT", "0").lower().strip() in (
+        "1",
+        "true",
+        "yes",
+    ):
+        return {}
+    env_context = {**_get_env_context(), **_get_env_json_context()}
+    for key in env_context.keys():
+        if key in RESERVED_ATTRS:
+            raise StLogError("key: %s is not allowed (reserved key)", key)
+        if not isinstance(key, str):
+            raise StLogError("key: %s must be str", key)
+        if not key.isidentifier():
+            raise StLogError(
+                "key: %s not allowed (must be a valid python identifier)", key
+            )
+    return env_context

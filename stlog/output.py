@@ -106,7 +106,7 @@ class RichStreamOutput(StreamOutput):
 
 def make_stream_or_rich_stream_output(
     stream: typing.TextIO = sys.stderr,
-    use_rich: bool | None = None,
+    use_rich: bool | None = DEFAULT_USE_RICH,
     force_terminal: bool = False,
 ) -> StreamOutput:
     """FIXME

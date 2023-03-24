@@ -5,9 +5,17 @@ from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from typing import Any, Mapping
 
-from stlog.base import RESERVED_ATTRS, StLogError, check_json_types_or_raise
+from stlog.base import (
+    RESERVED_ATTRS,
+    StLogError,
+    check_json_types_or_raise,
+    get_env_context,
+)
 
-_LOGGING_CONTEXT_VAR: ContextVar = ContextVar("stlog_logging_context", default={})
+ENV_CONTEXT = get_env_context()
+_LOGGING_CONTEXT_VAR: ContextVar = ContextVar(
+    "stlog_logging_context", default=ENV_CONTEXT
+)
 
 
 class ExecutionLogContext:
@@ -23,7 +31,7 @@ class ExecutionLogContext:
     @classmethod
     def reset_context(cls) -> None:
         """Reset the execution log context."""
-        _LOGGING_CONTEXT_VAR.set({})
+        _LOGGING_CONTEXT_VAR.set(ENV_CONTEXT)
 
     @classmethod
     def _add(cls, **kwargs: Any) -> Token:

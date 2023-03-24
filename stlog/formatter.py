@@ -198,9 +198,7 @@ class HumanFormatter(Formatter):
 
     """
 
-    include_reserved_attrs_in_extras: Sequence[str] = field(
-        default_factory=lambda: ["process"]
-    )
+    include_reserved_attrs_in_extras: Sequence[str] = field(default_factory=list)
     kvs_formatter: KVFormatter = field(default_factory=LogFmtKVFormatter)
 
     def _make_extras_string(self, record: logging.LogRecord) -> str:

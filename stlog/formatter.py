@@ -3,22 +3,21 @@ from __future__ import annotations
 import fnmatch
 import json
 import logging
-import os
 import re
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Callable, Literal, Sequence
 
-from stlog.base import STLOG_EXTRA_KEY, logfmt_format
+from stlog.base import STLOG_EXTRA_KEY, check_env_true, logfmt_format
 
 DEFAULT_STLOG_HUMAN_FORMAT = (
     "%(asctime)s %(slevel_name)-10.10s (%(name)s) %(message)s%(extras)s"
 )
 DEFAULT_STLOG_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
-STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES = os.environ.get(
-    "STLOG_LOGFMT_IGNORE_COMPOUND_TYPES", "1"
-).lower() in ("1", "true", "yes")
+STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES = check_env_true(
+    "STLOG_LOGFMT_IGNORE_COMPOUND_TYPES", True
+)
 
 
 def _truncate_str(str_value: str, limit: int = 0) -> str:

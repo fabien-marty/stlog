@@ -65,9 +65,39 @@
 pip install stlog
 ```
 
-### Usage
+### Basic usage
 
 ```python
+from __future__ import annotations
+
+from stlog import getLogger, setup
+
+# Set the logging default configuration (human output on stderr)
+setup()
+
+# Get a logger
+logger = getLogger(__name__)
+logger.info("It works", foo="bar", x=123)
+logger.critical("Houston, we have a problem!")
+ 
+```
+
+Output (without `rich` library installed):
+```
+2023-03-27T10:20:15Z [INFO]     (__main__) It works {foo=bar x=123}
+2023-03-27T10:20:15Z [CRITICAL] (__main__) Houston, we have a problem!
+ 
+```
+
+Output (with `rich` library installed):
+![rich output](docs/python/qs1.svg)
+ 
+
+### Usage with context
+
+```python
+from __future__ import annotations
+
 from stlog import ExecutionLogContext, getLogger, setup
 
 # Set the logging default configuration (human output on stderr)
@@ -89,18 +119,19 @@ ExecutionLogContext.add(client_id=456, http_method="GET")
 logger = getLogger(__name__)
 logger.info("It works", foo="bar", x=123)
 logger.critical("Houston, we have a problem!")
+ 
 ```
 
 Output (without `rich` library installed):
-
 ```
-2023-03-24T12:47:37Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
-2023-03-24T12:47:38Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
+2023-03-27T10:20:16Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
+2023-03-27T10:20:16Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
+ 
 ```
 
 Output (with `rich` library installed):
-
-![richoutput](docs/img/rich1.png)
+![rich output](docs/python/qs2.svg)
+ 
 
 What about if you want to get a more parsing friendly output (for example in JSON on `stdout`) while keeping the human output on `stderr` (without any context)?
 

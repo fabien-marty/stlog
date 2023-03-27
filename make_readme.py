@@ -32,7 +32,10 @@ env = jinja2.Environment(
     extensions=["jinja2_shell_extension.ShellExtension"],
 )
 template = env.get_template("README.md.j2")
-res = template.render(**get_variables())
+variables = get_variables()
+if len(sys.argv) >= 2 and sys.argv[1] == "lint":  # noqa: PLR2004
+    variables["linting"] = "--linting"
+res = template.render(**variables)
 res = (
     """
 <!-- WARNING: generated from README.md.j2, do not modify this file manually but modify README.md.j2 instead
@@ -41,7 +44,7 @@ res = (
 """
     + res
 )
-if len(sys.argv) >= 2 and sys.argv[1] == "lint":  # noqa: PLR2004
+if variables.get("linting"):
     with open("README.md") as f:
         to_compare = f.read().strip()
     if get_special_hash(to_compare) != get_special_hash(res.strip()):

@@ -244,9 +244,15 @@ class JsonFormatter(Formatter):
         [str], str | None
     ] | None = json_formatter_default_extra_key_rename_fn
     indent: int | None = None
+    sort_keys: bool = True
 
     def json_serialize(self, message_dict: dict[str, Any]) -> str:
-        return json.dumps(message_dict, indent=self.indent, default=_truncate_serialize)
+        return json.dumps(
+            message_dict,
+            indent=self.indent,
+            sort_keys=self.sort_keys,
+            default=_truncate_serialize,
+        )
 
     def format(self, record: logging.LogRecord) -> str:
         message_dict: dict[str, Any] = {

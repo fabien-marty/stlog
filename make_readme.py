@@ -12,7 +12,11 @@ YEAR = datetime.datetime.utcnow().year
 
 
 def get_special_hash(content: str) -> str:
-    to_hash = [x for x in content.splitlines() if not x.startswith(str(YEAR) + "-")]
+    to_hash = [
+        x
+        for x in content.splitlines()
+        if (str(YEAR) + "-") not in x and "process" not in x and "thread" not in x
+    ]
     return hashlib.sha1("\n".join(to_hash).encode("utf-8")).hexdigest()
 
 

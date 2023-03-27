@@ -39,6 +39,7 @@ ignore = [
 ]
 line-length = 88
 target-version = "py37"
+extend-exclude = ["docs/python"]
 
 [tool.ruff.isort]
 required-imports = ["from __future__ import annotations"]

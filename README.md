@@ -82,8 +82,8 @@ logger.critical("Houston, we have a problem!")
 
 Output (without `rich` library installed):
 ```
-2023-03-27T19:01:10Z [INFO]     (__main__) It works {foo=bar x=123}
-2023-03-27T19:01:10Z [CRITICAL] (__main__) Houston, we have a problem!
+2023-03-27T19:05:24Z [INFO]     (__main__) It works {foo=bar x=123}
+2023-03-27T19:05:24Z [CRITICAL] (__main__) Houston, we have a problem!
  
 ```
 
@@ -120,8 +120,8 @@ logger.critical("Houston, we have a problem!")
 
 Output (without `rich` library installed):
 ```
-2023-03-27T19:01:10Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
-2023-03-27T19:01:10Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
+2023-03-27T19:05:24Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
+2023-03-27T19:05:24Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
  
 ```
 
@@ -159,8 +159,8 @@ logger.critical("Houston, we have a problem!")
 
 Human output (on `stderr`):
 ```
-2023-03-27T19:01:10Z [INFO]     (__main__) It works
-2023-03-27T19:01:10Z [CRITICAL] (__main__) Houston, we have a problem!
+2023-03-27T19:05:25Z [INFO]     (__main__) It works
+2023-03-27T19:05:25Z [CRITICAL] (__main__) Houston, we have a problem!
  
 ```
 
@@ -180,14 +180,14 @@ JSON ouput (on `stdout`) for machines:
         "funcName": "<module>",
         "lineno": 21,
         "module": "qs3",
-        "path": "/home/fab/src/standard-structlog/docs/python/qs3.py",
-        "process": 2745960,
+        "path": "/path/docs/python/qs3.py",
+        "process": 2746567,
         "processName": "MainProcess",
-        "thread": 139708325332800,
+        "thread": 140030778685248,
         "threadName": "MainThread"
     },
     "status": "info",
-    "timestamp": "2023-03-27T19:01:10Z",
+    "timestamp": "2023-03-27T19:05:25Z",
     "x": 123
 }
 {
@@ -202,14 +202,14 @@ JSON ouput (on `stdout`) for machines:
         "funcName": "<module>",
         "lineno": 22,
         "module": "qs3",
-        "path": "/home/fab/src/standard-structlog/docs/python/qs3.py",
-        "process": 2745960,
+        "path": "/path/docs/python/qs3.py",
+        "process": 2746567,
         "processName": "MainProcess",
-        "thread": 139708325332800,
+        "thread": 140030778685248,
         "threadName": "MainThread"
     },
     "status": "critical",
-    "timestamp": "2023-03-27T19:01:10Z"
+    "timestamp": "2023-03-27T19:05:25Z"
 }
  
 ```

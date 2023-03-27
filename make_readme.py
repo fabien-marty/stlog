@@ -6,8 +6,10 @@ from typing import Any
 
 import jinja2
 from yaml import Loader, load
+import os
 
 YEAR = datetime.datetime.utcnow().year
+PWD = os.getcwd()
 
 
 def compare_lines(content1: str, content2: str) -> bool:
@@ -18,6 +20,8 @@ def compare_lines(content1: str, content2: str) -> bool:
         if "process" in tpl[0]:
             continue
         if "thread" in tpl[0]:
+            continue
+        if "path" in tpl[0]:
             continue
         if len(tpl) != 2:
             print("missing line")
@@ -59,4 +63,4 @@ if variables.get("linting"):
         sys.exit(1)
 else:
     with open("README.md", "w") as f:
-        f.write(res)
+        f.write(res.replace(PWD, "/path"))

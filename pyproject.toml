@@ -39,7 +39,7 @@ ignore = [
 ]
 line-length = 88
 target-version = "py37"
-extend-exclude = ["docs/python"]
+extend-exclude = ["docs/python", "html"]
 
 [tool.ruff.isort]
 required-imports = ["from __future__ import annotations"]
@@ -68,3 +68,5 @@ test = "pytest ."
 _make_coverage = "pytest --no-cov-on-fail --cov=stlog --cov-report=term --cov-report=html tests/"
 coverage = ["_clean_coverage", "_make_coverage"]
 
+[tool.mypy]
+exclude = ['^html/.*']

@@ -26,7 +26,7 @@ def output_and_exit(pathprefix: str, newname: str):
     sys.exit(0)
 
 
-if args.linting:
+if args.linting or os.environ.get("CI", "false") == "true":
     output_and_exit(args.pathprefix, newname)
 
 rndint = random.randint(0, 1000000)
@@ -34,9 +34,7 @@ tmpdir = os.path.join(SCRIPT_DIR, f"termtosvg.{rndint}")
 output = f"termtosvg.{rndint}.output"
 os.system(f"rm -Rf {tmpdir} {output}")
 cmd = f"termtosvg --still-frames --screen-geometry '{args.columns}x{args.lines}' --template=solarized_light --command 'python -u {path}' '{tmpdir}' >'{output}' 2>&1"
-print(cmd)
 rc = os.system(cmd)
-os.system(f"cat {output}")
 if rc != 0:
     print("ERROR during termtosvh, output:")
     os.system(f"cat {output}")
@@ -44,7 +42,6 @@ if rc != 0:
 
 print(list(glob.glob(os.path.join(tmpdir, "*.svg"))))
 svg = sorted(glob.glob(os.path.join(tmpdir, "*.svg")))[-1]
-print(svg)
 os.system(f"cp -f {svg} {newpath}")
 os.system(f"rm -Rf {tmpdir} {output}")
 output_and_exit(args.pathprefix, newname)

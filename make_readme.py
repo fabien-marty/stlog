@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import datetime
+import os
 import sys
 from typing import Any
 
 import jinja2
 from yaml import Loader, load
-import os
 
 YEAR = datetime.datetime.utcnow().year
 PWD = os.getcwd()

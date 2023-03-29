@@ -4,10 +4,10 @@ import logging
 
 from stlog.base import (
     STLOG_EXTRA_KEY,
+    StLogError,
     _dump_exception_on_console,
 )
 from stlog.context import ExecutionLogContext
-from stlog.formatter import HumanFormatter
 
 
 class ContextReinjectHandlerWrapper(logging.Handler):
@@ -43,36 +43,12 @@ class CustomRichHandler(logging.Handler):
         super().__init__(level=level)
 
     def emit(self, record: logging.LogRecord):
-        from rich.table import Table
-        from rich.text import Text
-
-        lll = record.levelname.lower()
-        llu = lll.upper()
-        name = record.name
-        assert isinstance(self.formatter, HumanFormatter)
-        ts = self.formatter.formatTime(record, datefmt=self.formatter.datefmt)
-        msg = record.getMessage()
-        extra = self.formatter._make_extras_string(record)
-        if lll in ["notset", "debug", "info", "warning", "error", "critical"]:
-            ls = "logging.level.%s" % lll
-        else:
-            ls = "none"
-        output = Table(show_header=False, expand=True, box=None, padding=(0, 1, 0, 0))
-        output.add_column(style="log.time")
-        output.add_column(width=10, justify="center")
-        output.add_column(justify="center")
-        output.add_column(ratio=1)
-        row = []
-        row.append(Text(ts))
-        row.append(Text(llu, style=ls))
-        row.append(Text(name, style="bold"))
-        row.append(Text(msg))
-        output.add_row(*row)
-        if extra != "":
-            output.add_row("", "", "", Text(extra, style="repr.attrib_name"))
-        self.console.print(output)
+        if self.formatter is None:
+            raise StLogError("no formatted set")
+        self.console.print(self.formatter.format(record))
         if record.exc_info:
             exc_type, exc_value, exc_traceback = record.exc_info
             assert exc_type is not None
             assert exc_value is not None
+            # FIXME: use rich console
             _dump_exception_on_console(exc_type, exc_value, exc_traceback)

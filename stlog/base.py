@@ -4,11 +4,12 @@ import inspect
 import json
 import numbers
 import os
+import re
 import sys
 import traceback
 import types
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Callable, Match
 
 STLOG_EXTRA_KEY = "_stlog_extra"
 RICH_AVAILABLE = False
@@ -117,6 +118,17 @@ def logfmt_format(kvs: dict[str, Any], ignore_compound_types: bool = True) -> st
     )
 
 
+# Adapted from https://github.com/jteppinette/python-logfmter/blob/main/logfmter/formatter.py
+def rich_logfmt_format(kvs: dict[str, Any], ignore_compound_types: bool = True) -> str:
+    return " ".join(
+        [
+            f"[repr.attrib_name]{key}[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]{logfmt_format_value(value)}[/repr.attrib_value]"
+            for key, value in kvs.items()
+            if not ignore_compound_types or (not isinstance(value, (dict, list, set)))
+        ]
+    )
+
+
 def _get_env_json_context() -> dict[str, Any]:
     env_key = "STLOG_ENV_JSON_CONTEXT"
     env_context = os.environ.get(env_key, None)
@@ -197,3 +209,22 @@ def _dump_exception_on_console(
         )
     else:
         print("".join(traceback.format_exception(exc_type, value, tb)), file=sys.stderr)
+
+
+_ReStringMatch = Match[str]  # regex match object
+_ReSubCallable = Callable[[_ReStringMatch], str]  # Callable invoked by re.sub
+_EscapeSubMethod = Callable[[_ReSubCallable, str], str]  # Sub method of a compiled re
+
+
+# Stolen from https://github.com/Textualize/rich/blob/master/rich/markup.py
+def rich_markup_escape(
+    markup: str,
+    _escape: _EscapeSubMethod = re.compile(r"(\\*)(\[[a-z#/@][^[]*?])").sub,
+) -> str:
+    def escape_backslashes(match: Match[str]) -> str:
+        """Called by re.sub replace matches."""
+        backslashes, text = match.groups()
+        return f"{backslashes}{backslashes}\\{text}"
+
+    markup = _escape(escape_backslashes, markup)
+    return markup

@@ -9,11 +9,16 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Callable, Literal, Sequence
 
-from stlog.base import STLOG_EXTRA_KEY, check_env_true, logfmt_format
-
-DEFAULT_STLOG_HUMAN_FORMAT = (
-    "%(asctime)s %(slevel_name)-10.10s (%(name)s) %(message)s%(extras)s"
+from stlog.base import (
+    STLOG_EXTRA_KEY,
+    check_env_true,
+    logfmt_format,
+    rich_logfmt_format,
+    rich_markup_escape,
 )
+
+DEFAULT_STLOG_HUMAN_FORMAT = "{asctime} {name} {slevelname:^10s} {message}{extras}"
+DEFAULT_STLOG_RICH_HUMAN_FORMAT = ":arrow_forward: [log.time]{asctime}[/log.time] {name} [{rich_level_style}]{levelname:^8s}[/{rich_level_style}] [bold]{rich_escaped_message}[/bold]{extras}"
 DEFAULT_STLOG_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES = check_env_true(
     "STLOG_LOGFMT_IGNORE_COMPOUND_TYPES", True
@@ -56,7 +61,7 @@ class Formatter(logging.Formatter):
 
     fmt: str | None = DEFAULT_STLOG_HUMAN_FORMAT
     datefmt: str | None = DEFAULT_STLOG_DATE_FORMAT
-    style: Literal["%", "{", "$"] = "%"
+    style: Literal["%", "{", "$"] = "{"
     validate: bool = True
     include_extras_keys_fnmatchs: Sequence[str] = ("*",)
     exclude_extras_keys_fnmatchs: Sequence[str] = ("_*",)
@@ -155,13 +160,27 @@ class LogFmtKVFormatter(KVFormatter):
     extras_prefix: str = " {"
     extras_suffix: str = "}"
 
-    def format(self, kvs: dict[str, Any]) -> str:
-        tmp = logfmt_format(
+    def _format(self, kvs: dict[str, Any]) -> str:
+        return logfmt_format(
             dict(sorted(kvs.items())), ignore_compound_types=self.ignore_compound_types
         )
+
+    def format(self, kvs: dict[str, Any]) -> str:
+        tmp = self._format(kvs)
         if not tmp:
             return ""
-        return f"{self.extras_prefix}{tmp}{self.extras_suffix}"
+        return self.extras_prefix + tmp + self.extras_suffix
+
+
+@dataclass
+class RichLogFmtKVFormatter(LogFmtKVFormatter):
+    extras_prefix: str = "\n    :arrow_right_hook: "
+    extras_suffix: str = ""
+
+    def _format(self, kvs: dict[str, Any]) -> str:
+        return rich_logfmt_format(
+            dict(sorted(kvs.items())), ignore_compound_types=self.ignore_compound_types
+        )
 
 
 # Adapted from https://github.com/Mergifyio/daiquiri/blob/main/daiquiri/formatter.py
@@ -183,7 +202,7 @@ class HumanFormatter(Formatter):
 
         [foo: bar] [foo2: 123]
 
-    Note: a `%(slevel_name)s` placeholder is also added containing the uppercase
+    Note: a `%(slevelname)s` placeholder is also added containing the uppercase
         level name under brackets, example: `[CRITICAL]`, `[WARNING]`, ...
 
     You can change the way the `%(extras)s` placeholder is formatted
@@ -213,18 +232,45 @@ class HumanFormatter(Formatter):
         return self.kvs_formatter.format(kvs)
 
     def _add_extras(self, record: logging.LogRecord) -> None:
-        record.slevel_name = f"[{record.levelname}]"
+        level = record.levelname.upper()
+        record.slevelname = f"[{level}]"
         record.extras = self._make_extras_string(record)
 
     def _remove_extras(self, record: logging.LogRecord) -> None:
         delattr(record, "extras")
-        delattr(record, "slevel_name")
+        delattr(record, "slevelname")
 
     def format(self, record: logging.LogRecord) -> str:
         self._add_extras(record)
         s = super().format(record)
         self._remove_extras(record)
         return s
+
+
+@dataclass
+class RichHumanFormatter(HumanFormatter):
+    fmt: str | None = DEFAULT_STLOG_RICH_HUMAN_FORMAT
+    kvs_formatter: KVFormatter = field(default_factory=RichLogFmtKVFormatter)
+
+    def _add_extras(self, record: logging.LogRecord) -> None:
+        super()._add_extras(record)
+        record.rich_escaped_message = rich_markup_escape(record.getMessage())
+        record.rich_escaped_extras = rich_markup_escape(record.extras)  # type: ignore
+        level = record.levelname.lower()
+        if level in ["notset", "debug", "info", "critical"]:
+            record.rich_level_style = "logging.level.%s" % level
+        elif level == "warning":
+            record.rich_level_style = "logging.level.error"
+        elif level == "error":
+            record.rich_level_style = "logging.level.critical"
+        else:
+            record.rich_level_style = "logging.level.none"
+
+    def _remove_extras(self, record: logging.LogRecord) -> None:
+        delattr(record, "rich_escaped_message")
+        delattr(record, "rich_level_style")
+        delattr(record, "rich_escaped_extras")
+        super()._remove_extras(record)
 
 
 def json_formatter_default_extra_key_rename_fn(key: str) -> str | None:

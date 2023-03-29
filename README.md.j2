@@ -72,7 +72,7 @@ pip install stlog
 Output (without `rich` library installed):
 
 ```
-{{ "python docs/python/qs1.py" |shell(die_on_error=True) }} 
+{{ "STLOG_USE_RICH=0 ; python docs/python/qs1.py" |shell(die_on_error=True) }} 
 ```
 
 Output (with `rich` library installed):
@@ -88,7 +88,7 @@ Output (with `rich` library installed):
 Output (without `rich` library installed):
 
 ```
-{{ "python docs/python/qs2.py" |shell(die_on_error=True) }} 
+{{ "STLOG_USE_RICH=0 ; python docs/python/qs2.py" |shell(die_on_error=True) }} 
 ```
 
 Output (with `rich` library installed):

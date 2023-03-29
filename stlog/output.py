@@ -11,6 +11,7 @@ from stlog.base import StLogError
 from stlog.formatter import (
     HumanFormatter,
     LogFmtKVFormatter,
+    RichHumanFormatter,
 )
 from stlog.handler import CustomRichHandler
 
@@ -99,7 +100,9 @@ class RichStreamOutput(StreamOutput):
         if not RICH_INSTALLED:
             raise StLogError("Rich is not installed and RichStreamOutput is specified")
         c = Console(
-            file=self.stream, force_terminal=True if self.force_terminal else None
+            file=self.stream,
+            force_terminal=True if self.force_terminal else None,
+            highlight=False,
         )
         self.set_handler(CustomRichHandler(console=c))
 
@@ -126,6 +129,8 @@ def make_stream_or_rich_stream_output(
             c = Console(file=stream)
             _use_rich = c.is_terminal
     if _use_rich:
-        return RichStreamOutput(stream=stream, force_terminal=force_terminal)
+        return RichStreamOutput(
+            stream=stream, force_terminal=force_terminal, formatter=RichHumanFormatter()
+        )
     else:
         return StreamOutput(stream=stream)

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import os
+
 from jinja2_shell_extension import shell  # type: ignore
+
+os.environ["STLOG_UNIT_TESTS_MODE"] = "1"
 
 
 def define_env(env):
@@ -14,7 +18,7 @@ def define_env(env):
             url = env.variables["_apilink"] + "#stlog." + obj
         if not title:
             if obj:
-                title = obj
+                title = f"`{obj}`"
             else:
                 title = "API reference"
         return f"[{title}]({url})"

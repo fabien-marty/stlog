@@ -85,8 +85,8 @@ logger.critical("Houston, we have a problem!")
 Output (without `rich` library installed):
 
 ```
-2023-03-28T08:56:23Z [INFO]     (__main__) It works {foo=bar x=123}
-2023-03-28T08:56:23Z [CRITICAL] (__main__) Houston, we have a problem!
+2023-03-29T14:48:37Z __main__   [INFO]   It works {foo=bar x=123}
+2023-03-29T14:48:37Z __main__ [CRITICAL] Houston, we have a problem!
  
 ```
 
@@ -125,8 +125,8 @@ logger.critical("Houston, we have a problem!")
 Output (without `rich` library installed):
 
 ```
-2023-03-28T08:56:24Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
-2023-03-28T08:56:24Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
+2023-03-29T14:48:37Z __main__   [INFO]   It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
+2023-03-29T14:48:37Z __main__ [CRITICAL] Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
  
 ```
 
@@ -166,8 +166,8 @@ logger.critical("Houston, we have a problem!")
 Human output (on `stderr`):
 
 ```
-2023-03-28T08:56:24Z [INFO]     (__main__) It works
-2023-03-28T08:56:24Z [CRITICAL] (__main__) Houston, we have a problem!
+2023-03-29T14:48:37Z __main__   [INFO]   It works
+2023-03-29T14:48:37Z __main__ [CRITICAL] Houston, we have a problem!
  
 ```
 
@@ -187,14 +187,14 @@ JSON ouput (on `stdout`) for machines:
         "funcName": "<module>",
         "lineno": 21,
         "module": "qs3",
-        "path": "/path/docs/python/qs3.py",
-        "process": 2865062,
+        "path": "/path/filename.py",
+        "process": 6789,
         "processName": "MainProcess",
-        "thread": 139927663843136,
+        "thread": 12345,
         "threadName": "MainThread"
     },
     "status": "info",
-    "timestamp": "2023-03-28T08:56:24Z",
+    "timestamp": "2023-03-29T14:48:37Z",
     "x": 123
 }
 {
@@ -209,14 +209,14 @@ JSON ouput (on `stdout`) for machines:
         "funcName": "<module>",
         "lineno": 22,
         "module": "qs3",
-        "path": "/path/docs/python/qs3.py",
-        "process": 2865062,
+        "path": "/path/filename.py",
+        "process": 6789,
         "processName": "MainProcess",
-        "thread": 139927663843136,
+        "thread": 12345,
         "threadName": "MainThread"
     },
     "status": "critical",
-    "timestamp": "2023-03-28T08:56:24Z"
+    "timestamp": "2023-03-29T14:48:37Z"
 }
  
 ```

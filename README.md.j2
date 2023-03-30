@@ -77,7 +77,7 @@ Output (without `rich` library installed):
 
 Output (with `rich` library installed):
 
-{{ ("python ./docs/python/termtosvg.py " + linting + " --pathprefix '" + pathprefix + "' qs1.py") |shell(die_on_error=True) }} 
+{{ ("python ./docs/python/termtosvg.py --pathprefix '" + pathprefix + "' qs1.py") |shell(die_on_error=True) }} 
 
 ### Usage with context
 
@@ -93,7 +93,7 @@ Output (without `rich` library installed):
 
 Output (with `rich` library installed):
 
-{{ ("python ./docs/python/termtosvg.py " + linting + " --pathprefix '" + pathprefix + "' qs2.py ") |shell(die_on_error=True) }} 
+{{ ("python ./docs/python/termtosvg.py --pathprefix '" + pathprefix + "' qs2.py ") |shell(die_on_error=True) }} 
 
 What about if you want to get a more parsing friendly output (for example in JSON on `stdout`) while keeping the human output on `stderr` (without any context)?
 

@@ -34,10 +34,10 @@ Then you can get a `stlog` logger.
     you don't want context at all), you can use a standard python logger.
 
 ```python
-{{ "cat docs/python/usage1.py" |shell(die_on_error=True) }} 
+{{ code_example("usage1.py") }}
 ```
 
-{{ ("python ./docs/python/termtosvg.py --pathprefix '" + pathprefix + "' usage1.py ") |shell(die_on_error=True) }} 
+{{ code_example_to_svg("usage1.py") }}
 
 ## Set a context
 
@@ -50,11 +50,11 @@ You have 4 ways of defining some context. Let's describe them starting with the 
 ```console
 $ export STLOG_ENV_JSON_CONTEXT='{"foo": "bar", "foo2": 123}'
 $ python <<EOF
-{{ "cat docs/python/usage2.py" |shell(die_on_error=True) }} 
+{{ code_example("usage2.py") }}
 EOF
 ```
 
-{{ ("python ./docs/python/termtosvg.py --interpreter bash --pathprefix '" + pathprefix + "' usage2.sh") |shell(die_on_error=True) }} 
+{{ code_example_to_svg("usage2.sh", interpreter="bash") }}
 
 #### Second, you can use `STLOG_CONTEXT_*` env var 
 
@@ -62,11 +62,11 @@ EOF
 $ export STLOG_ENV_CONTEXT_FOO="bar"
 $ export STLOG_ENV_CONTEXT_FOO2="123"
 $ python <<EOF
-{{ "cat docs/python/usage2.py" |shell(die_on_error=True) }} 
+{{ code_example("usage2.py") }}
 EOF
 ```
 
-{{ ("python ./docs/python/termtosvg.py --interpreter bash --pathprefix '" + pathprefix + "' usage2bis.sh") |shell(die_on_error=True) }} 
+{{ code_example_to_svg("usage2bis.sh", interpreter="bash") }}
 
 This is less hacky than the JSON way but:
 
@@ -87,10 +87,10 @@ In a web context for example, a common practice is to set some key/values in a m
 As this context is global 
 
 ```python
-{{ "cat docs/python/usage3.py" |shell(die_on_error=True) }} 
+{{ code_example("usage3.py") }}
 ```
 
-{{ ("python ./docs/python/termtosvg.py --pathprefix '" + pathprefix + "' usage3.py ") |shell(die_on_error=True) }} 
+{{ code_example_to_svg("usage3.py") }}
 
 ??? question "`ExecutionGlobalContext` is global, what about using it in threads or in async code?"
 
@@ -101,15 +101,43 @@ As this context is global
 
     You can considerer that {{ apilink("ExecutionLogContext") }} is just a light wrapper on {{contextvars}}.
 
-
-## Mixing stlog and python logging
+### (3) At the logger instantiation
 
 ```python
-{{ "cat docs/python/usage_mix1.py" |shell(die_on_error=True) }} 
+{{ code_example("usage4.py") }}
 ```
 
-{{ ("python ./docs/python/termtosvg.py --pathprefix '" + pathprefix + "' usage_mix1.py ") |shell(die_on_error=True) }} 
-    
+{{ code_example_to_svg("usage4.py") }}
+
+### (4) At the logger log call
+
+```python
+{{ code_example("usage5.py") }}
+```
+
+{{ code_example_to_svg("usage5.py") }}
+
+## Using the logger
+
+FIXME
+
+## Misc: mixing stlog and python logging
+
+```python
+{{ code_example("usage_mix1.py") }}
+```
+
+{{ code_example_to_svg("usage_mix1.py") }}
+
+Of course, when you use a classic python logger, you can't pass a specific context but the global context is automatically 
+reinjected. If you don't want this behavior, set `reinject_context_in_standard_logging` to `False` in {{apilink("setup")}}:
+
+```python
+{{ code_example("usage_mix2.py") }}
+```
+
+{{ code_example_to_svg("usage_mix2.py") }}
+
 ## API reference
 
 The public API of the library is available here: {{apilink()}}{:target="_blank"}.

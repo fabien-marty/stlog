@@ -85,8 +85,8 @@ logger.critical("Houston, we have a problem!")
 Output (without `rich` library installed):
 
 ```
-2023-03-29T14:48:37Z __main__   [INFO]   It works {foo=bar x=123}
-2023-03-29T14:48:37Z __main__ [CRITICAL] Houston, we have a problem!
+2023-03-29T14:48:37Z __main__ [   INFO   ] It works {foo=bar x=123}
+2023-03-29T14:48:37Z __main__ [ CRITICAL ] Houston, we have a problem!
  
 ```
 
@@ -125,8 +125,8 @@ logger.critical("Houston, we have a problem!")
 Output (without `rich` library installed):
 
 ```
-2023-03-29T14:48:37Z __main__   [INFO]   It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
-2023-03-29T14:48:37Z __main__ [CRITICAL] Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
+2023-03-29T14:48:37Z __main__ [   INFO   ] It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
+2023-03-29T14:48:37Z __main__ [ CRITICAL ] Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
  
 ```
 
@@ -166,8 +166,8 @@ logger.critical("Houston, we have a problem!")
 Human output (on `stderr`):
 
 ```
-2023-03-29T14:48:37Z __main__   [INFO]   It works
-2023-03-29T14:48:37Z __main__ [CRITICAL] Houston, we have a problem!
+2023-03-29T14:48:37Z __main__ [   INFO   ] It works
+2023-03-29T14:48:37Z __main__ [ CRITICAL ] Houston, we have a problem!
  
 ```
 

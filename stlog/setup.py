@@ -55,6 +55,7 @@ def setup(
     | None = _logging_excepthook,
     extra_levels: typing.Iterable[tuple[str, str | int]] = [],
     reinject_context_in_standard_logging: bool = DEFAULT_REINJECT_CONTEXT_IN_STANDARD_LOGGING,
+    read_extra_kwarg_from_standard_logging: bool = False,
 ) -> None:
     """Set up the Python logging with stlog (globally).
 
@@ -75,6 +76,7 @@ def setup(
             the root log level.
         reinject_context_in_standard_logging: if True, reinject the ExecutionLogContext
             in log record emitted with python standard loggers.
+        read_extra_kwarg_from_standard_logging: FIXME
     """
     root_logger = logging.getLogger(None)
     if program_name is not None:
@@ -87,7 +89,10 @@ def setup(
     # Add configured handlers
     for out in outputs:
         if reinject_context_in_standard_logging:
-            handler = ContextReinjectHandlerWrapper(wrapped=out.get_handler())
+            handler = ContextReinjectHandlerWrapper(
+                wrapped=out.get_handler(),
+                read_extra_kwarg_from_standard_logging=read_extra_kwarg_from_standard_logging,
+            )
         else:
             handler = out.get_handler()
         root_logger.addHandler(handler)

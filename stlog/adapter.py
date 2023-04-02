@@ -27,7 +27,7 @@ class _KeywordArgumentAdapter(logging.LoggerAdapter):
             check_json_types_or_raise(self.extra)
             extra = dict(self.extra)
         if "extra" in kwargs:
-            # not sure about which case is handled here
+            # when you use the "extra" standard kwargs at log() time
             extra.update(kwargs.pop("extra"))
         # Move any unknown keyword arguments into the extra
         # dictionary.

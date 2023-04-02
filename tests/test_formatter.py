@@ -47,7 +47,7 @@ def json_formatter() -> logging.Formatter:
 def test_human1(log_record, human_formatter):
     res = human_formatter.format(log_record)
     assert res.startswith("2023")
-    assert "[INFO]" in res
+    assert "INFO" in res
     assert "name" in res
     assert "foo foo bar bar" in res
 

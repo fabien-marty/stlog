@@ -67,6 +67,10 @@ RESERVED_ATTRS: tuple[str, ...] = (
     "stack_info",
     "thread",
     "threadName",
+    "extra",  # specific to stlog
+    "rich_escaped_message",  # specific to stlog
+    "rich_escaped_extras",  # specific to stlog
+    "rich_level_style",  # specific to stlog
 )
 
 

@@ -119,7 +119,18 @@ As this context is global
 
 ## Using the logger
 
-FIXME
+The `stlog.Logger` is only an adapter on the [python standard Logger](https://docs.python.org/3/library/logging.html#logging.Logger).
+
+So you can use it as a drop in replacement.
+
+The only thing you get is the ability to pass some extra `kwargs` as key/values.
+
+```python
+{{ code_example("usage6.py") }}
+```
+
+{{ code_example_to_svg("usage6.py", lines=30) }}
+
 
 ## Misc: mixing stlog and python logging
 

@@ -17,3 +17,22 @@ Because log library are ubiquitous and to avoid any dependency conflicts, `stlog
 - can use fancy stuff (colors, augmented traceback...) from the {{rich}} *(only if installed)*
 
 This is an opinionated choice. But we assume that.
+
+## Mixing `stlog` and python standard logging?
+
+Not a problem!
+
+```python
+{{ code_example("usage_mix1.py") }}
+```
+
+{{ code_example_to_svg("usage_mix1.py") }}
+
+Of course, when you use a classic python logger, you can't pass a specific context but the global context is automatically 
+reinjected. If you don't want this behavior, set `reinject_context_in_standard_logging` to `False` in {{apilink("setup")}}:
+
+```python
+{{ code_example("usage_mix2.py") }}
+```
+
+{{ code_example_to_svg("usage_mix2.py") }}

@@ -29,8 +29,8 @@ def define_env(env):
             return f.read()
 
     @env.macro
-    def code_example_to_svg(filename: str, interpreter: str = "python"):
-        cmd = (
-            f"python ./docs/python/termtosvg.py --interpreter={interpreter} {filename}"
-        )
+    def code_example_to_svg(
+        filename: str, interpreter: str = "python", lines: int = 10
+    ):
+        cmd = f"python ./docs/python/termtosvg.py --interpreter={interpreter} --lines={lines} {filename}"
         return shell(None, cmd, die_on_error=True)

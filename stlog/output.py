@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 from stlog.base import StLogError
 from stlog.formatter import (
     HumanFormatter,
-    LogFmtKVFormatter,
     RichHumanFormatter,
 )
 from stlog.handler import CustomRichHandler
@@ -93,20 +92,20 @@ class StreamOutput(Output):
 @dataclass
 class RichStreamOutput(StreamOutput):
     force_terminal: bool = True
+    console: typing.Any = None
 
     def __post_init__(self):
-        if self.formatter is None:
-            self.formatter = HumanFormatter(
-                kvs_formatter=LogFmtKVFormatter(extras_prefix="{"),
-            )
         if not RICH_INSTALLED:
             raise StLogError("Rich is not installed and RichStreamOutput is specified")
-        c = Console(
-            file=self.stream,
-            force_terminal=True if self.force_terminal else None,
-            highlight=False,
-        )
-        self.set_handler(CustomRichHandler(console=c))
+        if self.formatter is None:
+            self.formatter = RichHumanFormatter()
+        if self.console is None:
+            self.console = Console(
+                file=self.stream,
+                force_terminal=True if self.force_terminal else None,
+                highlight=False,
+            )
+        self.set_handler(CustomRichHandler(console=self.console))
 
 
 def make_stream_or_rich_stream_output(

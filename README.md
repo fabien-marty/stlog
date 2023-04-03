@@ -87,6 +87,7 @@ Output (without `rich` library installed):
 ```
 2023-03-29T14:48:37Z __main__ [   INFO   ] It works {foo=bar x=123}
 2023-03-29T14:48:37Z __main__ [ CRITICAL ] Houston, we have a problem!
+GLOBAL_LOGGING_CONFIG True
  
 ```
 
@@ -127,6 +128,7 @@ Output (without `rich` library installed):
 ```
 2023-03-29T14:48:37Z __main__ [   INFO   ] It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
 2023-03-29T14:48:37Z __main__ [ CRITICAL ] Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
+GLOBAL_LOGGING_CONFIG True
  
 ```
 
@@ -174,6 +176,9 @@ Human output (on `stderr`):
 JSON ouput (on `stdout`) for machines:
 
 ```json
+GLOBAL_LOGGING_CONFIG True
+GLOBAL_LOGGING_CONFIG True
+GLOBAL_LOGGING_CONFIG True
 {
     "client_id": 456,
     "foo": "bar",

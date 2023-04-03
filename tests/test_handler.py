@@ -22,10 +22,12 @@ def context():
 def test_reinject_handler(context):
     target_list: list[str] = []
     setup(
-        outputs=[UnitsTestsOutput(target_list=target_list, formatter=JsonFormatter())]
+        outputs=[UnitsTestsOutput(target_list=target_list, formatter=JsonFormatter())],
+        read_extra_kwarg_from_standard_logging=True,
     )
     context.add(foo="bar")
     standard_logger = logging.getLogger("standard")
-    standard_logger.info("this is a test")
+    standard_logger.info("this is a test", extra={"bar": "foo"})
     assert len(target_list) == 1
     assert json.loads(target_list[0])["foo"] == "bar"
+    assert json.loads(target_list[0])["bar"] == "foo"

@@ -25,6 +25,7 @@ mkdocs-include-markdown-plugin = "^4.0.4"
 types-pyyaml = "^6.0.12.8"
 jinja2-shell-extension = "^2.0.0"
 termtosvg = "^1.1.0"
+dunamai = "^1.16.0"
 
 [build-system]
 requires = ["poetry-core"]

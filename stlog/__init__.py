@@ -10,3 +10,4 @@ __all__ = [
     "ExecutionLogContext",
 ]
 __pdoc__ = {"base": False, "adapter": False, "handler": False, "context": False}
+VERSION = "0.0.0"

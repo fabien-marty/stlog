@@ -276,6 +276,22 @@ tomli = {version = "*", optional = true, markers = "python_full_version <= \"3.1
 toml = ["tomli"]
 
 [[package]]
+name = "dunamai"
+version = "1.16.0"
+description = "Dynamic version generation"
+category = "dev"
+optional = false
+python-versions = ">=3.5,<4.0"
+files = [
+    {file = "dunamai-1.16.0-py3-none-any.whl", hash = "sha256:dc92d817f3bc155e8b129e8c705c36bb15a7e950e2698a93aea142732a888e98"},
+    {file = "dunamai-1.16.0.tar.gz", hash = "sha256:bfe8e23cc5a1ceed1c7f791674ea24cf832a53a5da73f046eeb43367ccfc3f77"},
+]
+
+[package.dependencies]
+importlib-metadata = {version = ">=1.6.0", markers = "python_version < \"3.8\""}
+packaging = ">=20.9"
+
+[[package]]
 name = "exceptiongroup"
 version = "1.1.0"
 description = "Backport of PEP 654 (exception groups)"
@@ -1438,4 +1454,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7,<3.12"
-content-hash = "aefd2542d5c3a919c64843cd451a03631c96132589a087e00cca083e1d01b04f"
+content-hash = "d900bae4f7d4e5c84eb486d1b974fe7ad69c123f6575b21f62263bd40c041a86"

@@ -1,0 +1,157 @@
+# lint with import-linter
+[tool.poe.tasks.lint_imports]
+cmd = "lint-imports --debug --config pyproject.toml"
+help = "lint the code with import-linter"
+
+# lint with ruff (with an option to fix or to lint only)
+[tool.poe.tasks.lint_ruff]
+control.expr = "${dontfix}"
+help = "lint the code with ruff"
+
+  [[tool.poe.tasks.lint_ruff.switch]]
+  case = "False"
+  cmd  = "ruff . --fix"
+
+  [[tool.poe.tasks.lint_ruff.switch]]
+  case = "True"
+  cmd  = "ruff ."
+
+  [tool.poe.tasks.lint_ruff.args.dontfix]
+  options = ["--dont-fix"]
+  type = "boolean"
+  help = "does not try to automatically fix the code"
+  default = false
+
+# lint with black (with an option to fix or to lint only)
+[tool.poe.tasks.lint_black]
+control.expr = "${dontfix}"
+help = "lint the code with black"
+
+  [[tool.poe.tasks.lint_black.switch]]
+  case = "False"
+  cmd  = "black ."
+
+  [[tool.poe.tasks.lint_black.switch]]
+  case = "True"
+  cmd  = "black --check ."
+
+  [tool.poe.tasks.lint_black.args.dontfix]
+  options = ["--dont-fix"]
+  type = "boolean"
+  help = "does not try to automatically fix the code"
+  default = false
+
+# lint with mypy
+[tool.poe.tasks.lint_mypy]
+help = "lint the code with mypy"
+cmd  = "mypy --check-untyped-defs ."
+
+# lint the README
+[tool.poe.tasks.lint_readme]
+help =  "lint the README"
+cmd = "python make_readme.py lint"
+
+# lint the README
+[tool.poe.tasks.readme]
+help = "make the README.md file from README.md.j2"
+cmd = "python make_readme.py lint"
+
+# lint sequence
+[tool.poe.tasks.lint]
+control.expr = "${dontfix}"
+help = "lint the code with all linters"
+
+  [[tool.poe.tasks.lint.switch]]
+  case = "False"
+  sequence = ["lint_ruff", "lint_black", "lint_mypy", "lint_imports", "lint_readme"]
+
+  [[tool.poe.tasks.lint.switch]]
+  case = "True"
+  sequence = ["lint_ruff --dont-fix", "lint_black --dont-fix", "lint_mypy", "lint_imports", "lint_readme"]
+
+  [tool.poe.tasks.lint.args.dontfix]
+  options = ["--dont-fix"]
+  type = "boolean"
+  help = "does not try to automatically fix the code"
+  default = false
+
+# clean the repository (basic)
+[tool.poe.tasks._clean]
+shell = "rm -Rf .*_cache build ; find . -type d -name __pycache__ -exec rm -Rf {} \\; 2>/dev/null"
+
+# execute tests
+[tool.poe.tasks.test]
+help = "execute unit tests"
+cmd = "pytest ."
+
+# execute tests with coverage (cleaning)
+[tool.poe.tasks._clean_coverage]
+cmd = "rm -Rf htmlcov"
+
+# execute tests with coverage (executing)
+[tool.poe.tasks._coverage]
+cmd = "pytest --no-cov-on-fail --cov=${PACKAGE} --cov-report=term --cov-report=html tests/"
+
+# execute tests with coverage (sequence)
+[tool.poe.tasks.coverage]
+help = "execute unit tests with coverage"
+sequence = ["_clean_coverage", "_coverage"]
+
+# api doc (cleaning)
+[tool.poe.tasks._clean_apidoc]
+cmd = "rm -Rf apihtml"
+
+# api doc (making)
+[tool.poe.tasks._apidoc]
+cmd = "pdoc3 --html --output-dir=apihtml ${PACKAGE}"
+
+# api doc (sequence)
+[tool.poe.tasks.apidoc]
+help = "making API doc"
+sequence = ["_clean_apidoc", "_apidoc"]
+
+# doc (cleaning)
+[tool.poe.tasks._clean_doc]
+cmd = "rm -Rf html"
+
+# doc (making)
+[tool.poe.tasks._doc]
+cmd = "mkdocs build --site-dir html"
+
+# doc (sequence)
+[tool.poe.tasks.doc]
+help = "making doc"
+sequence = ["_clean_doc", "_doc"]
+
+# docs (sequence)
+[tool.poe.tasks.docs]
+help = "making all docs"
+sequence = ["apidoc", "doc", "readme"]
+
+# cleaning the repository (sequence)
+[tool.poe.tasks.clean] 
+help = "clean the repository"
+sequence = ["_clean", "_clean_doc", "_clean_coverage", "_clean_apidoc"]
+
+# serve doc (private)
+[tool.poe.tasks._serve_doc]
+help = "live build and serve the doc on a custom port"
+default_item_type = "cmd"
+sequence = ["rm -Rf html", "mkdocs serve --livereload --dirtyreload --dev-addr=${bind}:${port}"]
+
+# serve doc (sequence)
+[tool.poe.tasks.serve_doc]
+help = "live build and serve the doc on a custom port"
+sequence = ["_clean_doc", "_serve_doc"]
+
+  [tool.poe.tasks.serve_doc.args.port]
+  options = ["--port"]
+  type = "integer"
+  help = "TCP port to use (default: 9090)"
+  default = 9090
+
+  [tool.poe.tasks.serve_doc.args.bind]
+  options = ["--bind"]
+  type = "string"
+  help = "IP address to bind (0.0.0.0 for all, default: 127.0.0.0.1)"
+  default = "127.0.0.1"

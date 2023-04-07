@@ -1,6 +1,6 @@
 
 <!-- WARNING: generated from README.md.j2, do not modify this file manually but modify README.md.j2 instead
-     and execute 'poetry run poe make_readme' to regenerate this README.md file -->
+     and execute 'poetry run poe readme' to regenerate this README.md file -->
 
 # stlog
 

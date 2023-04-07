@@ -325,6 +325,20 @@ python-dateutil = ">=2.8.1"
 dev = ["flake8", "markdown", "twine", "wheel"]
 
 [[package]]
+name = "grimp"
+version = "2.3"
+description = "Builds a queryable graph of the imports within one or more Python packages."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "grimp-2.3.tar.gz", hash = "sha256:78e4ace38be714bbfc0c2f64322722daa72e4d6e9b2cb0d2452058222e5b58b8"},
+]
+
+[package.dependencies]
+typing-extensions = ">=3.10.0.0"
+
+[[package]]
 name = "idna"
 version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -335,6 +349,23 @@ files = [
     {file = "idna-3.4-py3-none-any.whl", hash = "sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2"},
     {file = "idna-3.4.tar.gz", hash = "sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"},
 ]
+
+[[package]]
+name = "import-linter"
+version = "1.8.0"
+description = "Enforces rules for the imports within and between Python packages."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "import-linter-1.8.0.tar.gz", hash = "sha256:482fc2cb0c036cf17d9ee6552077acabb426fa9dab36927589bb857935b82e69"},
+]
+
+[package.dependencies]
+click = ">=6"
+grimp = ">=2.3"
+tomli = {version = ">=1.2.1", markers = "python_version < \"3.11\""}
+typing-extensions = ">=3.10.0.0"
 
 [[package]]
 name = "importlib-metadata"
@@ -1454,4 +1485,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7,<3.12"
-content-hash = "d900bae4f7d4e5c84eb486d1b974fe7ad69c123f6575b21f62263bd40c041a86"
+content-hash = "0959391dc87872fa41edb6374f8e0467b25ff600ea2580140e20759a3d136524"

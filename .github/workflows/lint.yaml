@@ -53,7 +53,7 @@ jobs:
           poetry run poe coverage
       - name: Make docs
         run: |
-          poetry run poe make_docs
+          poetry run poe docs
       - name: Upload API doc as an artifact
         uses: actions/upload-artifact@v3
         with:

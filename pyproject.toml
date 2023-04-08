@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "standard-structlog"
+name = "stlog"
 version = "0.1.0"
 description = ""
 authors = ["Fabien MARTY <fabien.marty@gmail.com>"]

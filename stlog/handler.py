@@ -6,7 +6,7 @@ from stlog.base import (
     RESERVED_ATTRS,
     STLOG_EXTRA_KEY,
     StLogError,
-    _dump_exception_on_console,
+    rich_dump_exception_on_console,
 )
 from stlog.context import ExecutionLogContext
 
@@ -65,5 +65,6 @@ class CustomRichHandler(logging.Handler):
             exc_type, exc_value, exc_traceback = record.exc_info
             assert exc_type is not None
             assert exc_value is not None
-            # FIXME: use rich console
-            _dump_exception_on_console(exc_type, exc_value, exc_traceback)
+            rich_dump_exception_on_console(
+                self.console, exc_type, exc_value, exc_traceback
+            )

@@ -4,7 +4,7 @@
 
 # stlog
 
-[Full documentation](https://fabien-marty.github.io/standard-structlog/)
+[Full documentation](https://fabien-marty.github.io/stlog/)
 
 <!--intro-start-->
 

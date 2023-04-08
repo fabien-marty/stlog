@@ -73,7 +73,7 @@ jobs:
         if: github.event_name == 'release' && github.event.action == 'created'
         run: |
           poetry run python change_version.py
-          poetry config pypi-token.pypi "${{ secrets.PYPI_TOKEN }}""
+          poetry config pypi-token.pypi "${{ secrets.PYPI_TOKEN }}"
           poetry build
           poetry publish
           poetry run python restore_version.py

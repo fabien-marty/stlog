@@ -48,7 +48,7 @@ class Output:
 
     _handler: logging.Handler = field(init=False, default_factory=logging.NullHandler)
     formatter: logging.Formatter | None = None
-    level: int | None = None
+    level: int | str | None = None
 
     def set_handler(
         self,

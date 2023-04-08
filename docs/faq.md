@@ -14,7 +14,7 @@ Because log library are ubiquitous and to avoid any dependency conflicts, `stlog
 - borrows plenty of ideas and code from [daiquiri](https://github.com/Mergifyio/daiquiri) library (thanks to [Mergify](https://mergify.com/) and [Julien DANJOU](https://julien.danjou.info/).
 - borrows some code from [python-json-logger](https://github.com/madzak/python-json-logger) (thanks to [Zakaria ZAJAC](https://github.com/madzak))
 - borrows some ode from [python-logmter](https://github.com/jteppinette/python-logfmter) (thanks to [Joshua Taylor Eppinette](https://github.com/jteppinette))
-- can use fancy stuff (colors, augmented traceback...) from the {{rich}} *(only if installed)*
+- can use fancy stuff (colors, augmented traceback...) from {{rich}} *(only if installed)*
 
 This is an opinionated choice. But we assume that.
 

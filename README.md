@@ -16,7 +16,7 @@
 - very easy to configure with "good/opinionated" default values
 - which produces great output **for both humans and machines**
 - which believes in [Twelve-Factor App](https://12factor.net/) principles about config and logs
-- **dependency free** (but can use fancy stuff (colors, augmented traceback...) from the [rich library](https://github.com/Textualize/rich) *(if installed)*)
+- **dependency free** (but can use fancy stuff (colors, augmented traceback...) from [the rich library](https://github.com/Textualize/rich) *(if installed)*)
 
 ## Features
 

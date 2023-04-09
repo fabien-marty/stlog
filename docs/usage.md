@@ -77,9 +77,9 @@ In both cases, env variables are only read once (at program startup).
 
 You can completly disable this feature by setting `STLOG_IGNORE_ENV_CONTEXT=1`.
 
-### (2) With `ExecutionLogContext` static class
+### (2) With `LogContext` static class
 
-You can use the static class {{apilink("ExecutionLogContext")}} where you want to define some key/values that will be copied
+You can use the static class {{apilink("LogContext")}} where you want to define some key/values that will be copied
 to each logger call context. 
 
 In a web context for example, a common practice is to set some key/values in a middleware.
@@ -94,12 +94,12 @@ As this context is global
 
 ??? question "`ExecutionGlobalContext` is global, what about using it in threads or in async code?"
 
-    Thanks to {{contextvars}}, {{apilink("ExecutionLogContext")}} is more clever than a global dict, it's a kind of global context but specific for each tread
+    Thanks to {{contextvars}}, {{apilink("LogContext")}} is more clever than a global dict, it's a kind of global context but specific for each tread
     or for each coroutine.
 
     Here is a [good introduction](https://superfastpython.com/thread-context-variables-in-python/) about {{contextvars}}.
 
-    You can considerer that {{ apilink("ExecutionLogContext") }} is just a light wrapper on {{contextvars}}.
+    You can considerer that {{ apilink("LogContext") }} is just a light wrapper on {{contextvars}}.
 
 ### (3) At the logger instantiation
 

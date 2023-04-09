@@ -5,7 +5,7 @@ import logging
 import typing
 
 from stlog.base import RESERVED_ATTRS, STLOG_EXTRA_KEY, check_json_types_or_raise
-from stlog.context import ExecutionLogContext
+from stlog.context import LogContext
 
 
 # ligthly adapted from https://github.com/Mergifyio/daiquiri/blob/main/daiquiri/__init__.py
@@ -41,21 +41,21 @@ class _KeywordArgumentAdapter(logging.LoggerAdapter):
 
 
 class StLogLoggerAdapter(_KeywordArgumentAdapter):
-    """stlog `LoggerAdapter` with `stlog.ExecutionLogContext` support."""
+    """stlog `LoggerAdapter` with `stlog.LogContext` support."""
 
     def process(
         self, msg: typing.Any, kwargs: collections.abc.MutableMapping[str, typing.Any]
     ) -> tuple[typing.Any, collections.abc.MutableMapping[str, typing.Any]]:
-        new_kwargs = {**ExecutionLogContext._get(), **kwargs}
+        new_kwargs = {**LogContext._get(), **kwargs}
         return super().process(msg, new_kwargs)
 
 
 def getLogger(name: str | None = None, **kwargs) -> StLogLoggerAdapter:  # noqa: N802
-    """Return a standard logger (adapted for `stlog` and `stlog.ExecutionLogContext` support).
+    """Return a standard logger (adapted for `stlog` and `stlog.LogContext` support).
 
     You can pass some context key/values in `**kwargs` which will be specific to this logger.
 
-    If you want to set more globally available context, use `stlog.ExecutionLogContext` class.
+    If you want to set more globally available context, use `stlog.LogContext` class.
 
     Args:
         name: logger name.

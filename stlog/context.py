@@ -18,7 +18,7 @@ _LOGGING_CONTEXT_VAR: ContextVar = ContextVar(
 )
 
 
-class ExecutionLogContext:
+class LogContext:
     """This is a static class which hosts some utility (static) methods around a "log context"
     (global but by execution (worker/thread/async) thanks to contextvars).
 

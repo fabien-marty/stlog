@@ -83,6 +83,10 @@ setup(
 )
 ```
 
+!!! note "Formatters?"
+
+    You have a dedicated section about `Formatters` and `stlog` custom `Formatters` bellow.
+
 Default output is and "automatic rich or not rich" stream on `stderr` with a `HumanFormatter` as formatter.
 
 ### Warnings and "not catched" exceptions
@@ -138,13 +142,50 @@ FIXME
 
 ## Available Environment variables
 
-FIXME
+As we love {{twelvefactorapp}} plenty of default behavior of `stlog` can be configured with environment variables.
 
-- STLOG_USE_RICH
+!!! note "configuration priority?"
+
+    In order of importance (the last one wins):
+
+    - default values (set in the code)
+    - environment variables
+    - explicit configuration in the code (always wins)
+
+### `STLOG_USE_RICH``
+
+This variable can tune the behavior of {{apilink("output.make_stream_or_rich_stream_output")}} function:
+
+- if empty or set to `NONE`  or `AUTO` => nothing (the function makes automatically a `StreamOuput` or a `RichStreamOutput`, see above for details)
+- if set to `1`, `TRUE`, `YES` => the function will always return a `RichStreamOutput` (even the log stream is redirected to a file!)
+- else (`0`, `FALSE`, `NO`...) => the function will always return a standard `StreamOutput` (with colors and fancy things)
+
+!!! question "`use_rich` parameter?"
+
+    This can be overriden by the `use_rich` parameter when calling {{apilink("output.make_stream_or_rich_stream_output")}} 
+
+### `STLOG_CAPTURE_WARNINGS`
+
+This variable can change the default value of `capture_warnings` parameter of the {{apilink("setup")}} function: 
+
+- if set to `0`, `FALSE`, `NO`: default value of `capture_warnings` is set to `False`
+
+### `STLOG_REINJECT_CONTEXT_IN_STANDARD_LOGGING` 
+
+This variable can change the default value of `reinject_context_in_standard_logging` parameter of the {{apilink("setup")}} function: 
+
+- if set to `0`, `FALSE`, `NO`: default value of `reinject_context_in_standard_logging` is set to `False`
+
+## `STLOG_READ_EXTRA_KWARGS_FROM_STANDARD_LOGGING`
+
+This variable can change the default value of `read_extra_kwarg_from_standard_logging` parameter of the {{apilink("setup")}} function: 
+
+- if set to `1`, `TRUE`, `YES`: default value of `read_extra_kwarg_from_standard_logging` is set to `True`
+
+FIXME:
+
 - STLOG_ENV_JSON_CONTEXT
 - STLOG_ENV_CONTEXT_*
 - STLOG_UNIT_TESTS_MODE
 - STLOG_LOGFMT_IGNORE_COMPOUND_TYPES
-- STLOG_REINJECT_CONTEXT_IN_STANDARD_LOGGING
-- STLOG_CAPTURE_WARNINGS
 - STLOG_PROGRAM_NAME

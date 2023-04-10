@@ -88,6 +88,8 @@ jobs:
     needs: lint_and_test
     if: github.event_name == 'release' && github.event.action == 'created'
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
       - name: Install poetry
         run: |
           python3 -m venv $POETRY_HOME

@@ -82,12 +82,13 @@ logger.critical("Houston, we have a problem!")
 
 Output (without `rich` library installed):
 ```
-2023-03-27T13:15:18Z [INFO]     (__main__) It works {foo=bar x=123}
-2023-03-27T13:15:18Z [CRITICAL] (__main__) Houston, we have a problem!
+2023-03-27T16:24:38Z [INFO]     (__main__) It works {foo=bar x=123}
+2023-03-27T16:24:38Z [CRITICAL] (__main__) Houston, we have a problem!
  
 ```
 
 Output (with `rich` library installed):
+/home/fab/src/standard-structlog/docs/python/termtosvg.245985/termtosvg_00000.svg
 ![rich output](docs/python/qs1.svg)
  
 
@@ -120,12 +121,13 @@ logger.critical("Houston, we have a problem!")
 
 Output (without `rich` library installed):
 ```
-2023-03-27T13:15:18Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
-2023-03-27T13:15:18Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
+2023-03-27T16:24:38Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
+2023-03-27T16:24:38Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
  
 ```
 
 Output (with `rich` library installed):
+/home/fab/src/standard-structlog/docs/python/termtosvg.338236/termtosvg_00001.svg
 ![rich output](docs/python/qs2.svg)
  
 
@@ -159,8 +161,8 @@ logger.critical("Houston, we have a problem!")
 
 Human output (on `stderr`):
 ```
-2023-03-27T13:15:19Z [INFO]     (__main__) It works
-2023-03-27T13:15:19Z [CRITICAL] (__main__) Houston, we have a problem!
+2023-03-27T16:24:38Z [INFO]     (__main__) It works
+2023-03-27T16:24:38Z [CRITICAL] (__main__) Houston, we have a problem!
  
 ```
 
@@ -181,13 +183,13 @@ JSON ouput (on `stdout`) for machines:
         "lineno": 21,
         "module": "qs3",
         "path": "/home/fab/src/standard-structlog/docs/python/qs3.py",
-        "process": 2627315,
+        "process": 2736220,
         "processName": "MainProcess",
-        "thread": 140073789237056,
+        "thread": 139998014801728,
         "threadName": "MainThread"
     },
     "status": "info",
-    "timestamp": "2023-03-27T13:15:19Z",
+    "timestamp": "2023-03-27T16:24:39Z",
     "x": 123
 }
 {
@@ -203,13 +205,13 @@ JSON ouput (on `stdout`) for machines:
         "lineno": 22,
         "module": "qs3",
         "path": "/home/fab/src/standard-structlog/docs/python/qs3.py",
-        "process": 2627315,
+        "process": 2736220,
         "processName": "MainProcess",
-        "thread": 140073789237056,
+        "thread": 139998014801728,
         "threadName": "MainThread"
     },
     "status": "critical",
-    "timestamp": "2023-03-27T13:15:19Z"
+    "timestamp": "2023-03-27T16:24:39Z"
 }
  
 ```

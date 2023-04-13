@@ -18,7 +18,7 @@ DEFAULT_STLOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S (utc)"
 
 
 # Adapted from https://github.com/Mergifyio/daiquiri/blob/main/daiquiri/formatter.py
-class StLogHumanFormatter(logging.Formatter):
+class HumanFormatter(logging.Formatter):
     """Formats extra keywords into %(extras)s placeholder.
 
     Any keywords passed to a logging call will be formatted into a
@@ -200,5 +200,26 @@ class StLogHumanFormatter(logging.Formatter):
         return self._converter
 
 
-class StLogJsonFormatter(_JsonFormatter):
-    pass
+class JsonFormatter(_JsonFormatter):
+    def __init__(self) -> None:
+        super().__init__(timestamp=True)
+
+    def add_fields(
+        self,
+        log_record: dict[str, typing.Any],
+        record: logging.LogRecord,
+        message_dict: dict[str, str],
+    ) -> None:
+        super().add_fields(log_record, record, message_dict)
+        log_record["status"] = record.levelname.lower()
+        log_record["logger"] = {
+            "name": record.name,
+        }
+        if record.exc_info and record.exc_info[0]:
+            log_record["error"] = {
+                "kind": record.exc_info[0].__name__,
+                "stack": message_dict.get("stack_info"),
+                "message": message_dict.get("exc_info"),
+            }
+            log_record.pop("exc_info", None)
+            log_record.pop("stack_info", None)

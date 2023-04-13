@@ -5,6 +5,7 @@ import sys
 import time
 
 from stlog import ExecutionLogContext, getLogger, setup
+from stlog.formatter import JsonFormatter
 from stlog.output import Stream
 
 # setup (globally)
@@ -13,12 +14,13 @@ setup(
     outputs=(
         Stream(
             stream=sys.stdout,
-            use_fancy_rich_output=False,
+            use_rich=False,
         ),
         Stream(
             stream=sys.stderr,
-            use_fancy_rich_output=True,
+            use_rich=True,
         ),
+        Stream(formatter=JsonFormatter(), use_rich=False),
     ),
 )
 

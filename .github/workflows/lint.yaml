@@ -15,9 +15,14 @@ jobs:
     outputs:
       workflows-hash: ${{ steps.workflows-hash.outputs.hash }}
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
       - id: workflows-hash
         name: Let's hash .github/workflows/**
         run: echo "hash=${{ hashFiles('.github/workflows/**') }}" >> $GITHUB_OUTPUT
+      - id: workflows-hash2
+        name: Let's hash .github/workflows/**2
+        run: echo "hash=${{ hashFiles('**/.github/workflows/*.yaml') }}" >> $GITHUB_OUTPUT
 
   lint:
     runs-on: ubuntu-latest

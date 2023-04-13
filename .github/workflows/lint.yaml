@@ -7,7 +7,7 @@ on:
 
 env:
   POETRY_HOME: /opt/poetry
-  POETRY_CACHE: /var/cache/poetry
+  POETRY_CACHE: /opt/poetry_cache
 
 jobs:
 
@@ -18,6 +18,8 @@ jobs:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v3
       - name: Cache deps install
         id: cache-deps
         uses: actions/cache@v3
@@ -40,8 +42,6 @@ jobs:
           poetry config virtualenvs.in-project false
           poetry config cache-dir $POETRY_CACHE
           poetry config virtualenvs.path $POETRY_CACHE/venv
-      - name: Check out repository code
-        uses: actions/checkout@v3
       - name: Install requirements
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |

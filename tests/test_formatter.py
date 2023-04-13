@@ -51,12 +51,28 @@ def test_human1(log_record, human_formatter):
 
 
 def test_human2(log_record, human_formatter):
-    setattr(log_record, STLOG_EXTRA_KEY, ("key1", "key2"))
+    setattr(log_record, STLOG_EXTRA_KEY, ("key1", "key2", "_key3"))
     log_record.key1 = "value1"
     log_record.key2 = 123
+    log_record._key3 = 456
     res = human_formatter.format(log_record)
     assert "[key1: value1]" in res
     assert "[key2: 123]" in res
+    assert "[_key3: 456]" not in res
+
+
+def test_truncate_keys(log_record):
+    setattr(log_record, STLOG_EXTRA_KEY, ("abcdefghijk", "abc"))
+    log_record.abc = "value1"
+    log_record.abcdefghijk = "value2"
+    human_formatter = HumanFormatter(
+        fmt=DEFAULT_STLOG_HUMAN_FORMAT,
+        datefmt=DEFAULT_STLOG_DATE_FORMAT,
+        extra_key_max_length=5,
+    )
+    res = human_formatter.format(log_record)
+    assert "[abc: value1]" in res
+    assert "[ab...: value2]" in res
 
 
 def test_json1(log_record, json_formatter):

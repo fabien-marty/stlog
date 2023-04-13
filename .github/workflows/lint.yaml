@@ -9,8 +9,19 @@ env:
   POETRY_HOME: /opt/poetry
 
 jobs:
+
+  hashfiles: # as hashFiles function does not work in the python container
+    runs-on: ubuntu-latest
+    outputs:
+      workflows-hash: ${{ steps.workflows-hash.outputs.hash }}
+    steps:
+      - id: workflows-hash
+        name: Let's hash .github/workflows/**
+        run: echo "hash=${{ hashFiles('.github/workflows/**') }}" >> $GITHUB_OUTPUT
+
   lint:
     runs-on: ubuntu-latest
+    environment: ci
     container:
       image: python:3.9
     steps:
@@ -23,7 +34,7 @@ jobs:
         with:
           path: |
             ${{ env.POETRY_HOME }}
-          key: cache-${{ hashFiles('.github/workflows/**') }}-${{ vars.CACHE_VERSION }}
+          key: cache-${{ needs.hashfiles.outputs.workflows-hash }}-${{ vars.CACHE_VERSION }}
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |

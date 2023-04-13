@@ -1,3 +1,8 @@
+---
+hide:
+  - toc
+---
+
 # Getting started
 
 {!

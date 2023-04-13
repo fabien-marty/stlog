@@ -1,4 +1,4 @@
-# Quickstart
+# Getting started
 
 {!
     include-markdown "../README.md.j2"

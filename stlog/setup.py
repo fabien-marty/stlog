@@ -8,18 +8,16 @@ import types
 import typing
 
 from stlog.adapter import getLogger
-from stlog.base import GLOBAL_LOGGING_CONFIG
+from stlog.base import GLOBAL_LOGGING_CONFIG, _dump_exception_on_console, check_env_true
 from stlog.handler import ContextReinjectHandlerWrapper
 from stlog.output import Output, make_stream_or_rich_stream_output
 
-RICH_AVAILABLE = True
-try:
-    pass
-except ImportError:
-    RICH_AVAILABLE = False
-
 DEFAULT_OUTPUTS: list[Output] = [make_stream_or_rich_stream_output(stream=sys.stderr)]
 DEFAULT_LEVEL: str = os.environ.get("STLOG_LEVEL", "INFO")
+DEFAULT_CAPTURE_WARNINGS: bool = check_env_true("STLOG_CAPTURE_WARNINGS", True)
+DEFAULT_REINJECT_CONTEXT_IN_STANDARD_LOGGING: bool = check_env_true(
+    "STLOG_REINJECT_CONTEXT_IN_STANDARD_LOGGING", True
+)
 DEFAULT_PROGRAM_NAME: str | None = os.environ.get("STLOG_PROGRAM_NAME", None)
 
 
@@ -44,52 +42,19 @@ def _logging_excepthook(
         print(traceback.format_exc(), file=sys.stderr)
 
 
-def _dump_exception_on_console(
-    exc_type: type[BaseException],
-    value: BaseException,
-    tb: types.TracebackType | None,
-) -> None:
-    if RICH_AVAILABLE:
-        from rich.console import Console
-        from rich.traceback import Traceback
-
-        console = Console(file=sys.stderr)
-        console.print(
-            Traceback.from_exception(
-                exc_type,
-                value,
-                tb,
-                width=100,
-                extra_lines=3,
-                theme=None,
-                word_wrap=False,
-                show_locals=True,
-                locals_max_length=10,
-                locals_max_string=80,
-                locals_hide_dunder=True,
-                locals_hide_sunder=False,
-                indent_guides=True,
-                suppress=(),
-                max_frames=100,
-            )
-        )
-    else:
-        print("".join(traceback.format_exception(exc_type, value, tb)), file=sys.stderr)
-
-
 def setup(
     *,
     level: str | int = DEFAULT_LEVEL,
     outputs: typing.Iterable[Output] = DEFAULT_OUTPUTS,
     program_name: str | None = DEFAULT_PROGRAM_NAME,
-    capture_warnings: bool = True,
+    capture_warnings: bool = DEFAULT_CAPTURE_WARNINGS,
     logging_excepthook: typing.Callable[
         [type[BaseException], BaseException, types.TracebackType | None],
         typing.Any,
     ]
     | None = _logging_excepthook,
     extra_levels: typing.Iterable[tuple[str, str | int]] = [],
-    reinject_context_in_standard_logging: bool = True,
+    reinject_context_in_standard_logging: bool = DEFAULT_REINJECT_CONTEXT_IN_STANDARD_LOGGING,
 ) -> None:
     """Set up the Python logging with stlog (globally).
 

@@ -15,6 +15,11 @@ markdown_extensions:
   - attr_list
   - pymdownx.tasklist:
       custom_checkbox: false
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - toc:
+      toc_depth: 2
 
 plugins:
   - search
@@ -23,15 +28,13 @@ plugins:
       closing_tag: "!}"
   - macros
 
-extra_css:
-  - stylesheets/extra.css
-
 nav:
   - index.md
   - quickstart.md
-  - howto.md
+  - usage.md
+  - extend.md
   - faq.md
-  - api_reference.md
+  - dev.md
 
 extra:
   twelvefactorapp: "[Twelve-Factor App](https://12factor.net/)"
@@ -39,3 +42,4 @@ extra:
   contextvars: "[contextvars](https://docs.python.org/3/library/contextvars.html)"
   rich: "[rich library](https://github.com/Textualize/rich)"
   pathprefix: ""
+  _apilink: "https://fabien-marty.github.io/standard-structlog/stlog/"

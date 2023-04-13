@@ -4,6 +4,7 @@ import logging
 
 from stlog.base import (
     STLOG_EXTRA_KEY,
+    _dump_exception_on_console,
 )
 from stlog.context import ExecutionLogContext
 from stlog.formatter import HumanFormatter
@@ -70,3 +71,8 @@ class CustomRichHandler(logging.Handler):
         if extra != "":
             output.add_row("", "", "", Text(extra, style="repr.attrib_name"))
         self.console.print(output)
+        if record.exc_info:
+            exc_type, exc_value, exc_traceback = record.exc_info
+            assert exc_type is not None
+            assert exc_value is not None
+            _dump_exception_on_console(exc_type, exc_value, exc_traceback)

@@ -4,10 +4,21 @@ import inspect
 import json
 import numbers
 import os
+import sys
+import traceback
+import types
 from dataclasses import dataclass, field
 from typing import Any
 
 STLOG_EXTRA_KEY = "_stlog_extra"
+RICH_AVAILABLE = False
+try:
+    from rich.console import Console
+    from rich.traceback import Traceback
+
+    RICH_AVAILABLE = True
+except ImportError:
+    pass
 
 
 class StLogError(Exception):
@@ -107,7 +118,6 @@ def logfmt_format(kvs: dict[str, Any], ignore_compound_types: bool = True) -> st
 
 
 def _get_env_json_context() -> dict[str, Any]:
-    """FIXME"""
     env_key = "STLOG_ENV_JSON_CONTEXT"
     env_context = os.environ.get(env_key, None)
     if env_context is not None:
@@ -134,11 +144,7 @@ def _get_env_context() -> dict[str, Any]:
 
 
 def get_env_context() -> dict[str, Any]:
-    if os.environ.get("STLOG_IGNORE_ENV_CONTEXT", "0").lower().strip() in (
-        "1",
-        "true",
-        "yes",
-    ):
+    if check_env_true("STLOG_IGNORE_ENV_CONTEXT", False):
         return {}
     env_context = {**_get_env_context(), **_get_env_json_context()}
     for key in env_context.keys():
@@ -151,3 +157,43 @@ def get_env_context() -> dict[str, Any]:
                 "key: %s not allowed (must be a valid python identifier)", key
             )
     return env_context
+
+
+def check_true(value: str | None, default: bool = False) -> bool:
+    if value is None:
+        return default
+    return value.lower() in ("1", "true", "yes")
+
+
+def check_env_true(env_var: str, default: bool = False) -> bool:
+    return check_true(os.environ.get("env_var", None), default)
+
+
+def _dump_exception_on_console(
+    exc_type: type[BaseException],
+    value: BaseException,
+    tb: types.TracebackType | None,
+) -> None:
+    if RICH_AVAILABLE:
+        console = Console(file=sys.stderr)
+        console.print(
+            Traceback.from_exception(
+                exc_type,
+                value,
+                tb,
+                width=100,
+                extra_lines=3,
+                theme=None,
+                word_wrap=False,
+                show_locals=True,
+                locals_max_length=10,
+                locals_max_string=80,
+                locals_hide_dunder=True,
+                locals_hide_sunder=False,
+                indent_guides=True,
+                suppress=(),
+                max_frames=100,
+            )
+        )
+    else:
+        print("".join(traceback.format_exception(exc_type, value, tb)), file=sys.stderr)

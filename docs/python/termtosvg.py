@@ -40,7 +40,6 @@ if rc != 0:
     os.system(f"cat {output}")
     sys.exit(1)
 
-print(list(glob.glob(os.path.join(tmpdir, "*.svg"))))
 svg = sorted(glob.glob(os.path.join(tmpdir, "*.svg")))[-1]
 os.system(f"cp -f {svg} {newpath}")
 os.system(f"rm -Rf {tmpdir} {output}")

@@ -83,9 +83,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: publicdoc
-      - name: Fix directory structure
-        run: |
-          mv apihtml html/api
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:

@@ -14,7 +14,7 @@ markdown_extensions:
   - pymdownx.superfences
   - attr_list
   - pymdownx.tasklist:
-      custom_checkbox: true
+      custom_checkbox: false
 
 plugins:
   - search
@@ -22,6 +22,16 @@ plugins:
       opening_tag: "{!"
       closing_tag: "!}"
   - macros
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - index.md
+  - quickstart.md
+  - howto.md
+  - faq.md
+  - api_reference.md
 
 extra:
   twelvefactorapp: "[Twelve-Factor App](https://12factor.net/)"

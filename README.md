@@ -4,6 +4,8 @@
 
 # stlog
 
+[Full documentation](https://fabien-marty.github.io/standard-structlog/)
+
 <!--intro-start-->
 
 ## What is it?
@@ -81,13 +83,15 @@ logger.critical("Houston, we have a problem!")
 ```
 
 Output (without `rich` library installed):
+
 ```
-2023-03-28T06:56:10Z [INFO]     (__main__) It works {foo=bar x=123}
-2023-03-28T06:56:10Z [CRITICAL] (__main__) Houston, we have a problem!
+2023-03-28T08:56:23Z [INFO]     (__main__) It works {foo=bar x=123}
+2023-03-28T08:56:23Z [CRITICAL] (__main__) Houston, we have a problem!
  
 ```
 
 Output (with `rich` library installed):
+
 ![rich output](docs/python/qs1.svg)
  
 
@@ -119,13 +123,15 @@ logger.critical("Houston, we have a problem!")
 ```
 
 Output (without `rich` library installed):
+
 ```
-2023-03-28T06:56:11Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
-2023-03-28T06:56:11Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
+2023-03-28T08:56:24Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
+2023-03-28T08:56:24Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
  
 ```
 
 Output (with `rich` library installed):
+
 ![rich output](docs/python/qs2.svg)
  
 
@@ -158,9 +164,10 @@ logger.critical("Houston, we have a problem!")
 ```
 
 Human output (on `stderr`):
+
 ```
-2023-03-28T06:56:11Z [INFO]     (__main__) It works
-2023-03-28T06:56:11Z [CRITICAL] (__main__) Houston, we have a problem!
+2023-03-28T08:56:24Z [INFO]     (__main__) It works
+2023-03-28T08:56:24Z [CRITICAL] (__main__) Houston, we have a problem!
  
 ```
 
@@ -181,13 +188,13 @@ JSON ouput (on `stdout`) for machines:
         "lineno": 21,
         "module": "qs3",
         "path": "/path/docs/python/qs3.py",
-        "process": 2773682,
+        "process": 2865062,
         "processName": "MainProcess",
-        "thread": 139701364348736,
+        "thread": 139927663843136,
         "threadName": "MainThread"
     },
     "status": "info",
-    "timestamp": "2023-03-28T06:56:11Z",
+    "timestamp": "2023-03-28T08:56:24Z",
     "x": 123
 }
 {
@@ -203,13 +210,13 @@ JSON ouput (on `stdout`) for machines:
         "lineno": 22,
         "module": "qs3",
         "path": "/path/docs/python/qs3.py",
-        "process": 2773682,
+        "process": 2865062,
         "processName": "MainProcess",
-        "thread": 139701364348736,
+        "thread": 139927663843136,
         "threadName": "MainThread"
     },
     "status": "critical",
-    "timestamp": "2023-03-28T06:56:11Z"
+    "timestamp": "2023-03-28T08:56:24Z"
 }
  
 ```
@@ -218,5 +225,5 @@ JSON ouput (on `stdout`) for machines:
 
 ## Roadmap
 
-- [ ] add `file` outputs
+- [ ] add `file` outputs
 - [ ] add a full `logfmt` formatter

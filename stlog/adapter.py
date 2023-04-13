@@ -4,7 +4,7 @@ import collections
 import logging
 import typing
 
-from stlog.base import STLOG_EXTRA_KEYS_KEY, STLOG_MANAGED_KEY
+from stlog.base import RESERVED_ATTRS, STLOG_EXTRA_KEY
 from stlog.context import ExecutionLogContext
 
 
@@ -29,10 +29,10 @@ class _KeywordArgumentAdapter(logging.LoggerAdapter):
         # Move any unknown keyword arguments into the extra
         # dictionary.
         for name in list(kwargs.keys()):
-            if name in ("exc_info", "stack_info"):
+            if name in RESERVED_ATTRS:
                 continue
             extra[name] = kwargs.pop(name)
-        extra[STLOG_EXTRA_KEYS_KEY] = set(extra.keys())
+        extra[STLOG_EXTRA_KEY] = set(extra.keys())
         kwargs["extra"] = extra
         return msg, kwargs
 
@@ -43,7 +43,7 @@ class StLogLoggerAdapter(_KeywordArgumentAdapter):
     def process(
         self, msg: typing.Any, kwargs: collections.abc.MutableMapping[str, typing.Any]
     ) -> tuple[typing.Any, collections.abc.MutableMapping[str, typing.Any]]:
-        new_kwargs = {**ExecutionLogContext._get(), **kwargs, STLOG_MANAGED_KEY: True}
+        new_kwargs = {**ExecutionLogContext._get(), **kwargs}
         return super().process(msg, new_kwargs)
 
 

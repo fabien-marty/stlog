@@ -8,12 +8,11 @@ import typing
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from stlog.base import GLOBAL_LOGGING_CONFIG, RICH_INSTALLED
+from stlog.base import GLOBAL_LOGGING_CONFIG, RICH_INSTALLED, StLogError
 from stlog.formatter import (
     DEFAULT_STLOG_HUMAN_FORMAT,
     DEFAULT_STLOG_RICH_FORMAT,
     HumanFormatter,
-    JsonFormatter,
 )
 
 if TYPE_CHECKING:
@@ -66,24 +65,18 @@ class Output:
     """
 
     _handler: logging.Handler = field(init=False, default_factory=logging.NullHandler)
-    formatter: logging.Formatter = field(default_factory=HumanFormatter)
+    formatter: logging.Formatter | None = field(default_factory=HumanFormatter)
+
     level: int | None = None
 
     def set_handler(
         self,
         handler: logging.Handler,
-        force_formatter_fmt_if_not_set: str | None = None,
     ):
         """Configure the Python logging Handler to use."""
         self._handler = handler
-        if force_formatter_fmt_if_not_set is not None and isinstance(
-            self.formatter, HumanFormatter
-        ):
-            # We can only do that with StLogHumanFormatter
-            # because it is lazy (the point is to be able to change dynamically the default
-            # format depending on the use of Rich or not)
-            if self.formatter.fmt is None:
-                self.formatter.fmt = force_formatter_fmt_if_not_set
+        if self.formatter is None:
+            raise StLogError("formatter is not set")
         self._handler.setFormatter(self.formatter)
         if self.level is not None:
             self._handler.setLevel(self.level)
@@ -106,33 +99,51 @@ class Stream(Output):
 
     stream: typing.TextIO = sys.stderr
     use_rich: bool | None = DEFAULT_USE_RICH
+    _use_rich: bool = False
 
     def __post_init__(self):
-        if self.use_rich is False:
-            self._set_standard_stream_handler()
+        self._resolve_rich()
+        self._set_default_formatter_if_not_set()
+        self._set_stream_handler()
+
+    def _resolve_rich(self) -> None:
+        self._use_rich = False
+        if self.use_rich is True:
+            self._use_rich = True
+        elif self._use_rich is None:
+            # Automatic
+            if RICH_INSTALLED:
+                from rich.console import Console
+
+                c = Console(self.stream)
+                self._use_rich = c.is_terminal()
+
+    def _set_default_formatter_if_not_set(self) -> None:
+        if self.formatter is not None:
             return
-        if RICH_INSTALLED:
-            if not isinstance(self.formatter, JsonFormatter):
-                self._set_rich_stream_handler(force_terminal=self.use_rich is True)
-                return
-        self._set_standard_stream_handler()
+        if self._use_rich:
+            self.formatter = HumanFormatter(fmt=DEFAULT_STLOG_RICH_FORMAT)
+        else:
+            self.formatter = HumanFormatter(fmt=DEFAULT_STLOG_HUMAN_FORMAT)
+
+    def _set_stream_handler(self) -> None:
+        if self._use_rich:
+            self._set_rich_stream_handler(force_terminal=self.use_rich is True)
+        else:
+            self._set_standard_stream_handler()
 
     def _set_standard_stream_handler(self) -> None:
         self.set_handler(
             logging.StreamHandler(self.stream),
-            force_formatter_fmt_if_not_set=DEFAULT_STLOG_HUMAN_FORMAT,
         )
 
     def _set_rich_stream_handler(self, force_terminal: bool = False) -> None:
         from rich.console import Console
 
         c = Console(file=self.stream, force_terminal=force_terminal)
-        self.set_handler(
-            self.make_rich_handler(c),
-            force_formatter_fmt_if_not_set=DEFAULT_STLOG_RICH_FORMAT,
-        )
+        self.set_handler(self._make_rich_handler(c))
 
-    def make_rich_handler(self, c: Console) -> RichHandler:
+    def _make_rich_handler(self, c: Console) -> RichHandler:
         from rich.logging import RichHandler
 
         return RichHandler(console=c, show_path=False, omit_repeated_times=False)

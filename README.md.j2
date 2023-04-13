@@ -87,7 +87,7 @@ Output (without `rich` library installed):
 ```
 
 Output (with `rich` library installed):
-{{ ("./docs/python/termtosvg.sh qs2.py" + pathprefix) |shell(die_on_error=True) }} 
+{{ ("./docs/python/termtosvg.sh qs2.py " + pathprefix) |shell(die_on_error=True) }} 
 
 What about if you want to get a more parsing friendly output (for example in JSON on `stdout`) while keeping the human output on `stderr` (without any context)?
 

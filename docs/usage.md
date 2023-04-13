@@ -131,24 +131,6 @@ The only thing you get is the ability to pass some extra `kwargs` as key/values.
 
 {{ code_example_to_svg("usage6.py", lines=30) }}
 
-
-## Misc: mixing stlog and python logging
-
-```python
-{{ code_example("usage_mix1.py") }}
-```
-
-{{ code_example_to_svg("usage_mix1.py") }}
-
-Of course, when you use a classic python logger, you can't pass a specific context but the global context is automatically 
-reinjected. If you don't want this behavior, set `reinject_context_in_standard_logging` to `False` in {{apilink("setup")}}:
-
-```python
-{{ code_example("usage_mix2.py") }}
-```
-
-{{ code_example_to_svg("usage_mix2.py") }}
-
 ## API reference
 
 The public API of the library is available here: {{apilink()}}{:target="_blank"}.

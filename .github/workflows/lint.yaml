@@ -7,6 +7,7 @@ on:
 
 env:
   POETRY_HOME: /opt/poetry
+  POETRY_CACHE: /var/cache/poetry
 
 jobs:
 
@@ -38,7 +39,7 @@ jobs:
         with:
           path: |
             ${{ env.POETRY_HOME }}
-            .poetry
+            ${{ env.POETRY_CACHE }}
           key: cachepoetry-${{ needs.hashfiles.outputs.poetrylock-hash }}-${{ vars.CACHE_VERSION }}
       - name: Install poetry
         if: steps.cache-deps.outputs.cache-hit != 'true'
@@ -48,12 +49,17 @@ jobs:
       - name: Fix github path
         run: |
           echo "$POETRY_HOME/bin" >> "$GITHUB_PATH"
+      - name: debug
+        run: |
+          ls -al $POETRY_HOME || true
+          ls -al $POETRY_CACHE || true
+          ls -al $POETRY_CACHE/venv || true
       - name: Configure poetry
         run: |
           poetry config virtualenvs.create true
           poetry config virtualenvs.in-project false
-          poetry config cache-dir ~/.poetry
-          poetry config virtualenvs.path ~/.poetry/venv
+          poetry config cache-dir $POETRY_CACHE
+          poetry config virtualenvs.path $POETRY_CACHE/venv
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Install requirements

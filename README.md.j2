@@ -85,26 +85,73 @@ ExecutionLogContext.add(client_id=456, http_method="GET")
 logger = getLogger(__name__)
 logger.info("It works", foo="bar", x=123)
 logger.critical("Houston, we have a problem!")
-
-# Output:
-# 2023-03-17T08:59:09Z [INFO]     __main__#1716617: It works  [http_method: GET] [x: 123] [client_id: 456] [request_id: 4c2383f5] [foo: bar]
-# 2023-03-17T09:01:30Z [CRITICAL] __main__#1716617: Houston, we have a problem!  [http_method: GET] [client_id: 456] [request_id: 4c2383f5]
 ```
+
+Output (without `rich` library installed):
+
+```
+2023-03-24T12:47:37Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
+2023-03-24T12:47:38Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
+```
+
+Output (with `rich` library installed):
+
+![richoutput]({{pathprefix}}img/rich1.png)
 
 What about if you want to get a more parsing friendly output (for example in JSON on `stdout`) while keeping the human output on `stderr` (without any context)?
 
-```python
+Change the "setup" part:
 
+```python
+import sys
 from stlog import ExecutionLogContext, getLogger, setup
-from stlog.output import Stream
+from stlog.output import StreamOutput
 from stlog.formatter import HumanFormatter, JsonFormatter
 
 setup(
     outputs=[
-        Stream(stream=sys.stderr, formatter=HumanFormatter(exclude_extras_keys_fnmatchs=["*"])),
-        Stream(stream=sys.stdout, formatter=JsonFormatter())
+        StreamOutput(stream=sys.stderr, formatter=HumanFormatter(exclude_extras_keys_fnmatchs=["*"])),
+        StreamOutput(stream=sys.stdout, formatter=JsonFormatter(indent=4))
     ]
 )
+
+# [...] see previous example
+```
+
+`stderr` ouput will be (for humans): 
+
+```
+2023-03-24T13:05:04Z [INFO]     (__main__) It works
+2023-03-24T13:05:04Z [CRITICAL] (__main__) Houston, we have a problem!
+```
+
+`stdout` output will be (for machines):
+
+```json
+{
+    "status": "info",
+    "logger": {
+        "name": "__main__"
+    },
+    "source": {
+        "path": "/home/fab/src/standard-structlog/toto.py",
+        "lineno": 28,
+        "module": "toto",
+        "funcName": "<module>",
+        "process": 2431368,
+        "processName": "MainProcess",
+        "thread": 140184194897728,
+        "threadName": "MainThread"
+    },
+    "message": "It works",
+    "timestamp": "2023-03-24T13:05:04Z",
+    "x": 123,
+    "foo": "bar",
+    "request_id": "4c2383f5",
+    "http_method": "GET",
+    "client_id": 456
+}
+[...] the critical json message is hidden here to limit the size of the output
 ```
 
 <!--quickstart-end-->

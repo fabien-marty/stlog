@@ -10,6 +10,7 @@ from yaml import Loader, load
 def get_variables() -> dict[str, Any]:
     with open("mkdocs.yml") as f:
         data = load(f, Loader=Loader)
+        data["extra"]["pathprefix"] = "docs/"
         return data["extra"]
 
 

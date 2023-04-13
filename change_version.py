@@ -23,4 +23,5 @@ for line in c.splitlines():
 with open("stlog/__init__.py", "w") as g:
     g.write("\n".join(lines))
 
+print(f"Setting version={version}")
 os.system(f"poetry version {version}")

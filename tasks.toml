@@ -54,7 +54,7 @@ cmd = "python make_readme.py lint"
 # lint the README
 [tool.poe.tasks.readme]
 help = "make the README.md file from README.md.j2"
-cmd = "python make_readme.py lint"
+cmd = "python make_readme.py"
 
 # lint sequence
 [tool.poe.tasks.lint]

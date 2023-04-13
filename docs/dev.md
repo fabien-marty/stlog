@@ -1,8 +1,10 @@
 # Dev
 
-- managed by `poetry` and [`poethepoet`](https://github.com/nat-n/poethepoet) as a task launcher
-- `poetry run poe --help` to see available tasks (linting, unit tests, reformating...):
+- managed by `poetry` and [`invoke`](https://docs.pyinvoke.org/) as a task launcher
+- `poetry run invoke --list` to see available tasks (linting, unit tests, reformating...):
 
-{{ code_example_to_svg("poe", interpreter="", lines=50) }}
+```
+{{ "invoke --list"|shell() }}
+```
 
 [Coverage]({{coverage}})

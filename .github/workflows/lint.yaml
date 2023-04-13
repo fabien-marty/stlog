@@ -54,16 +54,16 @@ jobs:
           poetry install
       - name: Run lint
         run: |
-          poetry run poe lint
+          poetry run invoke lint
       - name: Run tests / coverage
         run: |
-          poetry run poe coverage
+          poetry run invoke test --coverage
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         if: matrix.python-version == '3.7'
       - name: Make docs
         run: |
-          poetry run poe docs
+          poetry run invoke docs
       - name: Upload API doc as an artifact
         if: matrix.python-version == '3.7'
         uses: actions/upload-artifact@v3

@@ -36,7 +36,7 @@ res = template.render(**variables)
 res = (
     """
 <!-- WARNING: generated from README.md.j2, do not modify this file manually but modify README.md.j2 instead
-     and execute 'poetry run poe readme' to regenerate this README.md file -->
+     and execute 'poetry run invoke readme' to regenerate this README.md file -->
 
 """
     + res
@@ -56,7 +56,7 @@ if len(sys.argv) >= 2 and sys.argv[1] == "lint":
             )
         )
         print()
-        print("use 'poetry run poe readme' to do that")
+        print("use 'poetry run invoke readme' to do that")
         sys.exit(1)
 else:
     with open("README.md", "w") as f:

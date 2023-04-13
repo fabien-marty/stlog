@@ -34,6 +34,8 @@ tmpdir = os.path.join(SCRIPT_DIR, f"termtosvg.{rndint}")
 output = f"termtosvg.{rndint}.output"
 os.system(f"rm -Rf {tmpdir} {output}")
 cmd = f"termtosvg --still-frames --screen-geometry '{args.columns}x{args.lines}' --template=solarized_light --command 'python -u {path}' '{tmpdir}' >'{output}' 2>&1"
+print(cmd)
+os.system(f"cat {output}")
 rc = os.system(cmd)
 if rc != 0:
     print("ERROR during termtosvh, output:")

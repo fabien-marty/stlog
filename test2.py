@@ -4,12 +4,12 @@ import logging
 
 from stlog import ExecutionLogContext, getLogger, setup
 from stlog.formatter import JsonFormatter
-from stlog.output import Stream
+from stlog.output import StreamOutput
 
 # setup (globally)
 setup(
     level=logging.INFO,
-    outputs=(Stream(formatter=JsonFormatter()),),
+    outputs=(StreamOutput(formatter=JsonFormatter()),),
 )
 
 # set the (kind of) global execution context (thread, worker, async friendly: one context by execution)

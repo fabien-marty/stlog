@@ -6,18 +6,21 @@ import os
 import sys
 import typing
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 
-from stlog.base import GLOBAL_LOGGING_CONFIG, RICH_INSTALLED, StLogError
+from stlog.base import StLogError
 from stlog.formatter import (
-    DEFAULT_STLOG_HUMAN_FORMAT,
-    DEFAULT_STLOG_RICH_FORMAT,
     HumanFormatter,
+    LogFmtKVFormatter,
 )
+from stlog.handler import CustomRichHandler
 
-if TYPE_CHECKING:
+RICH_INSTALLED: bool = False
+try:
     from rich.console import Console
-    from rich.logging import RichHandler
+
+    RICH_INSTALLED = True
+except ImportError:
+    pass
 
 
 def _get_default_use_rich() -> bool | None:
@@ -30,37 +33,14 @@ def _get_default_use_rich() -> bool | None:
 DEFAULT_USE_RICH = _get_default_use_rich()
 
 
-def _get_log_file_path(
-    logfile: str | None = None,
-    logdir: str | None = None,
-    logfile_suffix: str = ".log",
-) -> str:
-    ret_path = None
-
-    if not logdir:
-        ret_path = logfile
-
-    if not ret_path and logfile and logdir:
-        ret_path = os.path.join(logdir, logfile)
-
-    if not ret_path and logdir:
-        ret_path = (
-            os.path.join(logdir, GLOBAL_LOGGING_CONFIG.program_name) + logfile_suffix
-        )
-
-    if not ret_path:
-        raise ValueError("Unable to determine log file destination")
-
-    return ret_path
-
-
 @dataclass
 class Output:
     """Abstract output base class.
 
     Attributes:
         formatter: the Python logging Formatter to use.
-        level: FIXME.
+        level: python logging level specific to this output
+            (None means "use the global logging level").
 
     """
 
@@ -74,9 +54,7 @@ class Output:
     ):
         """Configure the Python logging Handler to use."""
         self._handler = handler
-        if self.formatter is None:
-            raise StLogError("formatter is not set")
-        self._handler.setFormatter(self.formatter)
+        self._handler.setFormatter(self.get_formatter_or_raise())
         if self.level is not None:
             self._handler.setLevel(self.level)
 
@@ -84,78 +62,70 @@ class Output:
         """Get the configured Python logging Handler."""
         return self._handler
 
+    def get_formatter_or_raise(self) -> logging.Formatter:
+        if self.formatter is None:
+            raise StLogError("formatter is not set")
+        return self.formatter
+
 
 @dataclass
-class Stream(Output):
+class StreamOutput(Output):
     """Represent an output to a stream (stdout, stderr...).
 
     Attributes:
         stream: the stream to use (`typing.TextIO`), default to `sys.stderr`.
-        use_rich: if None, use [rich output](https://github.com/Textualize/rich/blob/master/README.md) if possible
-        (rich installed and supported tty), if True/False force the usage (or not).
 
     """
 
     stream: typing.TextIO = sys.stderr
-    use_rich: bool | None = DEFAULT_USE_RICH
-    _use_rich: bool = False
 
     def __post_init__(self):
-        self._resolve_rich()
-        auto_set = self._set_default_formatter_if_not_set()
-        self._set_stream_handler(auto_set)
-
-    def _resolve_rich(self) -> None:
-        if self.use_rich is not None:
-            # manual mode
-            self._use_rich = self.use_rich
-        else:
-            # automatic mode
-            if RICH_INSTALLED:
-                from rich.console import Console
-
-                c = Console(file=self.stream)
-                self._use_rich = c.is_terminal
-
-    def _set_default_formatter_if_not_set(self) -> bool:
-        if self.formatter is not None:
-            return False
-        if self._use_rich:
-            self.formatter = HumanFormatter(fmt=DEFAULT_STLOG_RICH_FORMAT)
-        else:
-            self.formatter = HumanFormatter(fmt=DEFAULT_STLOG_HUMAN_FORMAT)
-        return True
-
-    def _set_stream_handler(self, formatter_automatically_set: bool) -> None:
-        if self.use_rich or (self._use_rich is True and formatter_automatically_set):
-            self._set_rich_stream_handler(force_terminal=self.use_rich is True)
-        else:
-            self._set_standard_stream_handler()
-
-    def _set_standard_stream_handler(self) -> None:
+        if self.formatter is None:
+            self.formatter = HumanFormatter()
         self.set_handler(
             logging.StreamHandler(self.stream),
         )
 
-    def _set_rich_stream_handler(self, force_terminal: bool = False) -> None:
-        from rich.console import Console
-
-        c = Console(file=self.stream, force_terminal=force_terminal)
-        self.set_handler(self._make_rich_handler(c))
-
-    def _make_rich_handler(self, c: Console) -> RichHandler:
-        from rich.logging import RichHandler
-
-        return RichHandler(console=c, show_path=False, omit_repeated_times=False)
-
 
 @dataclass
-class File(Output):
-    filename: str | None = None
-    directory: str | None = None
-    suffix: str = ".log"
+class RichStreamOutput(StreamOutput):
+    force_terminal: bool = True
 
     def __post_init__(self):
-        logpath = _get_log_file_path(self.filename, self.directory, self.suffix)
-        handler = logging.handlers.WatchedFileHandler(logpath)
-        self.set_handler(handler)
+        if self.formatter is None:
+            self.formatter = HumanFormatter(
+                kvs_formatter=LogFmtKVFormatter(extras_prefix="{"),
+            )
+        if not RICH_INSTALLED:
+            raise StLogError("Rich is not installed and RichStreamOutput is specified")
+        c = Console(
+            file=self.stream, force_terminal=True if self.force_terminal else None
+        )
+        self.set_handler(CustomRichHandler(console=c))
+
+
+def make_stream_or_rich_stream_output(
+    stream: typing.TextIO = sys.stderr,
+    use_rich: bool | None = None,
+    force_terminal: bool = False,
+) -> StreamOutput:
+    """FIXME
+
+    Attributes:
+        use_rich: if None, use [rich output](https://github.com/Textualize/rich/blob/master/README.md) if possible
+        (rich installed and supported tty), if True/False force the usage (or not).
+
+    """
+    _use_rich: bool = False
+    if use_rich is not None:
+        # manual mode
+        _use_rich = use_rich
+    else:
+        # automatic mode
+        if RICH_INSTALLED:
+            c = Console(file=stream)
+            _use_rich = c.is_terminal
+    if _use_rich:
+        return RichStreamOutput(stream=stream, force_terminal=force_terminal)
+    else:
+        return StreamOutput(stream=stream)

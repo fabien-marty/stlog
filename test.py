@@ -6,21 +6,19 @@ import time
 
 from stlog import ExecutionLogContext, getLogger, setup
 from stlog.formatter import JsonFormatter
-from stlog.output import Stream
+from stlog.output import RichStreamOutput, StreamOutput
 
 # setup (globally)
 setup(
     level=logging.INFO,
     outputs=(
-        Stream(
+        StreamOutput(
             stream=sys.stdout,
-            use_rich=False,
         ),
-        Stream(
+        RichStreamOutput(
             stream=sys.stderr,
-            use_rich=True,
         ),
-        Stream(formatter=JsonFormatter(), use_rich=False),
+        StreamOutput(formatter=JsonFormatter()),
     ),
 )
 
@@ -44,7 +42,7 @@ logger.critical("It works again", foo="bar", x=123)
 # {"message": "It works again", "bar": "foo", "y": 456, "foo": "bar", "x": 123, "timestamp": "2023-02-18T12:35:50.184772+00:00", "status": "info", "logger": {"name": "__main__"}}
 
 ExecutionLogContext.remove("bar", "y")
-logger.warning("plop")
+logger.warning("plop", lst=["foo", 123, True])
 # {"message": "plop", "timestamp": "2023-02-19T12:20:24.393459+00:00", "status": "info", "logger": {"name": "__main__"}}
 
 

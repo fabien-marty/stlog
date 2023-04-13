@@ -10,7 +10,7 @@ import typing
 from stlog.adapter import getLogger
 from stlog.base import GLOBAL_LOGGING_CONFIG
 from stlog.handler import ContextReinjectHandlerWrapper
-from stlog.output import Output, Stream
+from stlog.output import Output, make_stream_or_rich_stream_output
 
 RICH_AVAILABLE = True
 try:
@@ -18,7 +18,7 @@ try:
 except ImportError:
     RICH_AVAILABLE = False
 
-DEFAULT_OUTPUTS: list[Output] = [Stream(stream=sys.stderr)]
+DEFAULT_OUTPUTS: list[Output] = [make_stream_or_rich_stream_output(stream=sys.stderr)]
 DEFAULT_LEVEL: str = os.environ.get("STLOG_LEVEL", "INFO")
 DEFAULT_PROGRAM_NAME: str | None = os.environ.get("STLOG_PROGRAM_NAME", None)
 

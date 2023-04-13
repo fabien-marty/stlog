@@ -10,6 +10,8 @@ packages = [{include = "standard_structlog"}]
 [tool.poetry.dependencies]
 python = "^3.7"
 daiquiri = "^3.2.1"
+fastapi = "^0.92.0"
+uvicorn = "^0.20.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -25,7 +27,10 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 # Enable Pyflakes `E` and `F` codes by default.
 select = ["E", "F", "W", "N", "UP", "B", "I", "PL", "RUF"]
-ignore = []
+ignore = [
+    "E501",   # We ignore "Line too long" errors
+              # (because we consider that black is enough)
+]
 line-length = 88
 target-version = "py37"
 
@@ -35,4 +40,5 @@ required-imports = ["from __future__ import annotations"]
 [tool.poe.tasks]
 lint_ruff   = "ruff --fix ."
 lint_black = "black ."
-lint = ["lint_ruff", "lint_black"]
+lint_mypy = "mypy --check-untyped-defs ."
+lint = ["lint_black", "lint_ruff", "lint_mypy"]

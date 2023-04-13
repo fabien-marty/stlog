@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "standard-structlog"
+version = "0.1.0"
+description = ""
+authors = ["Fabien MARTY <fabien.marty@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "standard_structlog"}]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+daiquiri = "^3.2.1"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.247"
+mypy = "^1.0.1"
+black = "^23.1.0"
+poethepoet = "^0.18.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+# Enable Pyflakes `E` and `F` codes by default.
+select = ["E", "F", "W", "N", "UP", "B", "I", "PL", "RUF"]
+ignore = []
+line-length = 88
+target-version = "py37"
+
+[tool.ruff.isort]
+required-imports = ["from __future__ import annotations"]
+
+[tool.poe.tasks]
+lint_ruff   = "ruff --fix ."
+lint_black = "black ."
+lint = ["lint_ruff", "lint_black"]

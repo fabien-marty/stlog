@@ -1,5 +1,5 @@
 site_name: stlog
-repo_url: https://github.com/fabien-marty/standard-structlog
+repo_url: https://github.com/fabien-marty/stlog
 
 theme:
   name: material
@@ -43,5 +43,5 @@ extra:
   contextvars: "[contextvars](https://docs.python.org/3/library/contextvars.html)"
   rich: "[the rich library](https://github.com/Textualize/rich)"
   pathprefix: ""
-  _apilink: "https://fabien-marty.github.io/standard-structlog/stlog/"
-  coverage: "https://fabien-marty.github.io/standard-structlog/coverage"
+  _apilink: "https://fabien-marty.github.io/stlog/stlog/"
+  coverage: "https://fabien-marty.github.io/stlog/coverage"

@@ -285,6 +285,12 @@ class RichHumanFormatter(HumanFormatter):
         delattr(record, "rich_escaped_extras")
         super()._remove_extras(record)
 
+    def formatException(self, ei):  # noqa: N802
+        return ""
+
+    def formatStack(self, stack_info):  # noqa: N802
+        return ""
+
 
 def json_formatter_default_extra_key_rename_fn(key: str) -> str | None:
     """Simple "extra_key_rename" function to remove leading underscores."""

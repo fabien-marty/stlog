@@ -9,7 +9,8 @@ import pytest
 from stlog import ExecutionLogContext, getLogger, setup
 from stlog.formatter import JsonFormatter
 from stlog.output import RichStreamOutput
-from tests.utils import UnitsTestsOutput
+from stlog.setup import _logging_excepthook
+from tests.utils import UnitsTestsJsonOutput, UnitsTestsOutput
 
 
 @pytest.fixture
@@ -92,3 +93,32 @@ def test_warnings():
     assert decoded["status"] == "warning"
     assert decoded["logger"]["name"] == "py.warnings"
     assert "this is a warning" in decoded["message"]
+
+
+def test_exceptions():
+    target_list: list[dict] = []
+    setup(
+        outputs=[UnitsTestsJsonOutput(target_list=target_list)],
+    )
+    try:
+        raise Exception("foo")
+    except Exception:
+        getLogger("bar").critical("exception catched", exc_info=True)
+    assert len(target_list) == 1
+    assert target_list[0]["status"] == "critical"
+    assert target_list[0]["message"] == "exception catched"
+    assert "Traceback" in target_list[0]["exc_info"]
+
+
+def test_exceptions2():
+    target_list: list[dict] = []
+    setup(
+        logging_excepthook=None,
+        outputs=[UnitsTestsJsonOutput(target_list=target_list)],
+    )
+    try:
+        raise Exception("foo")
+    except Exception as e:
+        _logging_excepthook(Exception, e)
+    assert len(target_list) == 1
+    assert target_list[0]["status"] == "critical"

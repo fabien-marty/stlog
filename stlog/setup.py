@@ -8,7 +8,7 @@ import types
 import typing
 
 from stlog.adapter import getLogger
-from stlog.base import GLOBAL_LOGGING_CONFIG, _dump_exception_on_console, check_env_true
+from stlog.base import GLOBAL_LOGGING_CONFIG, check_env_true
 from stlog.handler import ContextReinjectHandlerWrapper
 from stlog.output import Output, make_stream_or_rich_stream_output
 
@@ -27,7 +27,7 @@ def _make_default_outputs() -> list[Output]:
 def _logging_excepthook(
     exc_type: type[BaseException],
     value: BaseException,
-    tb: types.TracebackType | None,
+    tb: types.TracebackType | None = None,
 ) -> None:
     if issubclass(exc_type, KeyboardInterrupt):
         sys.__excepthook__(exc_type, value, tb)
@@ -37,7 +37,6 @@ def _logging_excepthook(
         program_logger.critical(
             "Exception catched in excepthook", exc_info=(exc_type, value, tb)
         )
-        _dump_exception_on_console(exc_type, value, tb)
     except Exception:
         print(
             "ERROR: Exception during exception handling => let's dump this on standard output"

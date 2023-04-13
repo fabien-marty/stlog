@@ -8,11 +8,11 @@ from stlog.base import (
     StLogError,
     rich_dump_exception_on_console,
 )
-from stlog.context import ExecutionLogContext
+from stlog.context import LogContext
 
 
 class ContextReinjectHandlerWrapper(logging.Handler):
-    """Logging Handler (built as a wrapper/adapter of another handler) to reinject `stlog.ExecutionLogContext`
+    """Logging Handler (built as a wrapper/adapter of another handler) to reinject `stlog.LogContext`
     content in log records (if they weren't sent by `stlog` special loggers)."""
 
     def __init__(
@@ -31,7 +31,7 @@ class ContextReinjectHandlerWrapper(logging.Handler):
             # the context is not already injected in record
             # (this log didn't pass by stlog ContextVarsAdapter)
             # => let's fix that
-            new_kwargs = ExecutionLogContext._get()
+            new_kwargs = LogContext._get()
             extra_keys: set[str] = getattr(record, STLOG_EXTRA_KEY, set())
             for k, v in new_kwargs.items():
                 setattr(record, k, v)

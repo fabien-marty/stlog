@@ -98,7 +98,7 @@ Output (with `rich` library installed):
 ### Usage with context
 
 ```python
-from stlog import ExecutionLogContext, getLogger, setup
+from stlog import LogContext, getLogger, setup
 
 # Set the logging default configuration (human output on stderr)
 setup()
@@ -109,9 +109,9 @@ setup()
 # (thread, worker, async friendly: one context by execution)
 # (for example in a wsgi/asgi middleware)
 # Note: ExecutionContext is a static class, so a kind of global singleton
-ExecutionLogContext.reset_context()
-ExecutionLogContext.add(request_id="4c2383f5")
-ExecutionLogContext.add(client_id=456, http_method="GET")
+LogContext.reset_context()
+LogContext.add(request_id="4c2383f5")
+LogContext.add(client_id=456, http_method="GET")
 
 # ... in another file/class/...
 
@@ -139,7 +139,7 @@ What about if you want to get a more parsing friendly output (for example in JSO
 
 ```python
 import sys
-from stlog import ExecutionLogContext, getLogger, setup
+from stlog import LogContext, getLogger, setup
 from stlog.output import StreamOutput
 from stlog.formatter import HumanFormatter, JsonFormatter
 
@@ -154,9 +154,9 @@ setup(
 )
 
 # See previous example for details
-ExecutionLogContext.reset_context()
-ExecutionLogContext.add(request_id="4c2383f5")
-ExecutionLogContext.add(client_id=456, http_method="GET")
+LogContext.reset_context()
+LogContext.add(request_id="4c2383f5")
+LogContext.add(client_id=456, http_method="GET")
 logger = getLogger(__name__)
 logger.info("It works", foo="bar", x=123)
 logger.critical("Houston, we have a problem!")

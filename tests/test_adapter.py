@@ -4,14 +4,14 @@ import json
 
 import pytest
 
-from stlog import ExecutionLogContext, getLogger, setup
+from stlog import LogContext, getLogger, setup
 from stlog.formatter import JsonFormatter
 from tests.utils import UnitsTestsOutput
 
 
 @pytest.fixture
 def context():
-    context = ExecutionLogContext
+    context = LogContext
     context.reset_context()
     yield context
     context.reset_context()

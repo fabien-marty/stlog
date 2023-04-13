@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from stlog import ExecutionLogContext, getLogger, setup
+from stlog import LogContext, getLogger, setup
 from stlog.formatter import JsonFormatter
 from stlog.output import RichStreamOutput
 from stlog.setup import _logging_excepthook
@@ -15,7 +15,7 @@ from tests.utils import UnitsTestsJsonOutput, UnitsTestsOutput
 
 @pytest.fixture
 def context():
-    context = ExecutionLogContext
+    context = LogContext
     context.reset_context()
     yield context
     context.reset_context()

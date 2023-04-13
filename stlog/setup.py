@@ -76,7 +76,7 @@ def setup(
             See https://docs.python.org/3/library/sys.html#sys.excepthook for details.
         extra_levels: iterable of tuples (logger name, log level) for quick override of
             the root log level.
-        reinject_context_in_standard_logging: if True, reinject the ExecutionLogContext
+        reinject_context_in_standard_logging: if True, reinject the LogContext
             in log record emitted with python standard loggers.
         read_extra_kwarg_from_standard_logging: if try to reinject the extra kwargs from standard logging.
     """

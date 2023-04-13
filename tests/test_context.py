@@ -5,13 +5,13 @@ import datetime
 
 import pytest
 
-from stlog import ExecutionLogContext
+from stlog import LogContext
 from stlog.base import StLogError
 
 
 @pytest.fixture
 def context():
-    context = ExecutionLogContext
+    context = LogContext
     context.reset_context()
     yield context
     context.reset_context()
@@ -50,9 +50,9 @@ def test_deepcopy(context):
 
 
 def _test_another_context():
-    ExecutionLogContext.reset_context()
-    ExecutionLogContext.add(foo="foo")
-    assert ExecutionLogContext.get("foo") == "foo"
+    LogContext.reset_context()
+    LogContext.add(foo="foo")
+    assert LogContext.get("foo") == "foo"
 
 
 def test_multiple_context(context):
@@ -64,4 +64,4 @@ def test_multiple_context(context):
 
 def test_init():
     with pytest.raises(TypeError):
-        ExecutionLogContext()
+        LogContext()

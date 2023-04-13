@@ -41,9 +41,9 @@ tmpdir = os.path.join(SCRIPT_DIR, f"termtosvg.{rndint}")
 output = f"termtosvg.{rndint}.output"
 os.system(f"rm -Rf {tmpdir} {output}")
 if args.interpreter:
-    real_command=f"{args.interpreter} {path}"
+    real_command = f"{args.interpreter} {path}"
 else:
-    real_command=path
+    real_command = path
 cmd = f"termtosvg --still-frames --screen-geometry '{args.columns}x{args.lines}' --template=solarized_light --command '{real_command}' '{tmpdir}' >'{output}' 2>&1"
 rc = os.system(cmd)
 if rc != 0:

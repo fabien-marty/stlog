@@ -24,7 +24,6 @@ mkdocs-include-markdown-plugin = "^4.0.4"
 types-pyyaml = "^6.0.12.8"
 jinja2-shell-extension = "^2.0.0"
 termtosvg = "^1.1.0"
-import-linter = "^1.8.0"
 dunamai = "^1.16.0"
 invoke = "^2.0.0"
 types-invoke = "^2.0.0.6"
@@ -32,10 +31,6 @@ types-invoke = "^2.0.0.6"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.importlinter]
-root_package = "stlog"
-include_external_packages = true
 
 [tool.ruff]
 # Enable Pyflakes `E` and `F` codes by default.

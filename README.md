@@ -1,8 +1,8 @@
 
-<!-- WARNING: generated from README.md.j2, do not modify this file manually but modify README.md.j2 instead
-     and execute 'poetry run invoke readme' to regenerate this README.md file -->
+    <!-- WARNING: generated from README.md.j2, do not modify this file manually but modify README.md.j2 instead
+        and execute 'poetry run invoke readme' to regenerate this README.md file -->
 
-# stlog
+    # stlog
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/fabien-marty/stlog/lint.yaml)](https://github.com/fabien-marty/stlog/actions/workflows/lint.yaml)
 [![Codecov](https://img.shields.io/codecov/c/github/fabien-marty/stlog)](https://app.codecov.io/github/fabien-marty/stlog)

@@ -1,8 +1,8 @@
 site_name: stlog
+repo_url: https://github.com/fabien-marty/standard-structlog
 
 theme:
   name: material
-
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -12,3 +12,4 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - attr_list

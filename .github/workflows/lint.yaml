@@ -13,17 +13,13 @@ jobs:
   hashfiles: # dedicated job as github hashFiles function does not work in the python container
     runs-on: ubuntu-latest
     outputs:
-      workflows-hash: ${{ steps.workflows-hash.outputs.hash }}
       poetrylock-hash: ${{ steps.poetrylock-hash.outputs.hash }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - id: workflows-hash
-        name: Let's hash .github/workflows/**
-        run: echo "hash=${{ hashFiles('.github/workflows/**') }}" >> "$GITHUB_OUTPUT"
       - id: poetrylock-hash
         name: Let's hash poetry.lock
-        run: echo "hash=${{ hashFiles('poetry.lock') }}" >> "$GITHUB_OUTPUT"
+        run: echo "hash=${{ hashFiles('poetry.lock', '.github/workflows/**') }}" >> "$GITHUB_OUTPUT"
 
   lint: # we do the linting in a standard python container (a little bit harder than setup-python action
         # but more standard and more reproductible outside of github actions)
@@ -36,27 +32,20 @@ jobs:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Cache poetry install
-        id: cache-poetry
+      - name: Cache deps install
+        id: cache-deps
         uses: actions/cache@v3
         with:
           path: |
             ${{ env.POETRY_HOME }}
-          key: cachepoetry-${{ needs.hashfiles.outputs.workflows-hash }}-${{ vars.CACHE_VERSION }}
+          key: cachepoetry-${{ needs.hashfiles.outputs.poetrylock-hash }}-${{ vars.CACHE_VERSION }}
       - name: Install poetry
-        if: steps.cache-poetry.outputs.cache-hit != 'true'
+        if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
           python3 -m venv $POETRY_HOME
           $POETRY_HOME/bin/pip install poetry
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Cache dependencies install
-        id: cache-deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ env.HOME }}/.cache/pypoetry/virtualenvs
-          key: cachedeps-${{ needs.hashfiles.outputs.workflows-hash }}-${{ needs.hashfiles.outputs.poetrylock-hash }}-${{ vars.CACHE_VERSION }}
       - name: Install requirements
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |

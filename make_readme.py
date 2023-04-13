@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import difflib
 import os
 import sys
 from typing import Any
@@ -45,6 +46,17 @@ if len(sys.argv) >= 2 and sys.argv[1] == "lint":
         to_compare = f.read()
     if to_compare != res:
         print("README.md must be rebuilt")
+        print()
+        sys.stdout.writelines(
+            difflib.unified_diff(
+                to_compare.splitlines(),
+                res.splitlines(),
+                fromfile="README.md",
+                tofile="new README.md",
+            )
+        )
+        print()
+        print("use 'poetry run poe make_readme' to do that")
         sys.exit(1)
 else:
     with open("README.md", "w") as f:

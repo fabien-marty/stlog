@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 
 import pytest
 
@@ -13,8 +12,6 @@ from stlog.formatter import (
     HumanFormatter,
     JsonFormatter,
 )
-
-os.environ["STLOG_UNIT_TESTS_MODE"] = "1"
 
 
 @pytest.fixture

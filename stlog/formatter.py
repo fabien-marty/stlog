@@ -85,6 +85,7 @@ class Formatter(logging.Formatter):
         self.exclude_extra_keys_patterns: list[re.Pattern] = [
             re.compile(fnmatch.translate(x)) for x in self.exclude_extras_keys_fnmatchs
         ]
+        print("GLOBAL_LOGGING_CONFIG", GLOBAL_LOGGING_CONFIG._unit_tests_mode)
         if GLOBAL_LOGGING_CONFIG._unit_tests_mode:
             self.converter = _unit_tests_converter
 

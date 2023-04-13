@@ -6,6 +6,7 @@ import sys
 from typing import Any
 
 import jinja2
+from dunamai import Style, Version
 from invoke import task
 from yaml import Loader, load
 
@@ -108,6 +109,30 @@ def apidoc(c):
     """Make API doc"""
     _clean_apidoc(c)
     c.run(f"pdoc3 --html --output-dir=apihtml {PACKAGE}")
+
+
+@task
+def bump_version(c, force_version: str | None = None):
+    if force_version is None:
+        version = Version.from_git().serialize(style=Style.SemVer)
+    else:
+        version = force_version
+
+    with open("stlog/__init__.py") as f:
+        c = f.read()
+
+    lines = []
+    for line in c.splitlines():
+        if line.startswith("VERSION = "):
+            lines.append(f'VERSION = "{version}"')
+        else:
+            lines.append(line)
+
+    with open("stlog/__init__.py", "w") as g:
+        g.write("\n".join(lines))
+
+    print(f"Setting version={version}")
+    os.system(f"poetry version {version}")
 
 
 @task

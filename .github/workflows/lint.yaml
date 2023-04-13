@@ -102,11 +102,10 @@ jobs:
           poetry install
       - name: Publish on Pypi
         run: |
-          poetry run python change_version.py
+          poetry run invoke bump_version
           poetry config pypi-token.pypi "${{ secrets.PYPI_TOKEN }}"
           poetry build
           poetry publish
-          poetry run python restore_version.py
 
   githubpages:
     runs-on: ubuntu-latest

@@ -22,3 +22,15 @@ def define_env(env):
             else:
                 title = "API reference"
         return f"[{title}]({url})"
+
+    @env.macro
+    def code_example(filename: str):
+        with open(f"./docs/python/{filename}") as f:
+            return f.read()
+
+    @env.macro
+    def code_example_to_svg(filename: str, interpreter: str = "python"):
+        cmd = (
+            f"python ./docs/python/termtosvg.py --interpreter={interpreter} {filename}"
+        )
+        return shell(None, cmd, die_on_error=True)

@@ -42,5 +42,4 @@ extra:
   contextvars: "[contextvars](https://docs.python.org/3/library/contextvars.html)"
   rich: "[rich library](https://github.com/Textualize/rich)"
   pathprefix: ""
-  linting: ""
   _apilink: "https://fabien-marty.github.io/standard-structlog/stlog/"

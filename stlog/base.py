@@ -22,6 +22,9 @@ except ImportError:
     pass
 
 
+TRUE_VALUES = ("1", "true", "yes")
+
+
 class StLogError(Exception):
     pass
 
@@ -30,6 +33,9 @@ class StLogError(Exception):
 class GlobalLoggingConfig:
     program_name: str = field(
         default_factory=lambda: os.path.basename(inspect.stack()[-1][1])
+    )
+    _unit_tests_mode: bool = (
+        os.environ.get("STLOG_UNIT_TESTS_MODE", "0").lower() in TRUE_VALUES
     )
 
 
@@ -174,7 +180,7 @@ def get_env_context() -> dict[str, Any]:
 def check_true(value: str | None, default: bool = False) -> bool:
     if value is None:
         return default
-    return value.lower() in ("1", "true", "yes")
+    return value.lower() in TRUE_VALUES
 
 
 def check_env_true(env_var: str, default: bool = False) -> bool:

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import datetime
 import json
 import logging
+import os
 
 import pytest
 
@@ -13,6 +13,8 @@ from stlog.formatter import (
     HumanFormatter,
     JsonFormatter,
 )
+
+os.environ["STLOG_UNIT_TESTS_MODE"] = "1"
 
 
 @pytest.fixture
@@ -44,7 +46,7 @@ def json_formatter() -> logging.Formatter:
 
 def test_human1(log_record, human_formatter):
     res = human_formatter.format(log_record)
-    assert res.startswith(str(datetime.datetime.utcnow().year))
+    assert res.startswith("2023")
     assert "[INFO]" in res
     assert "name" in res
     assert "foo foo bar bar" in res
@@ -81,5 +83,5 @@ def test_json1(log_record, json_formatter):
     assert res["source"]["path"] == log_record.pathname
     assert res["source"]["lineno"] == log_record.lineno
     assert res["status"] == "info"
-    assert res["timestamp"].startswith(str(datetime.datetime.utcnow().year))
+    assert res["timestamp"].startswith("2023")
     assert res["message"] == "foo foo bar bar"

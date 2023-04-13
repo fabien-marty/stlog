@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Literal, Sequence
 
 from stlog.base import (
+    GLOBAL_LOGGING_CONFIG,
     STLOG_EXTRA_KEY,
     check_env_true,
     logfmt_format,
@@ -39,6 +40,11 @@ def _truncate_serialize(value: Any, limit: int = 0) -> str:
     except Exception:
         serialized = "[can't serialize]"
     return _truncate_str(serialized, limit)
+
+
+def _unit_tests_converter(val: float | None) -> time.struct_time:
+    # always the same value
+    return time.gmtime(1680101317)
 
 
 @dataclass
@@ -79,6 +85,8 @@ class Formatter(logging.Formatter):
         self.exclude_extra_keys_patterns: list[re.Pattern] = [
             re.compile(fnmatch.translate(x)) for x in self.exclude_extras_keys_fnmatchs
         ]
+        if GLOBAL_LOGGING_CONFIG._unit_tests_mode:
+            self.converter = _unit_tests_converter
 
     def _make_extra_key_name(self, extra_key: str) -> str | None:
         new_extra_key: str | None = extra_key
@@ -96,6 +104,17 @@ class Formatter(logging.Formatter):
             if re.match(pattern, new_extra_key):
                 return None
         return _truncate_str(new_extra_key, self.extra_key_max_length)
+
+    def format(self, record: logging.LogRecord) -> str:
+        if GLOBAL_LOGGING_CONFIG._unit_tests_mode:
+            # fix some fields in record to get always the same values
+            record.filename = "filename.py"
+            record.pathname = "/path/filename.py"
+            record.thread = 12345
+            record.process = 6789
+            record.processName = "MainProcess"
+            record.threadName = "MainThread"
+        return super().format(record)
 
 
 @dataclass

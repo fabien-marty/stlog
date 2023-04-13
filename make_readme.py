@@ -11,25 +11,7 @@ from yaml import Loader, load
 YEAR = datetime.datetime.utcnow().year
 PWD = os.getcwd()
 
-
-def compare_lines(content1: str, content2: str) -> bool:
-    lines = zip(content1.splitlines(), content2.splitlines())
-    for i, tpl in enumerate(lines):
-        if str(YEAR) + "-" in tpl[0]:
-            continue
-        if "process" in tpl[0]:
-            continue
-        if "thread" in tpl[0]:
-            continue
-        if "path" in tpl[0]:
-            continue
-        if len(tpl) != 2:
-            print("missing line")
-            return False
-        if tpl[0] != tpl[1]:
-            print("changed line: %i '%s' != '%s'" % (i, tpl[0], tpl[1]))
-            return False
-    return True
+os.environ["STLOG_UNIT_TESTS_MODE"] = "1"
 
 
 def get_variables() -> dict[str, Any]:
@@ -49,8 +31,6 @@ env = jinja2.Environment(
 )
 template = env.get_template("README.md.j2")
 variables = get_variables()
-if len(sys.argv) >= 2 and sys.argv[1] == "lint":
-    variables["linting"] = "--linting"
 res = template.render(**variables)
 res = (
     """
@@ -60,11 +40,12 @@ res = (
 """
     + res
 )
-if variables.get("linting"):
+if len(sys.argv) >= 2 and sys.argv[1] == "lint":
     with open("README.md") as f:
-        to_compare = f.read().strip()
-    if not compare_lines(to_compare, res.strip()):
+        to_compare = f.read()
+    if to_compare != res:
+        print("README.md must be rebuilt")
         sys.exit(1)
 else:
     with open("README.md", "w") as f:
-        f.write(res.replace(PWD, "/path"))
+        f.write(res)

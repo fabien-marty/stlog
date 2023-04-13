@@ -90,7 +90,7 @@ cmd = "rm -Rf htmlcov"
 
 # execute tests with coverage (executing)
 [tool.poe.tasks._coverage]
-cmd = "pytest --no-cov-on-fail --cov=${PACKAGE} --cov-report=term --cov-report=html tests/"
+cmd = "pytest --no-cov-on-fail --cov=${PACKAGE} --cov-report=term --cov-report=html --cov-report=xml tests/"
 
 # execute tests with coverage (sequence)
 [tool.poe.tasks.coverage]

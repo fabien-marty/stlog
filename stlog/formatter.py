@@ -7,7 +7,7 @@ import re
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Callable, Literal, Sequence
+from typing import Any, Callable, Sequence
 
 from stlog.base import (
     GLOBAL_LOGGING_CONFIG,
@@ -54,6 +54,7 @@ class Formatter(logging.Formatter):
     Attributes:
         fmt: the default format for the formatter.
         datefmt: the format to use for `{asctime}` placeholder.
+        style: FIXME
         include_extras_keys_fnmatchs: fnmatch patterns list for including keys in `{extra}` placeholder.
         exclude_extras_keys_fnmatchs: fnmatch patterns list for excluding keys in `{extra}` placeholder.
         extra_key_rename_fn: callable which takes a key name and return a renamed key to use
@@ -67,8 +68,7 @@ class Formatter(logging.Formatter):
 
     fmt: str | None = DEFAULT_STLOG_HUMAN_FORMAT
     datefmt: str | None = DEFAULT_STLOG_DATE_FORMAT
-    style: Literal["%", "{", "$"] = "{"
-    validate: bool = True
+    style: str = "{"
     include_extras_keys_fnmatchs: Sequence[str] = ("*",)
     exclude_extras_keys_fnmatchs: Sequence[str] = ("_*",)
     extra_key_rename_fn: Callable[[str], str | None] | None = None
@@ -77,7 +77,7 @@ class Formatter(logging.Formatter):
 
     def __post_init__(self):
         super().__init__(  # explicit call because logging.Formatter is not a dataclass
-            fmt=self.fmt, datefmt=self.datefmt, validate=self.validate, style=self.style
+            fmt=self.fmt, datefmt=self.datefmt, style=self.style  # type: ignore
         )
         self.include_extra_keys_patterns: list[re.Pattern] = [
             re.compile(fnmatch.translate(x)) for x in self.include_extras_keys_fnmatchs

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import warnings
 from unittest.mock import MagicMock
 
@@ -122,3 +123,46 @@ def test_exceptions2():
         _logging_excepthook(Exception, e)
     assert len(target_list) == 1
     assert target_list[0]["status"] == "critical"
+
+
+def test_filters():
+    # filters at logger level
+    def _filter(log_record: logging.LogRecord) -> bool:
+        if log_record.getMessage() == "message to filter":
+            return False
+        return True
+
+    target_list: list[dict] = []
+    setup(
+        logging_excepthook=None,
+        outputs=[UnitsTestsJsonOutput(target_list=target_list)],
+    )
+    logger = getLogger("foo")
+    logger.addFilter(_filter)
+    logger.info("foo")
+    logger.info("message to filter")
+    assert len(target_list) == 1
+    assert target_list[0]["message"] == "foo"
+    logger.removeFilter(_filter)
+    logger.info("foo")
+    logger.info("message to filter")
+    assert len(target_list) == 3
+
+
+def test_filters2():
+    # filters at handler/output level
+    def _filter(log_record: logging.LogRecord) -> bool:
+        if log_record.getMessage() == "message to filter":
+            return False
+        return True
+
+    target_list: list[dict] = []
+    setup(
+        logging_excepthook=None,
+        outputs=[UnitsTestsJsonOutput(target_list=target_list, filters=[_filter])],
+    )
+    logger = getLogger("foo")
+    logger.info("foo")
+    logger.info("message to filter")
+    assert len(target_list) == 1
+    assert target_list[0]["message"] == "foo"

@@ -58,6 +58,7 @@ Each `Output` can provide custom options but there are two common ones:
 
 - `formatter` which can be used to override the default `logging.Formatter` object
 - `level` which can be used to override the default logging level (for this specific output if this level is not already filtered at `Logger` level)
+- `filters` which can be used to add some `logging.Filter` for this specific output *(note: you can also add filters at the logger level with `addFilter()` method)*
 
 Here is an example to configure two outputs: 
 
@@ -83,11 +84,45 @@ setup(
 )
 ```
 
-!!! note "Formatters?"
+!!! question "Formatters?"
 
     You have a dedicated section about `Formatters` and `stlog` custom `Formatters` bellow.
 
 Default output is and "automatic rich or not rich" stream on `stderr` with a `HumanFormatter` as formatter.
+
+??? question "Filters?"
+
+    Here is an example:
+
+    ```python
+    import sys
+    import logging
+    from stlog import setup, getLogger
+    from stlog.output import StreamOutput
+    from stlog.formatter import HumanFormatter, JsonFormatter
+
+    def this_is_a_filter(record: logging.LogRecord) -> False:
+        if record.getMessage() == "message to filter":
+            # We don't want this message
+            return False
+        return True
+
+    setup(
+        level="INFO",
+        outputs=[
+            StreamOutput(
+                stream=sys.stderr,
+                formatter=HumanFormatter(exclude_extras_keys_fnmatchs=["*"]),
+                level="WARNING",
+            ),
+            StreamOutput(stream=sys.stdout, formatter=JsonFormatter(indent=4)),
+            filters=[this_is_a_filter],
+        ]
+    ) 
+    
+    getLogger("foo").info("message to filter") # this message will be filtered
+
+    ```
 
 ### Warnings and "not catched" exceptions
 

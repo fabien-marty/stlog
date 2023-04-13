@@ -43,12 +43,17 @@ class Output:
         formatter: the Python logging Formatter to use.
         level: python logging level specific to this output
             (None means "use the global logging level").
+        filters: list of logging Filters (or simple callables) to filter some LogRecord
+            for this specific output.
 
     """
 
     _handler: logging.Handler = field(init=False, default_factory=logging.NullHandler)
     formatter: logging.Formatter | None = None
     level: int | str | None = None
+    filters: typing.Iterable[
+        typing.Callable[[logging.LogRecord], bool] | logging.Filter
+    ] = field(default_factory=list)
 
     def set_handler(
         self,
@@ -59,6 +64,8 @@ class Output:
         self._handler.setFormatter(self.get_formatter_or_raise())
         if self.level is not None:
             self._handler.setLevel(self.level)
+        for filter in self.filters:
+            self._handler.addFilter(filter)
 
     def get_handler(self) -> logging.Handler:
         """Get the configured Python logging Handler."""

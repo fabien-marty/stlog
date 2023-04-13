@@ -49,6 +49,12 @@ class StLogLoggerAdapter(_KeywordArgumentAdapter):
         new_kwargs = {**LogContext._get(), **kwargs}
         return super().process(msg, new_kwargs)
 
+    def addFilter(self, filter):  # noqa: N802
+        self.logger.addFilter(filter)
+
+    def removeFilter(self, filter):  # noqa: N802
+        self.logger.removeFilter(filter)
+
 
 def getLogger(name: str | None = None, **kwargs) -> StLogLoggerAdapter:  # noqa: N802
     """Return a standard logger (adapted for `stlog` and `stlog.LogContext` support).

@@ -29,5 +29,12 @@ __all__ = [
     "fatal",
     "exception",
 ]
-__pdoc__ = {"base": False, "adapter": False, "handler": False, "context": False}
+__pdoc__ = {
+    "base": False,
+    "adapter": False,
+    "handler": False,
+    "context": False,
+    "warn": False,
+    "fatal": False,
+}
 VERSION = "0.0.0"

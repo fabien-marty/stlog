@@ -1,4 +1,4 @@
-from stlog import info, critical
+import stlog
 
-info("It works", foo="bar", x=123)
-critical("Houston, we have a problem!")
+stlog.info("It works", foo="bar", x=123)
+stlog.critical("Houston, we have a problem!")

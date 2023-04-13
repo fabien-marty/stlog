@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from stlog import getLogger, setup
 
 # Set the logging default configuration (human output on stderr)

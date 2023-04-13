@@ -68,8 +68,6 @@ pip install stlog
 ### Basic usage
 
 ```python
-from __future__ import annotations
-
 from stlog import getLogger, setup
 
 # Set the logging default configuration (human output on stderr)
@@ -84,8 +82,8 @@ logger.critical("Houston, we have a problem!")
 
 Output (without `rich` library installed):
 ```
-2023-03-27T11:11:04Z [INFO]     (__main__) It works {foo=bar x=123}
-2023-03-27T11:11:04Z [CRITICAL] (__main__) Houston, we have a problem!
+2023-03-27T13:15:18Z [INFO]     (__main__) It works {foo=bar x=123}
+2023-03-27T13:15:18Z [CRITICAL] (__main__) Houston, we have a problem!
  
 ```
 
@@ -96,8 +94,6 @@ Output (with `rich` library installed):
 ### Usage with context
 
 ```python
-from __future__ import annotations
-
 from stlog import ExecutionLogContext, getLogger, setup
 
 # Set the logging default configuration (human output on stderr)
@@ -124,18 +120,16 @@ logger.critical("Houston, we have a problem!")
 
 Output (without `rich` library installed):
 ```
-2023-03-27T11:11:05Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
-2023-03-27T11:11:05Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
+2023-03-27T13:15:18Z [INFO]     (__main__) It works {client_id=456 foo=bar http_method=GET request_id=4c2383f5 x=123}
+2023-03-27T13:15:18Z [CRITICAL] (__main__) Houston, we have a problem! {client_id=456 http_method=GET request_id=4c2383f5}
  
 ```
 
 Output (with `rich` library installed):
-![rich output](python/qs2.pydocs.svg)
+![rich output](docs/python/qs2.svg)
  
 
 What about if you want to get a more parsing friendly output (for example in JSON on `stdout`) while keeping the human output on `stderr` (without any context)?
-
-Change the "setup" part:
 
 ```python
 import sys
@@ -145,48 +139,79 @@ from stlog.formatter import HumanFormatter, JsonFormatter
 
 setup(
     outputs=[
-        StreamOutput(stream=sys.stderr, formatter=HumanFormatter(exclude_extras_keys_fnmatchs=["*"])),
-        StreamOutput(stream=sys.stdout, formatter=JsonFormatter(indent=4))
+        StreamOutput(
+            stream=sys.stderr,
+            formatter=HumanFormatter(exclude_extras_keys_fnmatchs=["*"]),
+        ),
+        StreamOutput(stream=sys.stdout, formatter=JsonFormatter(indent=4)),
     ]
 )
 
-# [...] see previous example
+# See previous example for details
+ExecutionLogContext.reset_context()
+ExecutionLogContext.add(request_id="4c2383f5")
+ExecutionLogContext.add(client_id=456, http_method="GET")
+logger = getLogger(__name__)
+logger.info("It works", foo="bar", x=123)
+logger.critical("Houston, we have a problem!")
+ 
 ```
 
-`stderr` ouput will be (for humans): 
-
+Human output (on `stderr`):
 ```
-2023-03-24T13:05:04Z [INFO]     (__main__) It works
-2023-03-24T13:05:04Z [CRITICAL] (__main__) Houston, we have a problem!
+2023-03-27T13:15:19Z [INFO]     (__main__) It works
+2023-03-27T13:15:19Z [CRITICAL] (__main__) Houston, we have a problem!
+ 
 ```
 
-`stdout` output will be (for machines):
+JSON ouput (on `stdout`) for machines:
 
 ```json
 {
-    "status": "info",
+    "client_id": 456,
+    "foo": "bar",
+    "http_method": "GET",
     "logger": {
         "name": "__main__"
     },
+    "message": "It works",
+    "request_id": "4c2383f5",
     "source": {
-        "path": "/home/fab/src/standard-structlog/toto.py",
-        "lineno": 28,
-        "module": "toto",
         "funcName": "<module>",
-        "process": 2431368,
+        "lineno": 21,
+        "module": "qs3",
+        "path": "/home/fab/src/standard-structlog/docs/python/qs3.py",
+        "process": 2627315,
         "processName": "MainProcess",
-        "thread": 140184194897728,
+        "thread": 140073789237056,
         "threadName": "MainThread"
     },
-    "message": "It works",
-    "timestamp": "2023-03-24T13:05:04Z",
-    "x": 123,
-    "foo": "bar",
-    "request_id": "4c2383f5",
-    "http_method": "GET",
-    "client_id": 456
+    "status": "info",
+    "timestamp": "2023-03-27T13:15:19Z",
+    "x": 123
 }
-[...] the critical json message is hidden here to limit the size of the output
+{
+    "client_id": 456,
+    "http_method": "GET",
+    "logger": {
+        "name": "__main__"
+    },
+    "message": "Houston, we have a problem!",
+    "request_id": "4c2383f5",
+    "source": {
+        "funcName": "<module>",
+        "lineno": 22,
+        "module": "qs3",
+        "path": "/home/fab/src/standard-structlog/docs/python/qs3.py",
+        "process": 2627315,
+        "processName": "MainProcess",
+        "thread": 140073789237056,
+        "threadName": "MainThread"
+    },
+    "status": "critical",
+    "timestamp": "2023-03-27T13:15:19Z"
+}
+ 
 ```
 
 <!--quickstart-end-->

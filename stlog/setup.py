@@ -6,6 +6,7 @@ import sys
 import traceback
 import types
 import typing
+import warnings
 
 from stlog.adapter import getLogger
 from stlog.base import GLOBAL_LOGGING_CONFIG, check_env_false, check_env_true
@@ -37,7 +38,7 @@ def _logging_excepthook(
         return
     try:
         program_logger = getLogger(GLOBAL_LOGGING_CONFIG.program_name)
-        program_logger.critical(
+        program_logger.error(
             "Exception catched in excepthook", exc_info=(exc_type, value, tb)
         )
     except Exception:
@@ -122,3 +123,82 @@ def setup(
 
     for lgger, lvel in extra_levels.items():
         logging.getLogger(lgger).setLevel(lvel)
+
+    GLOBAL_LOGGING_CONFIG.setup = True
+
+
+ROOT_LOGGER = getLogger("root")
+
+
+def log(level: int, msg, *args, **kwargs):
+    """Log a message with the given integer severity level' on the root logger.
+
+    `setup()` is automatically called with default arguments if not already done before.
+    """
+    if not GLOBAL_LOGGING_CONFIG.setup:
+        setup()
+    ROOT_LOGGER.log(level, msg, *args, **kwargs)
+
+
+def debug(msg, *args, **kwargs):
+    """Log a message with severity 'DEBUG' on the root logger.
+
+    `setup()` is automatically called with default arguments if not already done before.
+    """
+    log(logging.DEBUG, msg, *args, **kwargs)
+
+
+def info(msg, *args, **kwargs):
+    """Log a message with severity 'INFO' on the root logger.
+
+    `setup()` is automatically called with default arguments if not already done before.
+    """
+    log(logging.INFO, msg, *args, **kwargs)
+
+
+def warning(msg, *args, **kwargs):
+    """Log a message with severity 'WARNING' on the root logger.
+
+    `setup()` is automatically called with default arguments if not already done before.
+    """
+    log(logging.WARNING, msg, *args, **kwargs)
+
+
+def warn(msg, *args, **kwargs):
+    if (
+        not GLOBAL_LOGGING_CONFIG.setup
+    ):  # we do this here to be able to capture the next warning
+        setup()
+    warnings.warn(
+        "The 'warn' function is deprecated, " "use 'warning' instead",
+        DeprecationWarning,
+        2,
+    )
+    warning(msg, *args, **kwargs)
+
+
+def error(msg, *args, **kwargs):
+    """Log a message with severity 'ERROR' on the root logger.
+
+    `setup()` is automatically called with default arguments if not already done before.
+    """
+    log(logging.ERROR, msg, *args, **kwargs)
+
+
+def critical(msg, *args, **kwargs):
+    """Log a message with severity 'CRITICAL' on the root logger.
+
+    `setup()` is automatically called with default arguments if not already done before.
+    """
+    log(logging.CRITICAL, msg, *args, **kwargs)
+
+
+fatal = critical
+
+
+def exception(msg, *args, exc_info=True, **kwargs):
+    """Log a message with severity 'ERROR' on the root logger with exception information.
+
+    `setup()` is automatically called with default arguments if not already done before.
+    """
+    error(msg, *args, exc_info=exc_info, **kwargs)

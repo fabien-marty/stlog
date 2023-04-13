@@ -29,6 +29,7 @@ class StLogError(Exception):
 
 @dataclass
 class GlobalLoggingConfig:
+    setup: bool = False
     program_name: str = field(
         default_factory=lambda: os.path.basename(inspect.stack()[-1][1])
     )

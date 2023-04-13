@@ -71,6 +71,30 @@
 pip install stlog
 ```
 
+### Very minimal usage
+
+```python
+from stlog import info, critical
+
+info("It works", foo="bar", x=123)
+critical("Houston, we have a problem!")
+ 
+```
+
+Output (without `rich` library installed):
+
+```
+2023-03-29T14:48:37Z root [   INFO   ] It works {foo=bar x=123}
+2023-03-29T14:48:37Z root [ CRITICAL ] Houston, we have a problem!
+ 
+```
+
+Output (with `rich` library installed):
+
+![rich output](docs/python/qs0.svg)
+ 
+
+
 ### Basic usage
 
 ```python

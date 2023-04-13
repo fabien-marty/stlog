@@ -4,7 +4,11 @@ import collections
 import logging
 import typing
 
-from stlog.base import RESERVED_ATTRS, STLOG_EXTRA_KEY, check_json_types_or_raise
+from stlog.base import (
+    RESERVED_ATTRS,
+    STLOG_EXTRA_KEY,
+    check_json_types_or_raise,
+)
 from stlog.context import LogContext
 
 

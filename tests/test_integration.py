@@ -10,7 +10,17 @@ import pytest
 from stlog import LogContext, getLogger, setup
 from stlog.formatter import JsonFormatter
 from stlog.output import RichStreamOutput
-from stlog.setup import _logging_excepthook
+from stlog.setup import (
+    _logging_excepthook,
+    critical,
+    debug,
+    error,
+    exception,
+    fatal,
+    info,
+    warn,
+    warning,
+)
 from tests.utils import UnitsTestsJsonOutput, UnitsTestsOutput
 
 
@@ -122,7 +132,7 @@ def test_exceptions2():
     except Exception as e:
         _logging_excepthook(Exception, e)
     assert len(target_list) == 1
-    assert target_list[0]["status"] == "critical"
+    assert target_list[0]["status"] == "error"
 
 
 def test_filters():
@@ -134,7 +144,6 @@ def test_filters():
 
     target_list: list[dict] = []
     setup(
-        logging_excepthook=None,
         outputs=[UnitsTestsJsonOutput(target_list=target_list)],
     )
     logger = getLogger("foo")
@@ -158,7 +167,6 @@ def test_filters2():
 
     target_list: list[dict] = []
     setup(
-        logging_excepthook=None,
         outputs=[UnitsTestsJsonOutput(target_list=target_list, filters=[_filter])],
     )
     logger = getLogger("foo")
@@ -166,3 +174,39 @@ def test_filters2():
     logger.info("message to filter")
     assert len(target_list) == 1
     assert target_list[0]["message"] == "foo"
+
+
+def test_root_logger():
+    target_list: list[dict] = []
+    setup(outputs=[UnitsTestsJsonOutput(target_list=target_list)], level="DEBUG")
+    debug("debug")
+    info("info")
+    warning("warning")
+    warn("warn")
+    error("error")
+    critical("critical")
+    fatal("fatal")
+    try:
+        raise Exception("foo")
+    except Exception:
+        exception("exception")
+    import json
+
+    print(json.dumps(target_list, indent=4))
+    for msg, level in (
+        ("debug", "debug"),
+        ("info", "info"),
+        ("warning", "warning"),
+        ("warn", "warning"),
+        ("error", "error"),
+        ("critical", "critical"),
+        ("fatal", "critical"),
+        ("exception", "error"),
+    ):
+        d = next(x for x in target_list if x["message"] == msg)
+        assert d["status"] == level
+        if msg == "warn":
+            d = next(x for x in target_list if x["logger"]["name"] == "py.warnings")
+            assert "function is deprecated" in d["message"]
+        if msg == "exception":
+            assert "Traceback" in d["exc_info"]

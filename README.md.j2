@@ -67,6 +67,23 @@
 pip install stlog
 ```
 
+### Very minimal usage
+
+```python
+{{ "cat docs/python/qs0.py" |shell(die_on_error=True) }} 
+```
+
+Output (without `rich` library installed):
+
+```
+{{ "STLOG_USE_RICH=0 ; python docs/python/qs0.py" |shell(die_on_error=True) }} 
+```
+
+Output (with `rich` library installed):
+
+{{ ("python ./docs/python/termtosvg.py --pathprefix '" + pathprefix + "' qs0.py") |shell(die_on_error=True) }} 
+
+
 ### Basic usage
 
 ```python

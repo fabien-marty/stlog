@@ -11,7 +11,8 @@ First of all, you can tune the (minimal) log level as a global parameter for all
 
 ```python
 from stlog import setup, getLogger
- Filter messages < WARNING
+
+# Filter messages < WARNING
 setup(level="WARNING") 
 getLogger().info("ignored message")
 ```
@@ -137,7 +138,7 @@ setup(
 )
 ```
 
-Moreover, `stlog` capture your "not catched" exceptions to emit them as `critical` messages. You can disable this or tune this with:
+Moreover, `stlog` capture your "not catched" exceptions to emit them as `ERROR` messages. You can disable this or tune this with:
 
 ```python
 from stlog import setup

@@ -32,6 +32,7 @@ nav:
   - index.md
   - quickstart.md
   - usage.md
+  - tuning.md
   - extend.md
   - faq.md
   - dev.md

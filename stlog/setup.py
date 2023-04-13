@@ -8,14 +8,17 @@ import types
 import typing
 
 from stlog.adapter import getLogger
-from stlog.base import GLOBAL_LOGGING_CONFIG, check_env_true
+from stlog.base import GLOBAL_LOGGING_CONFIG, check_env_false, check_env_true
 from stlog.handler import ContextReinjectHandlerWrapper
 from stlog.output import Output, make_stream_or_rich_stream_output
 
 DEFAULT_LEVEL: str = os.environ.get("STLOG_LEVEL", "INFO")
-DEFAULT_CAPTURE_WARNINGS: bool = check_env_true("STLOG_CAPTURE_WARNINGS", True)
-DEFAULT_REINJECT_CONTEXT_IN_STANDARD_LOGGING: bool = check_env_true(
+DEFAULT_CAPTURE_WARNINGS: bool = check_env_false("STLOG_CAPTURE_WARNINGS", True)
+DEFAULT_REINJECT_CONTEXT_IN_STANDARD_LOGGING: bool = check_env_false(
     "STLOG_REINJECT_CONTEXT_IN_STANDARD_LOGGING", True
+)
+DEFAULT_READ_EXTRA_KWARG_FROM_STANDARD_LOGGING: bool = check_env_true(
+    "STLOG_READ_EXTRA_KWARGS_FROM_STANDARD_LOGGING", False
 )
 DEFAULT_PROGRAM_NAME: str | None = os.environ.get("STLOG_PROGRAM_NAME", None)
 

@@ -7,6 +7,7 @@ import pytest
 
 from stlog.base import (
     StLogError,
+    check_false,
     check_json_types_or_raise,
     check_true,
     get_env_context,
@@ -109,3 +110,11 @@ def test_check_true():
     assert check_true("True") is True
     assert check_true("yeS") is True
     assert check_true("1") is True
+
+
+def test_check_false():
+    assert check_false(None) is False
+    assert check_false("foo") is False
+    assert check_false("False") is True
+    assert check_false("nO") is True
+    assert check_false("0") is True

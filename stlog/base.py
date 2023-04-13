@@ -20,6 +20,7 @@ except ImportError:
 
 
 TRUE_VALUES = ("1", "true", "yes")
+FALSE_VALUES = ("0", "false", "no")
 
 
 class StLogError(Exception):
@@ -184,8 +185,18 @@ def check_true(value: str | None, default: bool = False) -> bool:
     return value.lower() in TRUE_VALUES
 
 
+def check_false(value: str | None, default: bool = False) -> bool:
+    if value is None:
+        return default
+    return value.lower() in FALSE_VALUES
+
+
 def check_env_true(env_var: str, default: bool = False) -> bool:
-    return check_true(os.environ.get("env_var", None), default)
+    return check_true(os.environ.get(env_var, None), default)
+
+
+def check_env_false(env_var: str, default: bool = False) -> bool:
+    return check_false(os.environ.get(env_var, None), default)
 
 
 def rich_dump_exception_on_console(

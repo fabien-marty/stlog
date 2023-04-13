@@ -18,7 +18,7 @@ from stlog.base import (
     rich_markup_escape,
 )
 
-DEFAULT_STLOG_HUMAN_FORMAT = "{asctime} {name} {slevelname:^10s} {message}{extras}"
+DEFAULT_STLOG_HUMAN_FORMAT = "{asctime} {name} [{levelname:^10s}] {message}{extras}"
 DEFAULT_STLOG_RICH_HUMAN_FORMAT = ":arrow_forward: [log.time]{asctime}[/log.time] {name} [{rich_level_style}]{levelname:^8s}[/{rich_level_style}] [bold]{rich_escaped_message}[/bold]{extras}"
 DEFAULT_STLOG_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES = check_env_true(
@@ -53,12 +53,12 @@ class Formatter(logging.Formatter):
 
     Attributes:
         fmt: the default format for the formatter.
-        datefmt: the format to use for `%(asctime)s` placeholder.
-        include_extras_keys_fnmatchs: fnmatch patterns list for including keys in `%(extras)s` placeholder.
-        exclude_extras_keys_fnmatchs: fnmatch patterns list for excluding keys in `%(extras)s` placeholder.
+        datefmt: the format to use for `{asctime}` placeholder.
+        include_extras_keys_fnmatchs: fnmatch patterns list for including keys in `{extra}` placeholder.
+        exclude_extras_keys_fnmatchs: fnmatch patterns list for excluding keys in `{extra}` placeholder.
         extra_key_rename_fn: callable which takes a key name and return a renamed key to use
             (or None to ignore the key/value).
-        extra_key_max_length: maximum size of extra keys to be included in `%(extras)s` placeholder
+        extra_key_max_length: maximum size of extra keys to be included in `{extra}` placeholder
             (after this limit, the value will be truncated and ... will be added at the end, 0 means "no limit").
         converter: time converter function (use `time.gmtime` (default) for UTC date/times, use `time.time`
             for local date/times), if you change the default, please change also `datefmt` keyword.
@@ -131,7 +131,7 @@ class KVFormatter(ABC):
 class TemplateKVFormatter(KVFormatter):
     """Class to format extra key-values as a string with templates.
 
-    Extra keywords are merged into a `%(extras)s` placeholder.
+    Extra keywords are merged into a `{extra}` placeholder.
 
     Example::
 
@@ -147,7 +147,7 @@ class TemplateKVFormatter(KVFormatter):
         extras_separator: the separator between multiple key/values.
         extras_prefix: the prefix before key/value parts.
         extras_suffix: the suffix after key/values parts.
-        extra_value_max_serialized_length: maximum size of extra values to be included in `%(extras)s` placeholder
+        extra_value_max_serialized_length: maximum size of extra values to be included in `{extra}` placeholder
             (after this limit, the value will be truncated and ... will be added at the end, 0 means "no limit").
 
     """
@@ -207,7 +207,7 @@ class RichLogFmtKVFormatter(LogFmtKVFormatter):
 class HumanFormatter(Formatter):
     """Formatter for a "human" output.
 
-    Extra keywords are merged into a `%(extras)s` placeholder by a `stlog.formatter.KVFormatter`.
+    Extra keywords are merged into a `{extra}` placeholder by a `stlog.formatter.KVFormatter`.
 
     If you use this placeholder on your `fmt`, any keywords
     passed to a logging call will be formatted into a "extras" string and
@@ -219,18 +219,15 @@ class HumanFormatter(Formatter):
 
     will cause an "extras" string of::
 
-        [foo: bar] [foo2: 123]
+        {foo=bar foo2=123}
 
-    Note: a `%(slevelname)s` placeholder is also added containing the uppercase
-        level name under brackets, example: `[CRITICAL]`, `[WARNING]`, ...
-
-    You can change the way the `%(extras)s` placeholder is formatted
+    You can change the way the `{extra}` placeholder is formatted
     by providing a KVFormatter object.
 
     Attributes:
         include_reserved_attrs_in_extras: automatical include some reserved
             logrecord attributes in "extras" (example: `["process", "thread"]`).
-        kvs_formatter: key values special formatter for formatting `%(extra)s`
+        kvs_formatter: key values special formatter for formatting `{extra}`
             placeholder.
 
     """
@@ -251,13 +248,10 @@ class HumanFormatter(Formatter):
         return self.kvs_formatter.format(kvs)
 
     def _add_extras(self, record: logging.LogRecord) -> None:
-        level = record.levelname.upper()
-        record.slevelname = f"[{level}]"
         record.extras = self._make_extras_string(record)
 
     def _remove_extras(self, record: logging.LogRecord) -> None:
         delattr(record, "extras")
-        delattr(record, "slevelname")
 
     def format(self, record: logging.LogRecord) -> str:
         self._add_extras(record)

@@ -43,3 +43,4 @@ extra:
   rich: "[rich library](https://github.com/Textualize/rich)"
   pathprefix: ""
   _apilink: "https://fabien-marty.github.io/standard-structlog/stlog/"
+  coverage: "https://fabien-marty.github.io/standard-structlog/coverage"

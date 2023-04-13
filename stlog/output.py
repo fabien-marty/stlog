@@ -28,6 +28,8 @@ def _get_default_use_rich() -> bool | None:
     tmp = os.environ.get("STLOG_USE_RICH")
     if tmp is None:
         return None
+    if tmp.strip().upper() in ("NONE", "AUTO", ""):
+        return None
     return tmp.strip().upper() in ("1", "TRUE", "YES")
 
 
@@ -110,11 +112,24 @@ class RichStreamOutput(StreamOutput):
 def make_stream_or_rich_stream_output(
     stream: typing.TextIO = sys.stderr,
     use_rich: bool | None = DEFAULT_USE_RICH,
-    force_terminal: bool = False,
 ) -> StreamOutput:
-    """FIXME
+    """Create automatically a `stlog.output.RichStreamOutput` or a (classic)`stlog.output.StreamOutput`.
+
+    To get a `stlog.output.RichStreamOutput`, following conditions must be true:
+
+    - `rich` library must be installed and available in python path
+    - `use_rich` parameter must be `True` (forced mode) or `None` (automatic mode)
+    - (if `use_rich` is `None`): the selected `stream` must "output" in a real terminal (not in a shell filter
+    or in a file through redirection...)
+
+    WARNING: if `use_rich` is set to True and if `rich` library is installed, the usage of `rich` library
+    is forced **even if the `rich` library thinks that the output is not "compatible"
+
+    NOTE: the default value of the `use_rich` parameter is `None` (automatic) but it can be forced by
+    the `STLOG_USE_RICH` env variable.
 
     Attributes:
+        stream: the stream to use (`typing.TextIO`), default to `sys.stderr`.
         use_rich: if None, use [rich output](https://github.com/Textualize/rich/blob/master/README.md) if possible
         (rich installed and supported tty), if True/False force the usage (or not).
 
@@ -130,7 +145,7 @@ def make_stream_or_rich_stream_output(
             _use_rich = c.is_terminal
     if _use_rich:
         return RichStreamOutput(
-            stream=stream, force_terminal=force_terminal, formatter=RichHumanFormatter()
+            stream=stream, force_terminal=True, formatter=RichHumanFormatter()
         )
     else:
         return StreamOutput(stream=stream)

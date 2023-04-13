@@ -1,4 +1,5 @@
 import argparse
+import re
 import glob
 import os
 import sys
@@ -41,6 +42,13 @@ if rc != 0:
     sys.exit(1)
 
 svg = sorted(glob.glob(os.path.join(tmpdir, "*.svg")))[-1]
-os.system(f"diff {svg} {newpath} >/dev/null 2>&1 || cp -f {svg} {newpath}")
+with open(svg, "r") as f:
+    svg_content = f.read()
+    with open(svg + ".new", "w") as g:
+        new_content = svg_content
+        new_content = re.sub("0x[0-9a-z]*", "0x............", new_content)
+        g.write(new_content)
+
+os.system(f"diff {svg}.new {newpath} >/dev/null 2>&1 || cp -f {svg}.new {newpath}")
 os.system(f"rm -Rf {tmpdir} {output}")
 output_and_exit(args.pathprefix, newname)

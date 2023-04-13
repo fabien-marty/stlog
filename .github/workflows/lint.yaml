@@ -54,7 +54,7 @@ jobs:
           poetry install
       - name: Run lint
         run: |
-          poetry run invoke lint
+          poetry run invoke lint --no-fix
       - name: Run tests / coverage
         run: |
           poetry run invoke test --coverage

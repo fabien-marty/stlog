@@ -11,24 +11,9 @@ env:
 
 jobs:
 
-  hashfiles: # dedicated job as github hashFiles function does not work in the python container
+  lint:
     runs-on: ubuntu-latest
-    outputs:
-      poetrylock-hash: ${{ steps.poetrylock-hash.outputs.hash }}
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - id: poetrylock-hash
-        name: Let's hash poetry.lock
-        run: echo "hash=${{ hashFiles('poetry.lock', '.github/workflows/**') }}" >> "$GITHUB_OUTPUT"
-
-  lint: # we do the linting in a standard python container (a little bit harder than setup-python action
-        # but more standard and more reproductible outside of github actions)
-    runs-on: ubuntu-latest
-    needs: hashfiles
     environment: ci
-    container:
-      image: python:3.9
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
@@ -40,7 +25,7 @@ jobs:
           path: |
             ${{ env.POETRY_HOME }}
             ${{ env.POETRY_CACHE }}
-          key: cachepoetry-${{ needs.hashfiles.outputs.poetrylock-hash }}-${{ vars.CACHE_VERSION }}
+          key: cachepoetry-${{ hashFiles('poetry.lock', '.github/workflows/**' }}-${{ vars.CACHE_VERSION }}
       - name: Install poetry
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
@@ -49,11 +34,6 @@ jobs:
       - name: Fix github path
         run: |
           echo "$POETRY_HOME/bin" >> "$GITHUB_PATH"
-      - name: debug
-        run: |
-          ls -al $POETRY_HOME || true
-          ls -al $POETRY_CACHE || true
-          ls -al $POETRY_CACHE/venv || true
       - name: Configure poetry
         run: |
           poetry config virtualenvs.create true
@@ -94,6 +74,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: apidoc
+      - name: Fix directory structure
+        run: |
+          mv api apitmp
+          mkdir api
+          mv apitmp/stlog/* api/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:

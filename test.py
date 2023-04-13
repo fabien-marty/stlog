@@ -1,14 +1,28 @@
 from __future__ import annotations
 
 import logging
+import sys
+import time
 
-from standard_structlog import ExecutionLogContext, formatter, getLogger, setup
-from standard_structlog.output import Stream
+from stlog import ExecutionLogContext, getLogger, setup
+from stlog.formatter import HUMAN_FORMATTER, RICH_FORMATTER
+from stlog.output import Stream
 
 # setup (globally)
 setup(
     level=logging.INFO,
-    outputs=(Stream(formatter=formatter.DATADOG_FORMATTER),),
+    outputs=(
+        Stream(
+            formatter=HUMAN_FORMATTER,
+            stream=sys.stdout,
+            use_fancy_rich_output=False,
+        ),
+        Stream(
+            formatter=RICH_FORMATTER,
+            stream=sys.stderr,
+            use_fancy_rich_output=True,
+        ),
+    ),
 )
 
 # set the (kind of) global execution context (thread, worker, async friendly: one context by execution)
@@ -27,13 +41,15 @@ with ExecutionLogContext.bind(bar="wooooo"):
     logger.info("It works (binded)", foo="bar", x=123)
     # {"message": "It works (binded)", "bar": "wooooo", "y": 456, "foo": "bar", "x": 123, "timestamp": "2023-02-18T12:35:50.184698+00:00", "status": "info", "logger": {"name": "__main__"}}
 
-logger.info("It works again", foo="bar", x=123)
+logger.critical("It works again", foo="bar", x=123)
 # {"message": "It works again", "bar": "foo", "y": 456, "foo": "bar", "x": 123, "timestamp": "2023-02-18T12:35:50.184772+00:00", "status": "info", "logger": {"name": "__main__"}}
 
 ExecutionLogContext.remove("bar", "y")
-logger.info("plop")
+logger.warning("plop")
 # {"message": "plop", "timestamp": "2023-02-19T12:20:24.393459+00:00", "status": "info", "logger": {"name": "__main__"}}
 
+
+time.sleep(1)
 
 ExecutionLogContext.add(bar="foo")
 ExecutionLogContext.add(y=456)
@@ -44,3 +60,5 @@ multilines"""
 
 std_logger = logging.getLogger("standard")
 std_logger.info("foo")
+
+1 / 0

@@ -1,0 +1,65 @@
+# Home
+
+## What is it?
+
+**ST**andard **ST**ructured **LOG** Python 3.7+ logging library built on [standard python logging](https://docs.python.org/3/library/logging.html) and [contextvars](https://docs.python.org/3/library/contextvars.html).
+
+The library is **dependency free** but:
+
+- borrows plenty of ideas and code from [daiquiri](https://github.com/Mergifyio/daiquiri) library (thanks to [Mergify](https://mergify.com/) and [Julien DANJOU](https://julien.danjou.info/).
+- borrows some code from [python-json-logger](https://github.com/madzak/python-json-logger) (thanks to [Zakaria ZAJAC](https://github.com/madzak))
+- can use fancy stuff (colors, augmented traceback...) from the [rich library](https://github.com/Textualize/rich) *(only if installed)*
+
+## What is *structured logging*?
+
+FIXME
+
+## Why a new library and why not using [structlog](https://www.structlog.org)?
+
+FIXME
+
+## Quickstart
+
+Installation:
+
+```
+pip install stlog
+```
+
+```python
+from stlog import ExecutionLogContext, getLogger, setup
+from stlog.formatter import HUMAN_FORMATTER, JSON_FORMATTER
+from stlog.output import Stream
+
+# Setup the logging system:
+# - use a "Human Formatter" on stdout
+# - use a "JSON Formatter" on stderr
+setup(
+    level=logging.INFO,
+    outputs=(
+        Stream(
+            formatter=HUMAN_FORMATTER,
+            stream=sys.stdout,
+        ),
+        Stream(
+            formatter=JSON_FORMATTER,
+            stream=sys.stderr,
+        ),
+    ),
+)
+
+# ...
+
+# Set the (kind of) global execution context
+# (thread, worker, async friendly: one context by execution)
+# (for example in a wsgi/asgi middleware, ExecutionContext is a static class)
+ExecutionLogContext.reset_context()
+ExecutionLogContext.add(request_id="4c2383f5")
+ExecutionLogContext.add(client_id=456, http_method="GET")
+
+# ...
+
+# Get a logger
+logger = getLogger(__name__)
+logger.info("It works", foo="bar", x=123)
+```

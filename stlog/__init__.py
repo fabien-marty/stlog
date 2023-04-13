@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from standard_structlog.adapter import getLogger
-from standard_structlog.context import ExecutionLogContext
-from standard_structlog.setup import setup
+from stlog.adapter import getLogger
+from stlog.context import ExecutionLogContext
+from stlog.setup import setup
 
 __all__ = [
     "setup",

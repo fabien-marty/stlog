@@ -6,7 +6,7 @@ import random
 
 from fastapi import FastAPI
 
-from standard_structlog import ExecutionLogContext, formatter, getLogger, output, setup
+from stlog import ExecutionLogContext, formatter, getLogger, output, setup
 
 app = FastAPI()
 

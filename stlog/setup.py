@@ -107,7 +107,8 @@ def setup(
     GLOBAL_LOGGING_CONFIG.reinject_context_in_standard_logging = (
         reinject_context_in_standard_logging
     )
-    GLOBAL_LOGGING_CONFIG.program_name = program_name
+    if program_name is not None:
+        GLOBAL_LOGGING_CONFIG.program_name = program_name
 
     # Remove all handlers
     for handler in list(root_logger.handlers):

@@ -3,7 +3,7 @@ from __future__ import annotations
 import inspect
 import logging
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 STLOG_MANAGED_KEY = "_stdlog_managed"
 RICH_INSTALLED = False
@@ -18,7 +18,9 @@ STLOG_EXTRA_KEYS_KEY = "_stlog_extra_keys"
 
 @dataclass
 class GlobalLoggingConfig:
-    program_name: str | None = None
+    program_name: str = field(
+        default_factory=lambda: os.path.basename(inspect.stack()[-1][1])
+    )
     reinject_context_in_standard_logging: bool = True
 
 
@@ -32,8 +34,3 @@ class ExtrasLogRecord(logging.LogRecord):
 
 
 GLOBAL_LOGGING_CONFIG = GlobalLoggingConfig()
-
-
-def get_program_name() -> str:
-    """Return the name of the running program."""
-    return os.path.basename(inspect.stack()[-1][1])

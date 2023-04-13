@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import sys
 import traceback
 import types
@@ -17,7 +18,9 @@ try:
 except ImportError:
     RICH_AVAILABLE = False
 
-DEFAULT_OUTPUTS = [Stream(stream=sys.stderr)]
+DEFAULT_OUTPUTS: list[Output] = [Stream(stream=sys.stderr)]
+DEFAULT_LEVEL: str = os.environ.get("STLOG_LEVEL", "INFO")
+DEFAULT_PROGRAM_NAME: str | None = os.environ.get("STLOG_PROGRAM_NAME", None)
 
 
 def _logging_excepthook(
@@ -25,10 +28,13 @@ def _logging_excepthook(
     value: BaseException,
     tb: types.TracebackType | None,
 ) -> None:
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, value, tb)
+        return
     try:
         program_logger = getLogger(GLOBAL_LOGGING_CONFIG.program_name)
         program_logger.critical(
-            "".join(traceback.format_exception(exc_type, value, tb))
+            "Exception catched in excepthook", exc_info=(exc_type, value, tb)
         )
         _dump_exception_on_console(exc_type, value, tb)
     except Exception:
@@ -73,9 +79,9 @@ def _dump_exception_on_console(
 
 def setup(
     *,
-    level: str | int = logging.WARNING,
+    level: str | int = DEFAULT_LEVEL,
     outputs: typing.Iterable[Output] = DEFAULT_OUTPUTS,
-    program_name: str | None = None,
+    program_name: str | None = DEFAULT_PROGRAM_NAME,
     capture_warnings: bool = True,
     logging_excepthook: typing.Callable[
         [type[BaseException], BaseException, types.TracebackType | None],
@@ -92,9 +98,11 @@ def setup(
 
     Args:
         level: the root log level as int or as a string representation (in uppercase)
-            (see https://docs.python.org/3/library/logging.html#levels)
+            (see https://docs.python.org/3/library/logging.html#levels), the default
+            value is read in STLOG_LEVEL env var or set to INFO (if not set).
         outputs: iterable of Output to log to.
-        program_name: the name of the program (auto-detected if not set).
+        program_name: the name of the program, the default value is read in STLOG_PROGRAM_NAME
+            env var or auto-detected if not set.
         capture_warnings: capture warnings from the `warnings` module.
         logging_excepthook: if not None, override sys.excepthook with the given callable
             See https://docs.python.org/3/library/sys.html#sys.excepthook for details.

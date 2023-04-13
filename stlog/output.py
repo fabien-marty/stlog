@@ -6,6 +6,7 @@ import os
 import sys
 import typing
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from stlog.base import GLOBAL_LOGGING_CONFIG, RICH_INSTALLED
 from stlog.formatter import (
@@ -14,6 +15,20 @@ from stlog.formatter import (
     HumanFormatter,
     JsonFormatter,
 )
+
+if TYPE_CHECKING:
+    from rich.console import Console
+    from rich.logging import RichHandler
+
+
+def _get_default_use_rich() -> bool | None:
+    tmp = os.environ.get("STLOG_USE_RICH")
+    if tmp is None:
+        return None
+    return tmp.strip().upper() in ("1", "TRUE", "YES")
+
+
+DEFAULT_USE_RICH = _get_default_use_rich()
 
 
 def _get_log_file_path(
@@ -90,7 +105,7 @@ class Stream(Output):
     """
 
     stream: typing.TextIO = sys.stderr
-    use_rich: bool | None = None
+    use_rich: bool | None = DEFAULT_USE_RICH
 
     def __post_init__(self):
         if self.use_rich is False:
@@ -110,13 +125,17 @@ class Stream(Output):
 
     def _set_rich_stream_handler(self, force_terminal: bool = False) -> None:
         from rich.console import Console
-        from rich.logging import RichHandler
 
         c = Console(file=self.stream, force_terminal=force_terminal)
         self.set_handler(
-            RichHandler(console=c),
+            self.make_rich_handler(c),
             force_formatter_fmt_if_not_set=DEFAULT_STLOG_RICH_FORMAT,
         )
+
+    def make_rich_handler(self, c: Console) -> RichHandler:
+        from rich.logging import RichHandler
+
+        return RichHandler(console=c, show_path=False, omit_repeated_times=False)
 
 
 @dataclass

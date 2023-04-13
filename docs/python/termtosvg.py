@@ -17,8 +17,14 @@ parser.add_argument("--interpreter", type=str, default="python")
 
 args = parser.parse_args()
 
-newname = ".".join(os.path.basename(args.filename).split(".")[0:-1]) + ".svg"
-path = os.path.join(SCRIPT_DIR, args.filename)
+if "." not in args.filename:
+    newname = args.filename.replace(" ", "") + ".svg"
+else:
+    newname = ".".join(os.path.basename(args.filename).split(".")[0:-1]) + ".svg"
+if args.interpreter == "":
+    path = args.filename
+else:
+    path = os.path.join(SCRIPT_DIR, args.filename)
 newpath = os.path.join(SCRIPT_DIR, newname)
 
 
@@ -34,7 +40,11 @@ rndint = random.randint(0, 1000000)
 tmpdir = os.path.join(SCRIPT_DIR, f"termtosvg.{rndint}")
 output = f"termtosvg.{rndint}.output"
 os.system(f"rm -Rf {tmpdir} {output}")
-cmd = f"termtosvg --still-frames --screen-geometry '{args.columns}x{args.lines}' --template=solarized_light --command '{args.interpreter} {path}' '{tmpdir}' >'{output}' 2>&1"
+if args.interpreter:
+    real_command=f"{args.interpreter} {path}"
+else:
+    real_command=path
+cmd = f"termtosvg --still-frames --screen-geometry '{args.columns}x{args.lines}' --template=solarized_light --command '{real_command}' '{tmpdir}' >'{output}' 2>&1"
 rc = os.system(cmd)
 if rc != 0:
     print("ERROR during termtosvh, output:")

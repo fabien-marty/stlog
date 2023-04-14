@@ -158,8 +158,8 @@ def readme(c, lint=False):
     res = template.render(**variables)
     res = (
         """
-    <!-- WARNING: generated from README.md.j2, do not modify this file manually but modify README.md.j2 instead
-        and execute 'poetry run invoke readme' to regenerate this README.md file -->
+ <!-- WARNING: generated from README.md.j2, do not modify this file manually but modify README.md.j2 instead
+      and execute 'poetry run invoke readme' to regenerate this README.md file -->
 
     """
         + res

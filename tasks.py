@@ -149,10 +149,6 @@ def readme(c, lint=False):
             data["extra"]["pathprefix"] = "docs/"
             return data["extra"]
 
-    if os.environ.get("CI", "false") == "true":
-        print("CI MODE => we do nothing")
-        sys.exit(0)
-
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader("."),
         extensions=["jinja2_shell_extension.ShellExtension"],

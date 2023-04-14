@@ -102,7 +102,7 @@ jobs:
           poetry install
       - name: Publish on Pypi
         run: |
-          poetry run invoke bump_version
+          poetry run invoke bump-version
           poetry config pypi-token.pypi "${{ secrets.PYPI_TOKEN }}"
           poetry build
           poetry publish

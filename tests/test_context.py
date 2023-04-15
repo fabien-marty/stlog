@@ -6,7 +6,7 @@ import datetime
 import pytest
 
 from stlog import LogContext
-from stlog.base import StLogError
+from stlog.base import StlogError
 
 
 @pytest.fixture
@@ -29,16 +29,16 @@ def test_basic(context):
 
 
 def test_bad_types(context):
-    with pytest.raises(StLogError):
+    with pytest.raises(StlogError):
         context.add(foo=set())
-    with pytest.raises(StLogError):
+    with pytest.raises(StlogError):
         context.add(foo=[{"foo", datetime.datetime.now()}])
-    with pytest.raises(StLogError):
+    with pytest.raises(StlogError):
         context.add(foo={123: True})
 
 
 def test_bad_keys(context):
-    with pytest.raises(StLogError):
+    with pytest.raises(StlogError):
         context.add(filename="foo")
 
 

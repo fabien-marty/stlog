@@ -7,7 +7,7 @@ import sys
 import typing
 from dataclasses import dataclass, field
 
-from stlog.base import StLogError
+from stlog.base import StlogError
 from stlog.formatter import (
     HumanFormatter,
     RichHumanFormatter,
@@ -73,7 +73,7 @@ class Output:
 
     def get_formatter_or_raise(self) -> logging.Formatter:
         if self.formatter is None:
-            raise StLogError("formatter is not set")
+            raise StlogError("formatter is not set")
         return self.formatter
 
 
@@ -103,7 +103,7 @@ class RichStreamOutput(StreamOutput):
 
     def __post_init__(self):
         if not RICH_INSTALLED:
-            raise StLogError("Rich is not installed and RichStreamOutput is specified")
+            raise StlogError("Rich is not installed and RichStreamOutput is specified")
         if self.formatter is None:
             self.formatter = RichHumanFormatter()
         if self.console is None:
@@ -118,6 +118,7 @@ class RichStreamOutput(StreamOutput):
 def make_stream_or_rich_stream_output(
     stream: typing.TextIO = sys.stderr,
     use_rich: bool | None = DEFAULT_USE_RICH,
+    **kwargs,
 ) -> StreamOutput:
     """Create automatically a `stlog.output.RichStreamOutput` or a (classic)`stlog.output.StreamOutput`.
 
@@ -140,6 +141,9 @@ def make_stream_or_rich_stream_output(
         (rich installed and supported tty), if True/False force the usage (or not).
 
     """
+    for key in ("formatter", "force_terminal"):
+        if key in kwargs:
+            raise StlogError(f"you can't use {key} in kwargs for this function")
     _use_rich: bool = False
     if use_rich is not None:
         # manual mode
@@ -151,7 +155,7 @@ def make_stream_or_rich_stream_output(
             _use_rich = c.is_terminal
     if _use_rich:
         return RichStreamOutput(
-            stream=stream, force_terminal=True, formatter=RichHumanFormatter()
+            stream=stream, force_terminal=True, formatter=RichHumanFormatter(), **kwargs
         )
     else:
-        return StreamOutput(stream=stream)
+        return StreamOutput(stream=stream, **kwargs)

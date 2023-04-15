@@ -23,7 +23,7 @@ TRUE_VALUES = ("1", "true", "yes")
 FALSE_VALUES = ("0", "false", "no")
 
 
-class StLogError(Exception):
+class StlogError(Exception):
     pass
 
 
@@ -77,7 +77,7 @@ def check_json_types_or_raise(to_check: Any) -> None:
     if to_check is None:
         return
     if not isinstance(to_check, (dict, list, bool, str, int, float, bool)):
-        raise StLogError(
+        raise StlogError(
             "to_check should be a dict/list/bool/str/int/float/bool/None, found %s"
             % type(to_check)
         )
@@ -87,7 +87,7 @@ def check_json_types_or_raise(to_check: Any) -> None:
     elif isinstance(to_check, dict):
         for key, value in to_check.items():
             if not isinstance(key, str):
-                raise StLogError("dict keys should be str, found %s" % type(key))
+                raise StlogError("dict keys should be str, found %s" % type(key))
             check_json_types_or_raise(value)
 
 
@@ -170,11 +170,11 @@ def get_env_context() -> dict[str, Any]:
     env_context = {**_get_env_context(), **_get_env_json_context()}
     for key in env_context.keys():
         if key in RESERVED_ATTRS:
-            raise StLogError("key: %s is not allowed (reserved key)", key)
+            raise StlogError("key: %s is not allowed (reserved key)", key)
         if not isinstance(key, str):
-            raise StLogError("key: %s must be str", key)
+            raise StlogError("key: %s must be str", key)
         if not key.isidentifier():
-            raise StLogError(
+            raise StlogError(
                 "key: %s not allowed (must be a valid python identifier)", key
             )
     return env_context

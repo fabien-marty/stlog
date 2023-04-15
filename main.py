@@ -36,3 +36,8 @@ def define_env(env):
     ):
         cmd = f"python ./docs/python/termtosvg.py --interpreter={interpreter} --lines={lines} {filename}"
         return shell(None, cmd, die_on_error=True)
+
+    @env.macro
+    def code_example_to_output(filename: str, interpreter: str = "python"):
+        cmd = f"STLOG_USE_RICH=0 ; {interpreter} docs/python/{filename}"
+        return shell(None, cmd, die_on_error=True)

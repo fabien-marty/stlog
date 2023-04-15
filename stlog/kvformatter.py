@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
-from stlog.base import check_env_true, logfmt_format, rich_logfmt_format
+from stlog.base import check_env_true, logfmt_format
 
 STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES = check_env_true(
     "STLOG_LOGFMT_IGNORE_COMPOUND_TYPES", True
@@ -34,6 +34,14 @@ class KVFormatter(ABC):
     @abstractmethod
     def format(self, kvs: dict[str, Any]) -> str:
         pass
+
+
+@dataclass
+class EmptyKVFormatter(KVFormatter):
+    """Class to format extra key-values as an empty string."""
+
+    def format(self, kvs: dict[str, Any]) -> str:
+        return ""
 
 
 # Adapted from https://github.com/Mergifyio/daiquiri/blob/main/daiquiri/formatter.py
@@ -99,14 +107,3 @@ class LogFmtKVFormatter(KVFormatter):
         if not tmp:
             return ""
         return self.extras_prefix + tmp + self.extras_suffix
-
-
-@dataclass
-class RichLogFmtKVFormatter(LogFmtKVFormatter):
-    extras_prefix: str = "\n    :arrow_right_hook: "
-    extras_suffix: str = ""
-
-    def _format(self, kvs: dict[str, Any]) -> str:
-        return rich_logfmt_format(
-            dict(sorted(kvs.items())), ignore_compound_types=self.ignore_compound_types
-        )

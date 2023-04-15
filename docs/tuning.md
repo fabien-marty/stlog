@@ -37,7 +37,7 @@ Of course, you can still use `setLevel()` on logger instances.
 ### The outputs
 
 The main configuration option of the {{apilink("setup")}} function is the `outputs` parameter 
-which takes a list of {{apilink("Output")}} objects.
+which takes a list of {{apilink("output.Output")}} objects.
 
 You can see how to create your own outputs in the [extend page](../extend).
 
@@ -176,6 +176,108 @@ You can go further by connecting the standard logging `extra` kwargs to `stlog`:
 
 FIXME
 
+In `stlog` we have two kinds of formatters:
+
+- standard/classic formatters in `stlog.formatters`: they are compatible with [python logging Formatters](https://docs.python.org/3/library/logging.html#logging.Formatter)
+- kvformatters in `stlog.kvformatters`: these custom classes build a new `extras` substring (with all key/values from contexts) you can use in your standard formatters (as a part on the format string)
+
+## KV formatters
+
+Let's start with "KV formatters". They are completely specific to `stlog` but optional. They format extra key values into a single `{extras}`
+placeholder you can use classically with "standard formatters". They are optional because you can also use individual placeholders for each
+key/value.
+
+Let's say, you have to extra key values:
+
+- `foo="bar"`
+- `foo2="bar2"`
+
+In the standard formatter format, you can use `{foo}` and `{foo2}` placeholders without a "KV formatter" at all. But you need to know the 
+name of all key values you want to add to your log messages (because you have to list them in the format string):
+
+Example: 
+
+- if the formatter format string is `{levelname}: {message} (foo={foo}, foo2={foo2})"` and if you log with `stlog.getLogger().warning("this is a warning", foo="bar", foo2="bar2")`, you are going to get: `warning: this is a warning (foo=bar, foo2=bar2)`
+- but if you use a `LogFmtKVFormatter` and a format string: `{levelname}: {message} {extras}`, you are going to get: `warning: this is a warning {foo=bar, foo2=bar2}`
+
+So "KV formatters" are only responsible of serializing all extra key values to an `{extras}` string placeholder. If you don't use
+this placeholder in your format string, you don't need a "KV formatter" at all.
+
+!!! question "what about `%(extras)s` placeholder instead?"
+
+    `stlog` use new formatter strings (with `style="{"`). So placeholders are using the form: `{name}`. If you prefer old-style
+    placeholders with `style="%"` you can of course switch to the old-style and you use `%(extras)s` placeholder instead.
+
+### Available "KV formatters"
+
+Here are available "KV formatters". You can of course write yours (see [extend page in documentation](../extend)).
+
+#### `EmptyKVFormatter`
+
+This one is not very interesting as it always returns an empty string as `{extras}`. It's better to use a `kv_formatter=None` as a parameter
+of your formatter.
+
+#### `TemplateKVFormatter`
+
+This one formats `{extras}` with string templating.
+
+See {{apilink("kvformatter.TemplateKVFormatter")}} for details.
+
+Example:
+
+```python
+{{ code_example("format2.py") }}
+```
+
+```
+{{ code_example_to_output("format2.py") }}
+```
+
+#### `LogFmtKVFormatter`
+
+This class formats `{extras}` with {{logfmt}}.
+
+See {{apilink("kvformatter.LogFmtKVFormatter")}} for details.
+
+Example:
+
+```python
+{{ code_example("format3.py") }}
+```
+
+```
+{{ code_example_to_output("format3.py") }}
+```
+
+
+## Standard formatters
+
+FIXME
+
+### Common options
+
+All `stlog` formatters have common options you can find on {{apilink("formatter.Formatter", title="the API reference")}} (search `Formatter` object).
+
+These options are common `logging.Formatter` options extended with some `stlog` custom options.
+
+Extra options are mainly about context key/values formatting. We are going to see some real examples after.
+
+### `HumanFormatter`
+
+This formatter can be used to get a human friendly output (without {{rich}}).
+
+Let's start with a simple example:
+
+```python
+{{ code_example("format1.py") }}
+```
+
+FIXME
+
+
+
+
+
 ## Available Environment variables
 
 As we love {{twelvefactorapp}} plenty of default behavior of `stlog` can be configured with environment variables.
@@ -218,10 +320,17 @@ This variable can change the default value of `read_extra_kwarg_from_standard_lo
 
 - if set to `1`, `TRUE`, `YES`: default value of `read_extra_kwarg_from_standard_logging` is set to `True`
 
-FIXME:
+## `STLOG_ENV_JSON_CONTEXT` and `STLOG_ENV_CONTEXT_*`
 
-- STLOG_ENV_JSON_CONTEXT
-- STLOG_ENV_CONTEXT_*
-- STLOG_UNIT_TESTS_MODE
+These variables can be used to inject a global context. See [usage documentation](../usage) for details.
+
+## `STLOG_UNIT_TESTS_MODE`
+
+!!! warning "Private feature!"
+
+    This is a private feature (DON'T USE IT) to get always the same output (fixed date, fixed process number...)
+
+## FIXME (document)
+
 - STLOG_LOGFMT_IGNORE_COMPOUND_TYPES
 - STLOG_PROGRAM_NAME

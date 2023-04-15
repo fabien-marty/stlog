@@ -45,3 +45,4 @@ extra:
   pathprefix: ""
   _apilink: "https://fabien-marty.github.io/stlog/stlog/"
   coverage: "https://fabien-marty.github.io/stlog/coverage"
+  logfmt: "[logfmt format](https://brandur.org/logfmt)"

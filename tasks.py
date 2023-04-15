@@ -56,7 +56,7 @@ def doc(c):
 def serve_doc(c, port=9090, bind="127.0.0.1"):
     """Serve the user documentation (dev mode)"""
     _clean_doc(c)
-    c.run("mkdocs serve --livereload --dirtyreload --dev-addr=${bind}:${port}")
+    c.run(f"mkdocs serve --livereload --dirtyreload --dev-addr={bind}:{port}")
 
 
 @task(help={"fix": "try to automatically fix the code (default)"})

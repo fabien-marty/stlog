@@ -16,7 +16,6 @@ from stlog.base import (
 from stlog.kvformatter import (
     KVFormatter,
     LogFmtKVFormatter,
-    RichLogFmtKVFormatter,
     _truncate_serialize,
     _truncate_str,
 )
@@ -38,7 +37,8 @@ class Formatter(logging.Formatter):
     Attributes:
         fmt: the default format for the formatter.
         datefmt: the format to use for `{asctime}` placeholder.
-        style: FIXME
+        style: can be '%', '{' or '$' to select how the format string will be merged with its data
+            (see https://docs.python.org/3/library/logging.html#logging.Formatter for details)
         include_extras_keys_fnmatchs: fnmatch patterns list for including keys in `{extra}` placeholder.
         exclude_extras_keys_fnmatchs: fnmatch patterns list for excluding keys in `{extra}` placeholder.
         extra_key_rename_fn: callable which takes a key name and return a renamed key to use
@@ -126,15 +126,17 @@ class HumanFormatter(Formatter):
     Attributes:
         include_reserved_attrs_in_extras: automatical include some reserved
             logrecord attributes in "extras" (example: `["process", "thread"]`).
-        kvs_formatter: key values special formatter for formatting `{extra}`
+        kv_formatter: key values special formatter for formatting `{extra}`
             placeholder.
 
     """
 
     include_reserved_attrs_in_extras: Sequence[str] = field(default_factory=list)
-    kvs_formatter: KVFormatter = field(default_factory=LogFmtKVFormatter)
+    kv_formatter: KVFormatter | None = field(default_factory=LogFmtKVFormatter)
 
     def _make_extras_string(self, record: logging.LogRecord) -> str:
+        if self.kv_formatter is None:
+            return ""
         if not hasattr(record, STLOG_EXTRA_KEY):
             return ""
         kvs: dict[str, Any] = {}
@@ -144,7 +146,7 @@ class HumanFormatter(Formatter):
             key = self._make_extra_key_name(k)
             if key:
                 kvs[key] = getattr(record, k)
-        return self.kvs_formatter.format(kvs)
+        return self.kv_formatter.format(kvs)
 
     def _add_extras(self, record: logging.LogRecord) -> None:
         record.extras = self._make_extras_string(record)
@@ -162,7 +164,11 @@ class HumanFormatter(Formatter):
 @dataclass
 class RichHumanFormatter(HumanFormatter):
     fmt: str | None = DEFAULT_STLOG_RICH_HUMAN_FORMAT
-    kvs_formatter: KVFormatter = field(default_factory=RichLogFmtKVFormatter)
+    kv_formatter: KVFormatter = field(
+        default_factory=lambda: LogFmtKVFormatter(
+            extras_prefix="\n    :arrow_right_hook: ", extras_suffix=""
+        )
+    )
 
     def _add_extras(self, record: logging.LogRecord) -> None:
         super()._add_extras(record)

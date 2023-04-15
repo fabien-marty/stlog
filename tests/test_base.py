@@ -6,7 +6,7 @@ from unittest import mock
 import pytest
 
 from stlog.base import (
-    StLogError,
+    StlogError,
     check_false,
     check_json_types_or_raise,
     check_true,
@@ -23,10 +23,10 @@ def test_check_json_types_or_raise():
     check_json_types_or_raise(None)
     check_json_types_or_raise("foo")
     check_json_types_or_raise([{"foo": 123, "bar": 456}, None, [1, 2, 3]])
-    with pytest.raises(StLogError):
+    with pytest.raises(StlogError):
         # invalid type
         check_json_types_or_raise(set())
-    with pytest.raises(StLogError):
+    with pytest.raises(StlogError):
         # non str dict keys
         check_json_types_or_raise({456: 123, "bar": 456})
 

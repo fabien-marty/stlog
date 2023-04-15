@@ -7,7 +7,7 @@ from typing import Any, Mapping
 
 from stlog.base import (
     RESERVED_ATTRS,
-    StLogError,
+    StlogError,
     check_json_types_or_raise,
     get_env_context,
 )
@@ -37,7 +37,7 @@ class LogContext:
     def _add(cls, **kwargs: Any) -> Token:
         for key in kwargs.keys():
             if key in RESERVED_ATTRS:
-                raise StLogError("key: %s is not allowed (reserved key)" % key)
+                raise StlogError("key: %s is not allowed (reserved key)" % key)
         for val in kwargs.values():
             check_json_types_or_raise(val)
         new_context = _LOGGING_CONTEXT_VAR.get()

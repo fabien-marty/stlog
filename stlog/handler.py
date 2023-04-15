@@ -5,7 +5,7 @@ import logging
 from stlog.base import (
     RESERVED_ATTRS,
     STLOG_EXTRA_KEY,
-    StLogError,
+    StlogError,
     rich_dump_exception_on_console,
 )
 from stlog.context import LogContext
@@ -59,7 +59,7 @@ class CustomRichHandler(logging.Handler):
 
     def emit(self, record: logging.LogRecord):
         if self.formatter is None:
-            raise StLogError("no formatted set")
+            raise StlogError("no formatted set")
         self.console.print(self.formatter.format(record))
         if record.exc_info:
             exc_type, exc_value, exc_traceback = record.exc_info

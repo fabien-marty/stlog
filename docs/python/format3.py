@@ -11,8 +11,8 @@ setup(
             formatter=HumanFormatter(
                 fmt="{asctime}: ***{levelname}*** {message}{extras}",
                 kv_formatter=LogFmtKVFormatter(
-                    extras_prefix=" [",
-                    extras_suffix="]",
+                    prefix=" [",
+                    suffix="]",
                 ),
             ),
         )

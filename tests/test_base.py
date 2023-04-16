@@ -11,10 +11,8 @@ from stlog.base import (
     check_json_types_or_raise,
     check_true,
     get_env_context,
-    logfmt_format,
     logfmt_format_string,
     logfmt_format_value,
-    rich_logfmt_format,
     rich_markup_escape,
 )
 
@@ -44,35 +42,6 @@ def test_logfmt_format_value():
     assert logfmt_format_value(None) == ""
     assert logfmt_format_value(1) == "1"
     assert logfmt_format_value("foo") == "foo"
-
-
-def test_logfmt_format():
-    test_dict = {"foo": "bar", "foo2": [1, 2, 3], "foo3": "bar3"}
-    assert (
-        logfmt_format(
-            test_dict,
-            ignore_compound_types=True,
-        )
-        == "foo=bar foo3=bar3"
-    )
-    assert (
-        logfmt_format(
-            test_dict,
-            ignore_compound_types=False,
-        )
-        == 'foo=bar foo2="[1, 2, 3]" foo3=bar3'
-    )
-
-
-def test_rich_logfmt_format():
-    test_dict = {"foo": "bar", "foo2": [1, 2, 3], "foo3": "bar3"}
-    assert (
-        rich_logfmt_format(
-            test_dict,
-            ignore_compound_types=True,
-        )
-        == "[repr.attrib_name]foo[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]bar[/repr.attrib_value] [repr.attrib_name]foo3[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]bar3[/repr.attrib_value]"
-    )
 
 
 @mock.patch.dict(os.environ, {"STLOG_ENV_JSON_CONTEXT": '{"foo": "bar", "foo2": 123}'})

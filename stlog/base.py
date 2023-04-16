@@ -116,28 +116,6 @@ def logfmt_format_value(value: Any) -> str:
     return logfmt_format_string(str(value))
 
 
-# Adapted from https://github.com/jteppinette/python-logfmter/blob/main/logfmter/formatter.py
-def logfmt_format(kvs: dict[str, Any], ignore_compound_types: bool = True) -> str:
-    return " ".join(
-        [
-            f"{key}={logfmt_format_value(value)}"
-            for key, value in kvs.items()
-            if not ignore_compound_types or (not isinstance(value, (dict, list, set)))
-        ]
-    )
-
-
-# Adapted from https://github.com/jteppinette/python-logfmter/blob/main/logfmter/formatter.py
-def rich_logfmt_format(kvs: dict[str, Any], ignore_compound_types: bool = True) -> str:
-    return " ".join(
-        [
-            f"[repr.attrib_name]{key}[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]{logfmt_format_value(value)}[/repr.attrib_value]"
-            for key, value in kvs.items()
-            if not ignore_compound_types or (not isinstance(value, (dict, list, set)))
-        ]
-    )
-
-
 def _get_env_json_context() -> dict[str, Any]:
     env_key = "STLOG_ENV_JSON_CONTEXT"
     env_context = os.environ.get(env_key, None)

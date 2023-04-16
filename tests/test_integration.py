@@ -55,6 +55,10 @@ def test_rich_handler(context):
     setup(outputs=[output])
     output.console.print = MagicMock(return_value=None)
     logger.info("message %s", "foo", at_info_level="foo3")
+    print(output.console.print.call_args[0][0])
+    print(
+        ":arrow_forward: [log.time]2023-03-29T14:48:37Z[/log.time] foo [logging.level.info]  INFO  [/logging.level.info] [bold]message foo[/bold]\n    :arrow_right_hook: [repr.attrib_name]at_context_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo1[/repr.attrib_value] [repr.attrib_name]at_info_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo3[/repr.attrib_value] [repr.attrib_name]at_logger_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo2[/repr.attrib_value]"
+    )
     output.console.print.assert_called_with(
         ":arrow_forward: [log.time]2023-03-29T14:48:37Z[/log.time] foo [logging.level.info]  INFO  [/logging.level.info] [bold]message foo[/bold]\n    :arrow_right_hook: [repr.attrib_name]at_context_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo1[/repr.attrib_value] [repr.attrib_name]at_info_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo3[/repr.attrib_value] [repr.attrib_name]at_logger_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo2[/repr.attrib_value]"
     )

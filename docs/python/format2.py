@@ -12,9 +12,9 @@ setup(
             formatter=HumanFormatter(
                 fmt="{asctime}: ***{levelname}*** {message}{extras}",
                 kv_formatter=TemplateKVFormatter(
-                    extras_template="{0} => {1}",
-                    extras_separator=", ",
-                    extras_prefix="\n    ",
+                    template="{key} => {value}",
+                    separator=", ",
+                    prefix="\n    ",
                 ),
             ),
         )

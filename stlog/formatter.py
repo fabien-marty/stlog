@@ -166,7 +166,9 @@ class RichHumanFormatter(HumanFormatter):
     fmt: str | None = DEFAULT_STLOG_RICH_HUMAN_FORMAT
     kv_formatter: KVFormatter = field(
         default_factory=lambda: LogFmtKVFormatter(
-            extras_prefix="\n    :arrow_right_hook: ", extras_suffix=""
+            prefix="\n    :arrow_right_hook: ",
+            suffix="",
+            template="[repr.attrib_name]{key}[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]{value}[/repr.attrib_value]",
         )
     )
 

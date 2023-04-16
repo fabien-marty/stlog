@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
-from stlog.base import check_env_true, logfmt_format
+from stlog.base import check_env_true, logfmt_format_value
 
 STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES = check_env_true(
     "STLOG_LOGFMT_IGNORE_COMPOUND_TYPES", True
@@ -60,50 +60,47 @@ class TemplateKVFormatter(KVFormatter):
         [foo: bar] [foo2: 123]
 
     Attributes:
-        extras_template: the template to format a key/value:
-            `{0}` placeholder is the key, `{1}` is the value.
-        extras_separator: the separator between multiple key/values.
-        extras_prefix: the prefix before key/value parts.
-        extras_suffix: the suffix after key/values parts.
-        extra_value_max_serialized_length: maximum size of extra values to be included in `{extra}` placeholder
+        template: the template to format a key/value:
+            `{key}` placeholder is the key, `{value}` is the value.
+        separator: the separator between multiple key/values.
+        prefix: the prefix before key/value parts.
+        suffix: the suffix after key/values parts.
+        value_max_serialized_length: maximum size of extra values to be included in `{extra}` placeholder
             (after this limit, the value will be truncated and ... will be added at the end, 0 means "no limit").
+        ignore_compound_types: FIXME
 
     """
 
-    extras_template: str = "[{0}: {1}]"
-    extras_separator: str = " "
-    extras_prefix: str = " "
-    extras_suffix: str = ""
-    extra_value_max_serialized_length: int = 40
+    template: str = "{key}={value}"
+    separator: str = ", "
+    prefix: str = " {"
+    suffix: str = "}"
+    value_max_serialized_length: int = 40
+    ignore_compound_types: bool = STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES
+
+    def serialize_value(self, v: Any) -> str:
+        return _truncate_serialize(v, self.value_max_serialized_length)
 
     def format(self, kvs: dict[str, Any]) -> str:
         res: str = ""
         tmp: list[str] = []
         for k, v in sorted(kvs.items(), key=lambda x: x[0]):
-            serialized = _truncate_serialize(v, self.extra_value_max_serialized_length)
-            if serialized is None:
+            if self.ignore_compound_types and isinstance(v, (dict, list, set)):
                 continue
-            tmp.append(self.extras_template.format(k, serialized))
-        res = self.extras_separator.join(tmp)
+            tmp.append(self.template.format(key=k, value=self.serialize_value(v)))
+        res = self.separator.join(tmp)
         if res != "":
-            res = self.extras_prefix + res + self.extras_suffix
+            res = self.prefix + res + self.suffix
         return res
 
 
 # Adapted from https://github.com/jteppinette/python-logfmter/blob/main/logfmter/formatter.py
 @dataclass
-class LogFmtKVFormatter(KVFormatter):
-    ignore_compound_types: bool = STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES
-    extras_prefix: str = " {"
-    extras_suffix: str = "}"
+class LogFmtKVFormatter(TemplateKVFormatter):
+    """FIXME"""
 
-    def _format(self, kvs: dict[str, Any]) -> str:
-        return logfmt_format(
-            dict(sorted(kvs.items())), ignore_compound_types=self.ignore_compound_types
-        )
+    separator: str = " "
+    template: str = "{key}={value}"
 
-    def format(self, kvs: dict[str, Any]) -> str:
-        tmp = self._format(kvs)
-        if not tmp:
-            return ""
-        return self.extras_prefix + tmp + self.extras_suffix
+    def serialize_value(self, v: Any) -> str:
+        return logfmt_format_value(super().serialize_value(v))

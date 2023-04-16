@@ -314,23 +314,23 @@ This variable can change the default value of `reinject_context_in_standard_logg
 
 - if set to `0`, `FALSE`, `NO`: default value of `reinject_context_in_standard_logging` is set to `False`
 
-## `STLOG_READ_EXTRA_KWARGS_FROM_STANDARD_LOGGING`
+### `STLOG_READ_EXTRA_KWARGS_FROM_STANDARD_LOGGING`
 
 This variable can change the default value of `read_extra_kwarg_from_standard_logging` parameter of the {{apilink("setup")}} function: 
 
 - if set to `1`, `TRUE`, `YES`: default value of `read_extra_kwarg_from_standard_logging` is set to `True`
 
-## `STLOG_ENV_JSON_CONTEXT` and `STLOG_ENV_CONTEXT_*`
+### `STLOG_ENV_JSON_CONTEXT` and `STLOG_ENV_CONTEXT_*`
 
 These variables can be used to inject a global context. See [usage documentation](../usage) for details.
 
-## `STLOG_UNIT_TESTS_MODE`
+### `STLOG_UNIT_TESTS_MODE`
 
 !!! warning "Private feature!"
 
     This is a private feature (DON'T USE IT) to get always the same output (fixed date, fixed process number...)
 
-## FIXME (document)
+### FIXME (document)
 
 - STLOG_LOGFMT_IGNORE_COMPOUND_TYPES
 - STLOG_PROGRAM_NAME

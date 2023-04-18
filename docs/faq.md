@@ -36,3 +36,8 @@ reinjected. If you don't want this behavior, set `reinject_context_in_standard_l
 ```
 
 {{ code_example_to_svg("usage_mix2.py") }}
+
+
+## Configuring `stlog` library without `setup()` and without `Output` objects?
+
+Yes, you can configure `stlog` library without custom shortcuts like `Output` or `setup()`. FIXME

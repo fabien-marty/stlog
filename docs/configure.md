@@ -1,9 +1,13 @@
-# Tuning
+# Configure
 
 !!! notice "To go further..."
-    This page is about tuning existing `stlog` objects. To go further, you can also read the [Extend](../extend) page.
+    This page is about configuring existing `stlog` objects. To go further, you can also read the [Extend](../extend) page.
 
 ## The `setup()` function
+
+??? question "`stlog` library seems great but I don't want to use a special way to configure it!"
+
+    Yes, you can configure `stlog` library without custom shortcuts like `Output` or `setup()`. See [FAQ](../faq) for details about that.
 
 ### The log level
 
@@ -48,7 +52,7 @@ For now, you can use two kind of outputs:
 
 !!! warning "rich library"
 
-    To use a {{apilink("RichStreamOutput")}}, you must install {{rich}} by yourself. 
+    To use a {{apilink("output.RichStreamOutput")}}, you must install {{rich}} by yourself. 
     It's a **mandatory requirement** for this ouput.
 
 If you don't know which one to use or if you need an automatic behavior (depending on the fact that {{rich}} is installed or not
@@ -167,10 +171,10 @@ setup(
 You can go further by connecting the standard logging `extra` kwargs to `stlog`:
 
 ```python
-{{ code_example("tuning1.py") }}
+{{ code_example("configure1.py") }}
 ```
 
-{{ code_example_to_svg("tuning1.py") }}
+{{ code_example_to_svg("configure1.py") }}
 
 ## Formatters
 
@@ -290,7 +294,7 @@ As we love {{twelvefactorapp}} plenty of default behavior of `stlog` can be conf
     - environment variables
     - explicit configuration in the code (always wins)
 
-### `STLOG_USE_RICH``
+### `STLOG_USE_RICH`
 
 This variable can tune the behavior of {{apilink("output.make_stream_or_rich_stream_output")}} function:
 
@@ -332,5 +336,5 @@ These variables can be used to inject a global context. See [usage documentation
 
 ### FIXME (document)
 
-- STLOG_LOGFMT_IGNORE_COMPOUND_TYPES
+- STLOG_IGNORE_COMPOUND_TYPES
 - STLOG_PROGRAM_NAME

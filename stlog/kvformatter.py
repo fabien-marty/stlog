@@ -6,8 +6,8 @@ from typing import Any
 
 from stlog.base import check_env_true, logfmt_format_value
 
-STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES = check_env_true(
-    "STLOG_LOGFMT_IGNORE_COMPOUND_TYPES", True
+STLOG_DEFAULT_IGNORE_COMPOUND_TYPES = check_env_true(
+    "STLOG_IGNORE_COMPOUND_TYPES", True
 )
 
 
@@ -76,7 +76,7 @@ class TemplateKVFormatter(KVFormatter):
     prefix: str = " {"
     suffix: str = "}"
     value_max_serialized_length: int = 40
-    ignore_compound_types: bool = STLOG_DEFAULT_LOGFMT_IGNORE_COMPOUND_TYPES
+    ignore_compound_types: bool = STLOG_DEFAULT_IGNORE_COMPOUND_TYPES
 
     def serialize_value(self, v: Any) -> str:
         return _truncate_serialize(v, self.value_max_serialized_length)

@@ -106,7 +106,7 @@ class Formatter(logging.Formatter):
 class HumanFormatter(Formatter):
     """Formatter for a "human" output.
 
-    Extra keywords are merged into a `{extra}` placeholder by a `stlog.formatter.KVFormatter`.
+    Extra keywords are merged into a `{extra}` placeholder by a `stlog.kvformatter.KVFormatter`.
 
     If you use this placeholder on your `fmt`, any keywords
     passed to a logging call will be formatted into a "extras" string and

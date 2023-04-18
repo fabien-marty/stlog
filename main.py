@@ -17,7 +17,11 @@ def define_env(env):
         if not obj:
             url = env.variables["_apilink"]
         else:
-            url = env.variables["_apilink"] + "#stlog." + obj
+            tmp = obj.split(".")
+            if len(tmp) == 2:
+                url = env.variables["_apilink"] + f"{tmp[0]}.html#stlog.{obj}"
+            else:
+                url = env.variables["_apilink"] + "#stlog." + obj
         if not title:
             if obj:
                 title = f"`{obj}`"

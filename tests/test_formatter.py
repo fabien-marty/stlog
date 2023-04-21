@@ -9,14 +9,16 @@ from stlog.base import STLOG_EXTRA_KEY
 from stlog.formatter import (
     DEFAULT_STLOG_DATE_FORMAT,
     DEFAULT_STLOG_HUMAN_FORMAT,
+    DEFAULT_STLOG_LOGFMT_FORMAT,
     HumanFormatter,
     JsonFormatter,
+    LogFmtFormatter,
 )
 
 
 @pytest.fixture
 def log_record() -> logging.LogRecord:
-    return logging.LogRecord(
+    record = logging.LogRecord(
         name="name",
         level=logging.INFO,
         pathname="/foo.py",
@@ -27,6 +29,10 @@ def log_record() -> logging.LogRecord:
         func=None,
         sinfo=None,
     )
+    record.foo = "bar"
+    record.foo2 = "bar2"
+    setattr(record, STLOG_EXTRA_KEY, ["foo", "foo2"])
+    return record
 
 
 @pytest.fixture
@@ -39,6 +45,13 @@ def human_formatter() -> logging.Formatter:
 @pytest.fixture
 def json_formatter() -> logging.Formatter:
     return JsonFormatter()
+
+
+@pytest.fixture
+def logfmt_formatter() -> logging.Formatter:
+    return LogFmtFormatter(
+        fmt=DEFAULT_STLOG_LOGFMT_FORMAT, datefmt=DEFAULT_STLOG_DATE_FORMAT
+    )
 
 
 def test_human1(log_record, human_formatter):
@@ -76,9 +89,18 @@ def test_truncate_keys(log_record):
 
 def test_json1(log_record, json_formatter):
     res = json.loads(json_formatter.format(log_record))
-    assert res["logger"]["name"] == log_record.name
+    print(res)
+    assert res["logger"] == log_record.name
     assert res["source"]["path"] == log_record.pathname
-    assert res["source"]["lineno"] == log_record.lineno
-    assert res["status"] == "info"
-    assert res["timestamp"].startswith("2023")
+    assert str(res["source"]["lineno"]) == str(log_record.lineno)
+    assert res["level"] == "INFO"
+    assert res["time"].startswith("2023")
     assert res["message"] == "foo foo bar bar"
+
+
+def test_logfmt(log_record, logfmt_formatter):
+    res = logfmt_formatter.format(log_record)
+    assert (
+        res
+        == 'time=2023-03-29T14:48:37Z logger=name level=INFO message="foo foo bar bar" foo=bar foo2=bar2'
+    )

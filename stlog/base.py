@@ -7,6 +7,7 @@ import os
 import re
 import types
 from dataclasses import dataclass, field
+from string import Template
 from typing import Any, Callable, Match
 
 STLOG_EXTRA_KEY = "_stlog_extra"
@@ -67,6 +68,8 @@ RESERVED_ATTRS: tuple[str, ...] = (
     "thread",
     "threadName",
     "extra",  # specific to stlog
+    "extras",  # specific to stlog
+    STLOG_EXTRA_KEY,  # specific to stlog
     "rich_escaped_message",  # specific to stlog
     "rich_escaped_extras",  # specific to stlog
     "rich_level_style",  # specific to stlog
@@ -222,3 +225,36 @@ def rich_markup_escape(
 
     markup = _escape(escape_backslashes, markup)
     return markup
+
+
+# Adapted from https://github.com/madzak/python-json-logger/blob/master/src/pythonjsonlogger/jsonlogger.py
+def parse_format(fmt: str | None, style: str) -> list[str]:
+    """
+    Parses format string looking for substitutions
+
+    This method is responsible for returning a list of fields (as strings)
+    to include in all log messages.
+    """
+    if not fmt:
+        return []
+    if style == "$":
+        formatter_style_pattern = re.compile(r"\$\{(.+?)\}", re.IGNORECASE)
+    elif style == "{":
+        formatter_style_pattern = re.compile(r"\{(.+?)\}", re.IGNORECASE)
+    elif style == "%":
+        formatter_style_pattern = re.compile(r"%\((.+?)\)", re.IGNORECASE)
+    else:
+        raise ValueError("Unsupported style: %s" % style)
+    return formatter_style_pattern.findall(fmt)
+
+
+def format_string(fmt: str | None, style: str, record_dict: dict[str, Any]) -> str:
+    if not fmt:
+        return ""
+    if style == "$":
+        return Template(fmt).substitute(**record_dict)
+    elif style == "{":
+        return fmt.format(**record_dict)
+    elif style == "%":
+        return fmt % record_dict
+    raise StlogError("Invalid style: %s" % style)

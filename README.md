@@ -206,9 +206,8 @@ JSON ouput (on `stdout`) for machines:
     "client_id": 456,
     "foo": "bar",
     "http_method": "GET",
-    "logger": {
-        "name": "__main__"
-    },
+    "level": "INFO",
+    "logger": "__main__",
     "message": "It works",
     "request_id": "4c2383f5",
     "source": {
@@ -221,16 +220,14 @@ JSON ouput (on `stdout`) for machines:
         "thread": 12345,
         "threadName": "MainThread"
     },
-    "status": "info",
-    "timestamp": "2023-03-29T14:48:37Z",
+    "time": "2023-03-29T14:48:37Z",
     "x": 123
 }
 {
     "client_id": 456,
     "http_method": "GET",
-    "logger": {
-        "name": "__main__"
-    },
+    "level": "CRITICAL",
+    "logger": "__main__",
     "message": "Houston, we have a problem!",
     "request_id": "4c2383f5",
     "source": {
@@ -243,8 +240,7 @@ JSON ouput (on `stdout`) for machines:
         "thread": 12345,
         "threadName": "MainThread"
     },
-    "status": "critical",
-    "timestamp": "2023-03-29T14:48:37Z"
+    "time": "2023-03-29T14:48:37Z"
 }
  
 ```

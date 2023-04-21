@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
@@ -94,7 +95,6 @@ class TemplateKVFormatter(KVFormatter):
         return res
 
 
-# Adapted from https://github.com/jteppinette/python-logfmter/blob/main/logfmter/formatter.py
 @dataclass
 class LogFmtKVFormatter(TemplateKVFormatter):
     """FIXME"""
@@ -104,3 +104,13 @@ class LogFmtKVFormatter(TemplateKVFormatter):
 
     def serialize_value(self, v: Any) -> str:
         return logfmt_format_value(super().serialize_value(v))
+
+
+@dataclass
+class JsonKVFormatter(KVFormatter):
+    """FIXME"""
+
+    sort_keys: bool = True
+
+    def format(self, kvs: dict[str, Any]) -> str:
+        return json.dumps(kvs, sort_keys=self.sort_keys)

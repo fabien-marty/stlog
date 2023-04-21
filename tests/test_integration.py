@@ -105,8 +105,8 @@ def test_warnings():
     warnings.warn("this is a warning", DeprecationWarning)
     assert len(target_list) == 1
     decoded = json.loads(target_list[0])
-    assert decoded["status"] == "warning"
-    assert decoded["logger"]["name"] == "py.warnings"
+    assert decoded["level"] == "WARNING"
+    assert decoded["logger"] == "py.warnings"
     assert "this is a warning" in decoded["message"]
 
 
@@ -120,7 +120,7 @@ def test_exceptions():
     except Exception:
         getLogger("bar").critical("exception catched", exc_info=True)
     assert len(target_list) == 1
-    assert target_list[0]["status"] == "critical"
+    assert target_list[0]["level"] == "CRITICAL"
     assert target_list[0]["message"] == "exception catched"
     assert "Traceback" in target_list[0]["exc_info"]
 
@@ -136,7 +136,7 @@ def test_exceptions2():
     except Exception as e:
         _logging_excepthook(Exception, e)
     assert len(target_list) == 1
-    assert target_list[0]["status"] == "error"
+    assert target_list[0]["level"] == "ERROR"
 
 
 def test_filters():
@@ -208,9 +208,9 @@ def test_root_logger():
         ("exception", "error"),
     ):
         d = next(x for x in target_list if x["message"] == msg)
-        assert d["status"] == level
+        assert d["level"] == level.upper()
         if msg == "warn":
-            d = next(x for x in target_list if x["logger"]["name"] == "py.warnings")
+            d = next(x for x in target_list if x["logger"] == "py.warnings")
             assert "function is deprecated" in d["message"]
         if msg == "exception":
             assert "Traceback" in d["exc_info"]

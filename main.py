@@ -6,6 +6,12 @@ import os
 
 from jinja2_shell_extension import shell  # type: ignore
 
+from stlog.formatter import (
+    DEFAULT_STLOG_HUMAN_FORMAT,
+    DEFAULT_STLOG_LOGFMT_FORMAT,
+    DEFAULT_STLOG_RICH_HUMAN_FORMAT,
+)
+
 os.environ["STLOG_UNIT_TESTS_MODE"] = "1"
 
 
@@ -45,3 +51,15 @@ def define_env(env):
     def code_example_to_output(filename: str, interpreter: str = "python"):
         cmd = f"STLOG_USE_RICH=0 ; {interpreter} docs/python/{filename}"
         return shell(None, cmd, die_on_error=True)
+
+    @env.macro
+    def default_human_format():
+        return DEFAULT_STLOG_HUMAN_FORMAT
+
+    @env.macro
+    def default_rich_human_format():
+        return DEFAULT_STLOG_RICH_HUMAN_FORMAT
+
+    @env.macro
+    def default_logfmt_format():
+        return DEFAULT_STLOG_LOGFMT_FORMAT

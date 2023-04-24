@@ -250,4 +250,5 @@ JSON ouput (on `stdout`) for machines:
 ## Roadmap
 
 - [ ] add `file` outputs
-- [ ] add a full `logfmt` formatter
+- [x] add a full `logfmt` formatter
+- [ ] more configuration options through env vars

@@ -41,3 +41,7 @@ reinjected. If you don't want this behavior, set `reinject_context_in_standard_l
 ## Configuring `stlog` library without `setup()` and without `Output` objects?
 
 Yes, you can configure `stlog` library without custom shortcuts like `Output` or `setup()`. FIXME
+
+## What about if I don't want to use UTC for my logs?
+
+FIXME

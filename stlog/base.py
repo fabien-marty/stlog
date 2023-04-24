@@ -95,6 +95,8 @@ def check_json_types_or_raise(to_check: Any) -> None:
 
 
 # Adapted from https://github.com/jteppinette/python-logfmter/blob/main/logfmter/formatter.py
+# FIXME: have a look at golang code to see if the encoding here is enough
+# https://github.com/go-logfmt/logfmt/blob/v0.6.0/encode.go#L236
 def logfmt_format_string(value: str) -> str:
     needs_dquote_escaping = '"' in value
     needs_newline_escaping = "\n" in value

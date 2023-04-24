@@ -178,12 +178,10 @@ You can go further by connecting the standard logging `extra` kwargs to `stlog`:
 
 ## Formatters
 
-FIXME
-
 In `stlog` we have two kinds of formatters:
 
 - standard/classic formatters in `stlog.formatters`: they are compatible with [python logging Formatters](https://docs.python.org/3/library/logging.html#logging.Formatter)
-- kvformatters in `stlog.kvformatters`: these custom classes build a new `extras` substring (with all key/values from contexts) you can use in your standard formatters (as a part on the format string)
+- kvformatters in `stlog.kvformatters`: these custom classes build a new `extras` placeholder (with all key/values from contexts) you can use in your standard formatters (as a part on the format string)
 
 ## KV formatters
 
@@ -218,8 +216,7 @@ Here are available "KV formatters". You can of course write yours (see [extend p
 
 #### `EmptyKVFormatter`
 
-This one is not very interesting as it always returns an empty string as `{extras}`. It's better to use a `kv_formatter=None` as a parameter
-of your formatter.
+This one is not very interesting as it always returns an empty string as `{extras}`.
 
 #### `TemplateKVFormatter`
 
@@ -253,14 +250,15 @@ Example:
 {{ code_example_to_output("format3.py") }}
 ```
 
+??? question "What about compound types in extras?"
+
+    FIXME
 
 ## Standard formatters
 
-FIXME
-
 ### Common options
 
-All `stlog` formatters have common options you can find on {{apilink("formatter.Formatter", title="the API reference")}} (search `Formatter` object).
+All `stlog` formatters have common options you can find on {{apilink("formatter.Formatter", title="the API reference")}}.
 
 These options are common `logging.Formatter` options extended with some `stlog` custom options.
 
@@ -276,11 +274,83 @@ Let's start with a simple example:
 {{ code_example("format1.py") }}
 ```
 
+```
+{{ code_example_to_output("format1.py") }}
+```
+
+Default format is: 
+
+```
+{{default_human_format()}}
+```
+
+Of course, you can change this format with for example:
+
+```python
+{{ code_example("format1bis.py") }}
+```
+
+```
+{{ code_example_to_output("format1bis.py") }}
+```
+
+??? note "`{extras}` format?"
+
+    By default, `HumanFormatter` use a `LogFmtKVFormatter` for formatting the `{extras}` placeholder. Of course, you 
+    can change or tune that by providing your own instance of `KVFormatter` to `HumanFormatter` object.
+
+## `RichHumanFormatter`
+
+This formatter can be used to get a human friendly output (with {{rich}} library installed).
+
+Default format is: 
+
+```
+{{default_rich_human_format()}}
+```
+
+This formatter provides some custom placeholders:
+
+- `{rich_escaped_message}`: the standard `{message}` placeholder but [escaped](https://rich.readthedocs.io/en/stable/markup.html#escaping) to avoid some accidental rich markup rendering inside message
+- `{rich_escaped_extras}`: same thing but for `{extras}` placeholder
+- `{rich_level_style}`: contain a smart rich markup style depending on the log level
+
+??? note "`{extras}/{rich_escaped_extras}` format?"
+
+    By default, `RichHumanFormatter` use a `LogFmtKVFormatter` for formatting the `{extras}` placeholder with custom
+    attributes:
+
+    -  `prefix="\n    :arrow_right_hook: "`
+    - `suffix=""`
+    - `template="[repr.attrib_name]{key}[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]{value}[/repr.attrib_value]"`
+
+    Of course, you can change or tune that by providing your own instance of `KVFormatter` to `HumanFormatter` object.
+
+## `LogFmtFormatter`
+
+This formatter will format your logs with the {{logfmt}}.
+
+Default format is: 
+
+```
+{{default_logfmt_format()}}
+```
+
+But the use of this format is **special** with this formatter as placeholders can be encoded to be valid for {{logfmt}}. So to configure an alternate format:
+
+- use the `key={placeholder}` syntax (with space separated key/values blocs)
+- don't try to escape your values, it will be done automatically and dynamically, so don't use quotes in your format
+- use the placeholder `{extras}` alone at the end (without leading space) to get all extra key/values
+
+```python
+{{ code_example("format5.py") }}
+```
+
+{{ code_example_to_svg("format5.py") }}
+
+## `JsonFormatter`
+
 FIXME
-
-
-
-
 
 ## Available Environment variables
 

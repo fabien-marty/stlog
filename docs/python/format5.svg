@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="terminal" baseProfile="full" viewBox="0 0 800 172" width="800" version="1.1">
+    <defs>
+        <termtosvg:template_settings xmlns:termtosvg="https://github.com/nbedos/termtosvg">
+            <termtosvg:screen_geometry columns="100" rows="10"/>
+            <termtosvg:animation type="css"/>
+        </termtosvg:template_settings>
+        <style type="text/css" id="generated-style"><![CDATA[#screen {
+                font-family: 'DejaVu Sans Mono', monospace;
+                font-style: normal;
+                font-size: 14px;
+            }
+
+        text {
+            dominant-baseline: text-before-edge;
+            white-space: pre;
+        }
+    ]]></style>
+        <style type="text/css" id="user-style">
+            /* The colors defined below are the default 16 colors used for rendering text of the terminal. Adjust
+               them as needed.
+               Solarized light color theme (http://ethanschoonover.com/solarized) */
+            .foreground {fill: #586e75;}
+            .background {fill: #fdf6e3;}
+            .color0 {fill: #fdf6e3;}
+            .color1 {fill: #dc322f;}
+            .color2 {fill: #859900;}
+            .color3 {fill: #b58900;}
+            .color4 {fill: #268bd2;}
+            .color5 {fill: #6c71c4;}
+            .color6 {fill: #2aa198;}
+            .color7 {fill: #586e75;}
+            .color8 {fill: #839496;}
+            .color9 {fill: #cb4b16;}
+            .color10 {fill: #eee8d5;}
+            .color11 {fill: #93a1a1;}
+            .color12 {fill: #657b83;}
+            .color13 {fill: #073642;}
+            .color14 {fill: #d33682;}
+            .color15 {fill: #002b36;}
+        </style>
+    </defs>
+    <svg id="screen" width="800" height="170" viewBox="0 0 800 170" preserveAspectRatio="xMidYMin slice"><rect class="background" height="100%" width="100%" x="0" y="0"/><defs><g id="g1"><text x="0" textLength="800" class="foreground">time=2023-03-29T14:48:37Z logger=__main__ process=2844099 level=WARNING message="this is a warning" </text></g><g id="g2"><text x="0" textLength="136" class="foreground">foo=bar foo2=bar2</text></g><g id="g3"><text x="0" textLength="800" class="foreground">time=2023-03-29T14:48:37Z logger=__main__ process=2844099 level=CRITICAL message="this is a critical</text></g><g id="g4"><text x="0" textLength="536" class="foreground"> message with\nmultiple\nlines and \"quotes\"" antislash=\antislash</text></g><g id="g5"><text x="0" textLength="8" class="background"> </text></g></defs><g><use xlink:href="#g1" y="0"/><use xlink:href="#g2" y="17"/><use xlink:href="#g3" y="34"/><use xlink:href="#g4" y="51"/><rect x="0" y="68" width="8" height="17" class="foreground"/><use xlink:href="#g5" y="68"/></g></svg>
+</svg>

@@ -339,7 +339,7 @@ Default format is:
 But the use of this format is **special** with this formatter as placeholders can be encoded to be valid for {{logfmt}}. So to configure an alternate format:
 
 - use the `key={placeholder}` syntax (with space separated key/values blocs)
-- don't try to escape your values, it will be done automatically and dynamically, so don't use quotes in your format
+- don't try to escape or quote your values , it will be done automatically and dynamically, so don't use quotes in your format
 - use the placeholder `{extras}` alone at the end (without leading space) to get all extra key/values
 
 ```python
@@ -350,7 +350,42 @@ But the use of this format is **special** with this formatter as placeholders ca
 
 ## `JsonFormatter`
 
-FIXME
+This formatter will format your logs in the JSON format.
+
+Default format is:
+
+```
+{{default_json_format()}}
+```
+
+But the use of this format is **special** with this formatter as placeholders can be encoded to be valid for JSON. So to configure an alternate format:
+
+- provide a nearly JSON valid format (except for placeholders, see next item)
+- don't try to escape your values, it will be done automatically and dynamically, so don't use quotes in your format around placeholders
+- there is no `{extras}` placeholder (see below)
+
+??? question "What about `{extras}` placeholder in JSON format?"
+
+    Extra key/values are automatically injected in the JSON as root keys if `include_extras_in_key=""` (default).
+
+    You can include all extras keys as a child dict or another root key by using for example: `includes_extras_in_key="extras"` to get
+    something like:
+
+    ```json
+    {
+        "time": "2023-01-01T12:13:14Z",
+        "logger": "foo",
+        "level": "CRITICAL",
+        "message": "Houston we have a problem",
+        "extras": {
+            "foo": "bar",
+            "foo2": "bar2",
+        }
+    }
+
+    Note: you can also use `include_extras_in_key=None` to remove all extras key/values from output.
+    ```
+
 
 ## Available Environment variables
 

@@ -8,6 +8,7 @@ from jinja2_shell_extension import shell  # type: ignore
 
 from stlog.formatter import (
     DEFAULT_STLOG_HUMAN_FORMAT,
+    DEFAULT_STLOG_JSON_FORMAT,
     DEFAULT_STLOG_LOGFMT_FORMAT,
     DEFAULT_STLOG_RICH_HUMAN_FORMAT,
 )
@@ -63,3 +64,7 @@ def define_env(env):
     @env.macro
     def default_logfmt_format():
         return DEFAULT_STLOG_LOGFMT_FORMAT
+
+    @env.macro
+    def default_json_format():
+        return DEFAULT_STLOG_JSON_FORMAT

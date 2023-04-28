@@ -64,11 +64,11 @@ class Formatter(logging.Formatter):
         datefmt: the format to use for `{asctime}` placeholder.
         style: can be '%', '{' or '$' to select how the format string will be merged with its data
             (see https://docs.python.org/3/library/logging.html#logging.Formatter for details)
-        include_extras_keys_fnmatchs: fnmatch patterns list for including keys in `{extra}` placeholder.
-        exclude_extras_keys_fnmatchs: fnmatch patterns list for excluding keys in `{extra}` placeholder.
+        include_extras_keys_fnmatchs: fnmatch patterns list for including keys in `{extras}` placeholder.
+        exclude_extras_keys_fnmatchs: fnmatch patterns list for excluding keys in `{extras}` placeholder.
         extra_key_rename_fn: callable which takes a key name and return a renamed key to use
             (or None to ignore the key/value).
-        extra_key_max_length: maximum size of extra keys to be included in `{extra}` placeholder
+        extra_key_max_length: maximum size of extra keys to be included in `{extras}` placeholder
             (after this limit, the value will be truncated and ... will be added at the end, 0 means "no limit").
         converter: time converter function (use `time.gmtime` (default) for UTC date/times, use `time.time`
             for local date/times), if you change the default, please change also `datefmt` keyword.
@@ -85,13 +85,36 @@ class Formatter(logging.Formatter):
     include_extras_keys_fnmatchs: Sequence[str] | None = None
     exclude_extras_keys_fnmatchs: Sequence[str] | None = None
     extra_key_rename_fn: Callable[[str], str | None] | None = None
-    extra_key_max_length: int = 32
+    extra_key_max_length: int | None = None
     converter: Callable[[float | None], time.struct_time] = time.gmtime
     kv_formatter: KVFormatter | None = None
     include_reserved_attrs_in_extras: Sequence[str] = field(default_factory=list)
     _placeholders_in_fmt: list[str] | None = field(
         init=False, default=None, repr=False, compare=False
     )
+
+    def __post_init__(self):
+        super().__init__(  # explicit call because logging.Formatter is not a dataclass
+            fmt=self.fmt, datefmt=self.datefmt, style=self.style  # type: ignore
+        )
+        if self.extra_key_max_length is None:
+            self.extra_key_max_length = 32
+        self.include_extra_keys_patterns: list[re.Pattern] = [
+            re.compile(fnmatch.translate("*"))
+        ]  # all by default
+        self.exclude_extra_keys_patterns: list[re.Pattern] = []  # empty by default
+        if self.include_extras_keys_fnmatchs is not None:
+            self.include_extra_keys_patterns = [
+                re.compile(fnmatch.translate(x))
+                for x in self.include_extras_keys_fnmatchs
+            ]
+        if self.exclude_extras_keys_fnmatchs is not None:
+            self.exclude_extra_keys_patterns = [
+                re.compile(fnmatch.translate(x))
+                for x in self.exclude_extras_keys_fnmatchs
+            ]
+        if GLOBAL_LOGGING_CONFIG._unit_tests_mode:
+            self.converter = _unit_tests_converter
 
     @property
     def placeholders_in_fmt(self) -> list[str]:
@@ -116,27 +139,6 @@ class Formatter(logging.Formatter):
                 kvs[key] = getattr(record, k)
         return self.kv_formatter.format(kvs)
 
-    def __post_init__(self):
-        super().__init__(  # explicit call because logging.Formatter is not a dataclass
-            fmt=self.fmt, datefmt=self.datefmt, style=self.style  # type: ignore
-        )
-        self.include_extra_keys_patterns: list[re.Pattern] = [
-            re.compile(fnmatch.translate("*"))
-        ]  # all by default
-        self.exclude_extra_keys_patterns: list[re.Pattern] = []  # empty by default
-        if self.include_extras_keys_fnmatchs is not None:
-            self.include_extra_keys_patterns = [
-                re.compile(fnmatch.translate(x))
-                for x in self.include_extras_keys_fnmatchs
-            ]
-        if self.exclude_extras_keys_fnmatchs is not None:
-            self.exclude_extra_keys_patterns = [
-                re.compile(fnmatch.translate(x))
-                for x in self.exclude_extras_keys_fnmatchs
-            ]
-        if GLOBAL_LOGGING_CONFIG._unit_tests_mode:
-            self.converter = _unit_tests_converter
-
     def _make_extra_key_name(self, extra_key: str) -> str | None:
         new_extra_key: str | None = extra_key
         if self.extra_key_rename_fn is not None:
@@ -152,7 +154,10 @@ class Formatter(logging.Formatter):
         for pattern in self.exclude_extra_keys_patterns:
             if re.match(pattern, new_extra_key):
                 return None
-        return _truncate_str(new_extra_key, self.extra_key_max_length)
+        return _truncate_str(
+            new_extra_key,
+            self.extra_key_max_length if self.extra_key_max_length is not None else 0,
+        )
 
     def format(self, record: logging.LogRecord) -> str:
         if GLOBAL_LOGGING_CONFIG._unit_tests_mode:
@@ -172,7 +177,7 @@ class Formatter(logging.Formatter):
 class HumanFormatter(Formatter):
     """Formatter for a "human" output.
 
-    Extra keywords are merged into a `{extra}` placeholder by a `stlog.kvformatter.KVFormatter`.
+    Extra keywords are merged into a `{extras}` placeholder by a `stlog.kvformatter.KVFormatter`.
 
     If you use this placeholder on your `fmt`, any keywords
     passed to a logging call will be formatted into a "extras" string and
@@ -186,7 +191,7 @@ class HumanFormatter(Formatter):
 
         {foo=bar foo2=123}
 
-    You can change the way the `{extra}` placeholder is formatted
+    You can change the way the `{extras}` placeholder is formatted
     by providing a KVFormatter object.
 
     """
@@ -289,16 +294,18 @@ class LogFmtFormatter(Formatter):
 class JsonFormatter(Formatter):
     """Formatter for a JSON / parsing friendly output."""
 
-    extra_key_max_length: int = 0
     indent: int | None = None
     sort_keys: bool = True
-    include_extras_in_key: str | None = None
+    include_extras_in_key: str | None = ""
     exc_info_key: str | None = "exc_info"
     stack_info_key: str | None = "stack_info"
 
     def __post_init__(self):
+        if self.extra_key_max_length is None:
+            self.extra_key_max_length = 0
         if self.kv_formatter is None:
-            self.kv_formatter = JsonKVFormatter()
+            # note: no need to sort/indent here as it will be sorted/indented at this level
+            self.kv_formatter = JsonKVFormatter(sort_keys=False, indent=False)
         if self.fmt is None:
             self.fmt = DEFAULT_STLOG_JSON_FORMAT
         if self.extra_key_rename_fn is None:
@@ -323,14 +330,15 @@ class JsonFormatter(Formatter):
             if k != "extras"
         }
         s = format_string(self.fmt, self.style, record_dict)
-        obj = json.loads(s)
-        extras_obj = json.loads(self._make_extras_string(record))
-        if self.include_extras_in_key:
-            obj[self.include_extras_in_key] = extras_obj
-        else:
-            for key, value in extras_obj.items():
-                if key not in obj:
-                    obj[key] = value
+        if self.include_extras_in_key is not None:
+            obj = json.loads(s)
+            extras_obj = json.loads(self._make_extras_string(record))
+            if self.include_extras_in_key == "":
+                for key, value in extras_obj.items():
+                    if key not in obj:
+                        obj[key] = value
+            else:
+                obj[self.include_extras_in_key] = extras_obj
         if self.exc_info_key:
             if record.exc_info:
                 obj[self.exc_info_key] = self.formatException(record.exc_info)

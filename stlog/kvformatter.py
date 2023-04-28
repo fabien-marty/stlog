@@ -30,7 +30,28 @@ def _truncate_serialize(value: Any, limit: int = 0) -> str:
 
 @dataclass
 class KVFormatter(ABC):
-    """Abstract base class to format extras key-values."""
+    """Abstract base class to format extras key-values.
+
+    Attributes:
+        value_max_serialized_length: maximum size of extra values to be included in `{extras}` placeholder
+            (after this limit, the value will be truncated and ... will be added at the end, 0 means "no limit",
+            default: 40).
+
+    """
+
+    value_max_serialized_length: int | None = None
+
+    def __post_init__(self):
+        if self.value_max_serialized_length is None:
+            self.value_max_serialzed_length = 40
+
+    def serialize_value(self, v: Any) -> str:
+        return _truncate_serialize(
+            v,
+            self.value_max_serialized_length
+            if self.value_max_serialized_length is not None
+            else 40,
+        )
 
     @abstractmethod
     def format(self, kvs: dict[str, Any]) -> str:
@@ -50,8 +71,6 @@ class EmptyKVFormatter(KVFormatter):
 class TemplateKVFormatter(KVFormatter):
     """Class to format extra key-values as a string with templates.
 
-    Extra keywords are merged into a `{extra}` placeholder.
-
     Example::
 
         {foo="bar", foo2=123}
@@ -62,25 +81,26 @@ class TemplateKVFormatter(KVFormatter):
 
     Attributes:
         template: the template to format a key/value:
-            `{key}` placeholder is the key, `{value}` is the value.
-        separator: the separator between multiple key/values.
+            `{key}` placeholder is the key, `{value}` is the value
+            (default to `"{key}={value}"`)
+        separator: the separator between multiple key/values
         prefix: the prefix before key/value parts.
         suffix: the suffix after key/values parts.
-        value_max_serialized_length: maximum size of extra values to be included in `{extra}` placeholder
-            (after this limit, the value will be truncated and ... will be added at the end, 0 means "no limit").
-        ignore_compound_types: FIXME
+        ignore_compound_types: if set to False, accept compound types (dict, list) as values (they will be
+            serialized using their default string serialization method)
 
     """
 
-    template: str = "{key}={value}"
+    template: str | None = None
     separator: str = ", "
     prefix: str = " {"
     suffix: str = "}"
-    value_max_serialized_length: int = 40
     ignore_compound_types: bool = STLOG_DEFAULT_IGNORE_COMPOUND_TYPES
 
-    def serialize_value(self, v: Any) -> str:
-        return _truncate_serialize(v, self.value_max_serialized_length)
+    def __post_init__(self):
+        if self.template is None:
+            self.template = "{key}={value}"
+        return super().__post_init__()
 
     def format(self, kvs: dict[str, Any]) -> str:
         res: str = ""
@@ -88,6 +108,7 @@ class TemplateKVFormatter(KVFormatter):
         for k, v in sorted(kvs.items(), key=lambda x: x[0]):
             if self.ignore_compound_types and isinstance(v, (dict, list, set)):
                 continue
+            assert self.template is not None
             tmp.append(self.template.format(key=k, value=self.serialize_value(v)))
         res = self.separator.join(tmp)
         if res != "":
@@ -97,10 +118,26 @@ class TemplateKVFormatter(KVFormatter):
 
 @dataclass
 class LogFmtKVFormatter(TemplateKVFormatter):
-    """FIXME"""
+    """Class to format extra key-values as a LogFmt string.
 
-    separator: str = " "
-    template: str = "{key}={value}"
+    Example::
+
+        {foo="bar", foo2=123, foo3="string with a space"}
+
+    will be formatted as:
+
+        foo=bar, foo2=123, foo3="string with a space"
+
+
+    Note: `template` and `separator` are automatically set/forced.
+
+    """
+
+    def __post_init__(self):
+        self.separator = " "
+        if self.template is None:
+            self.template = "{key}={value}"
+        return super().__post_init__()
 
     def serialize_value(self, v: Any) -> str:
         return logfmt_format_value(super().serialize_value(v))
@@ -108,9 +145,30 @@ class LogFmtKVFormatter(TemplateKVFormatter):
 
 @dataclass
 class JsonKVFormatter(KVFormatter):
-    """FIXME"""
+    """Class to format extra key-values as a JSON string.
 
+    Attributes:
+        indent: if set as a positive integer, use this number of spaces to indent the output.
+            (warning: if you use this KVFormatter
+            through a JSONFormatter, this parameter can be overriden at the Formatter level).
+        sort_keys: if True (default), sort keys (warning: if you use this KVFormatter
+            through a JSONFormatter, this parameter can be overriden at the Formatter level).
+    """
+
+    indent: int | None = None
     sort_keys: bool = True
 
+    def __post_init__(self):
+        if self.value_max_serialized_length is None:
+            self.value_max_serialized_length = 0  # no limit
+        self.separator = " "
+        self.template = "{key}={value}"
+        return super().__post_init__()
+
     def format(self, kvs: dict[str, Any]) -> str:
-        return json.dumps(kvs, sort_keys=self.sort_keys)
+        return json.dumps(
+            kvs,
+            sort_keys=self.sort_keys,
+            default=self.serialize_value,
+            indent=self.indent,
+        )

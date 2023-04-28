@@ -45,7 +45,7 @@ class KVFormatter(ABC):
         if self.value_max_serialized_length is None:
             self.value_max_serialzed_length = 40
 
-    def serialize_value(self, v: Any) -> str:
+    def _serialize_value(self, v: Any) -> str:
         return _truncate_serialize(
             v,
             self.value_max_serialized_length
@@ -109,7 +109,7 @@ class TemplateKVFormatter(KVFormatter):
             if self.ignore_compound_types and isinstance(v, (dict, list, set)):
                 continue
             assert self.template is not None
-            tmp.append(self.template.format(key=k, value=self.serialize_value(v)))
+            tmp.append(self.template.format(key=k, value=self._serialize_value(v)))
         res = self.separator.join(tmp)
         if res != "":
             res = self.prefix + res + self.suffix
@@ -139,8 +139,8 @@ class LogFmtKVFormatter(TemplateKVFormatter):
             self.template = "{key}={value}"
         return super().__post_init__()
 
-    def serialize_value(self, v: Any) -> str:
-        return logfmt_format_value(super().serialize_value(v))
+    def _serialize_value(self, v: Any) -> str:
+        return logfmt_format_value(super()._serialize_value(v))
 
 
 @dataclass
@@ -169,6 +169,6 @@ class JsonKVFormatter(KVFormatter):
         return json.dumps(
             kvs,
             sort_keys=self.sort_keys,
-            default=self.serialize_value,
+            default=self._serialize_value,
             indent=self.indent,
         )

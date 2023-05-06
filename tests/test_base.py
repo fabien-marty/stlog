@@ -32,7 +32,7 @@ def test_check_json_types_or_raise():
 def test_logfmt_format_string():
     assert logfmt_format_string("foo") == "foo"
     assert logfmt_format_string("foo foo") == '"foo foo"'
-    assert logfmt_format_string("foo\nfoo") == "foo\\nfoo"
+    assert logfmt_format_string("foo\nfoo") == '"foo\\nfoo"'
     assert logfmt_format_string("") == '""'
 
 

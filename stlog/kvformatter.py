@@ -43,7 +43,7 @@ class KVFormatter(ABC):
 
     def __post_init__(self):
         if self.value_max_serialized_length is None:
-            self.value_max_serialzed_length = 40
+            self.value_max_serialized_length = 40
 
     def _serialize_value(self, v: Any) -> str:
         return _truncate_serialize(
@@ -137,6 +137,8 @@ class LogFmtKVFormatter(TemplateKVFormatter):
         self.separator = " "
         if self.template is None:
             self.template = "{key}={value}"
+        if self.value_max_serialized_length is None:
+            self.value_max_serialized_length = 0
         return super().__post_init__()
 
     def _serialize_value(self, v: Any) -> str:

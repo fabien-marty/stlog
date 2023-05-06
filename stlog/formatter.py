@@ -123,8 +123,7 @@ class Formatter(logging.Formatter):
         return self._placeholders_in_fmt
 
     def _make_extras_string(
-        self,
-        record: logging.LogRecord,
+        self, record: logging.LogRecord, extra_kvs: dict[str, Any] | None = None
     ) -> str:
         if self.kv_formatter is None:
             return ""
@@ -137,6 +136,8 @@ class Formatter(logging.Formatter):
             key = self._make_extra_key_name(k)
             if key:
                 kvs[key] = getattr(record, k)
+        if extra_kvs:
+            kvs.update(extra_kvs)
         return self.kv_formatter.format(kvs)
 
     def _make_extra_key_name(self, extra_key: str) -> str | None:
@@ -269,11 +270,16 @@ def json_formatter_default_extra_key_rename_fn(key: str) -> str | None:
 
 @dataclass
 class LogFmtFormatter(Formatter):
+    exc_info_key: str | None = "exc_info"
+    stack_info_key: str | None = "stack_info"
+
     def __post_init__(self):
         if self.kv_formatter is None:
             self.kv_formatter = LogFmtKVFormatter(prefix=" ", suffix="")
         if self.fmt is None:
             self.fmt = DEFAULT_STLOG_LOGFMT_FORMAT
+        if self.extra_key_max_length is None:
+            self.extra_key_max_length = 0
         super().__post_init__()
 
     def format(self, record: logging.LogRecord) -> str:
@@ -285,8 +291,18 @@ class LogFmtFormatter(Formatter):
             for k in self.placeholders_in_fmt
             if k != "extras"
         }
+        extra_kvs: dict[str, Any] = {}
+        if self.exc_info_key:
+            if record.exc_info:
+                extra_kvs[self.exc_info_key] = self.formatException(record.exc_info)
+            elif record.exc_text:
+                extra_kvs[self.exc_info_key] = record.exc_text
+        if self.stack_info_key and record.stack_info:
+            extra_kvs[self.stack_info_key] = self.formatStack(record.stack_info)
         if "extras" in self.placeholders_in_fmt:
-            record_dict["extras"] = self._make_extras_string(record)
+            record_dict["extras"] = self._make_extras_string(
+                record, extra_kvs=extra_kvs
+            )
         return format_string(self.fmt, self.style, record_dict)
 
 

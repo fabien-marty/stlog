@@ -5,6 +5,7 @@ import json
 import numbers
 import os
 import re
+import string
 import types
 from dataclasses import dataclass, field
 from string import Template
@@ -22,6 +23,9 @@ except ImportError:
 
 TRUE_VALUES = ("1", "true", "yes")
 FALSE_VALUES = ("0", "false", "no")
+ALLOWED_CHARS_WITHOUT_LOGFMT_QUOTING: set = set(
+    string.ascii_letters + string.digits + ",-.@_~:"
+)
 
 
 class StlogError(Exception):
@@ -95,12 +99,10 @@ def check_json_types_or_raise(to_check: Any) -> None:
 
 
 # Adapted from https://github.com/jteppinette/python-logfmter/blob/main/logfmter/formatter.py
-# FIXME: have a look at golang code to see if the encoding here is enough
-# https://github.com/go-logfmt/logfmt/blob/v0.6.0/encode.go#L236
 def logfmt_format_string(value: str) -> str:
     needs_dquote_escaping = '"' in value
     needs_newline_escaping = "\n" in value
-    needs_quoting = " " in value or "=" in value
+    needs_quoting = not set(value).issubset(ALLOWED_CHARS_WITHOUT_LOGFMT_QUOTING)
     if needs_dquote_escaping:
         value = value.replace('"', '\\"')
     if needs_newline_escaping:

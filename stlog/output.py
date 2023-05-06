@@ -98,7 +98,7 @@ class StreamOutput(Output):
 
 @dataclass
 class RichStreamOutput(StreamOutput):
-    force_terminal: bool = True
+    force_terminal: bool = False
     console: typing.Any = None
 
     def __post_init__(self):
@@ -118,6 +118,7 @@ class RichStreamOutput(StreamOutput):
 def make_stream_or_rich_stream_output(
     stream: typing.TextIO = sys.stderr,
     use_rich: bool | None = DEFAULT_USE_RICH,
+    formatter_kwargs: dict[str, typing.Any] | None = None,
     **kwargs,
 ) -> StreamOutput:
     """Create automatically a `stlog.output.RichStreamOutput` or a (classic)`stlog.output.StreamOutput`.
@@ -129,21 +130,20 @@ def make_stream_or_rich_stream_output(
     - (if `use_rich` is `None`): the selected `stream` must "output" in a real terminal (not in a shell filter
     or in a file through redirection...)
 
-    WARNING: if `use_rich` is set to True and if `rich` library is installed, the usage of `rich` library
-    is forced **even if the `rich` library thinks that the output is not "compatible"
-
     NOTE: the default value of the `use_rich` parameter is `None` (automatic) but it can be forced by
     the `STLOG_USE_RICH` env variable.
 
     Attributes:
         stream: the stream to use (`typing.TextIO`), default to `sys.stderr`.
         use_rich: if None, use [rich output](https://github.com/Textualize/rich/blob/master/README.md) if possible
-        (rich installed and supported tty), if True/False force the usage (or not).
+            (rich installed and supported tty), if True/False force the usage (or not).
+        formatter_kwargs: extra parameters for the formatter (can be a `HumanFormatter` or a `RichHumanFormatter`)
 
     """
-    for key in ("formatter", "force_terminal"):
-        if key in kwargs:
-            raise StlogError(f"you can't use {key} in kwargs for this function")
+    if "formatter" in kwargs:
+        raise StlogError(
+            "you can't use formatter in kwargs for this function (buy you can use formatter_kwargs to tune it)"
+        )
     _use_rich: bool = False
     if use_rich is not None:
         # manual mode
@@ -155,7 +155,13 @@ def make_stream_or_rich_stream_output(
             _use_rich = c.is_terminal
     if _use_rich:
         return RichStreamOutput(
-            stream=stream, force_terminal=True, formatter=RichHumanFormatter(), **kwargs
+            stream=stream,
+            formatter=RichHumanFormatter(**(formatter_kwargs or {})),
+            **kwargs,
         )
     else:
-        return StreamOutput(stream=stream, **kwargs)
+        return StreamOutput(
+            stream=stream,
+            formatter=HumanFormatter(**(formatter_kwargs or {})),
+            **kwargs,
+        )

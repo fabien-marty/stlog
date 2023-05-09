@@ -47,10 +47,17 @@ class _KeywordArgumentAdapter(logging.LoggerAdapter):
 class StLogLoggerAdapter(_KeywordArgumentAdapter):
     """stlog `LoggerAdapter` with `stlog.LogContext` support."""
 
+    def __init__(self, logger, extra, ignore_global_logging_context: bool = False):
+        self.ignore_global_logging_context = ignore_global_logging_context
+        super().__init__(logger, extra)
+
     def process(
         self, msg: typing.Any, kwargs: collections.abc.MutableMapping[str, typing.Any]
     ) -> tuple[typing.Any, collections.abc.MutableMapping[str, typing.Any]]:
-        new_kwargs = {**LogContext._get(), **kwargs}
+        if self.ignore_global_logging_context:
+            new_kwargs = dict(kwargs)
+        else:
+            new_kwargs = {**LogContext._get(), **kwargs}
         return super().process(msg, new_kwargs)
 
     def addFilter(self, filter):  # noqa: N802

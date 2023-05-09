@@ -33,6 +33,7 @@ __pdoc__ = {
     "base": False,
     "adapter": False,
     "handler": False,
+    "filter": False,
     "context": False,
     "warn": False,
     "fatal": False,

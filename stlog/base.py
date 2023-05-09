@@ -38,6 +38,8 @@ class GlobalLoggingConfig:
     program_name: str = field(
         default_factory=lambda: os.path.basename(inspect.stack()[-1][1])
     )
+    reinject_context_in_standard_logging: bool | None = None
+    read_extra_kwargs_from_standard_logging: bool | None = None
     _unit_tests_mode: bool = (
         os.environ.get("STLOG_UNIT_TESTS_MODE", "0").lower() in TRUE_VALUES
     )

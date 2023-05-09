@@ -23,7 +23,7 @@ def test_reinject_handler(context):
     target_list: list[str] = []
     setup(
         outputs=[UnitsTestsOutput(target_list=target_list, formatter=JsonFormatter())],
-        read_extra_kwarg_from_standard_logging=True,
+        read_extra_kwargs_from_standard_logging=True,
     )
     context.add(foo="bar")
     standard_logger = logging.getLogger("standard")

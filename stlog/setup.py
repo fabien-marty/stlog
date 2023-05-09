@@ -9,18 +9,11 @@ import typing
 import warnings
 
 from stlog.adapter import getLogger
-from stlog.base import GLOBAL_LOGGING_CONFIG, check_env_false, check_env_true
-from stlog.handler import ContextReinjectHandlerWrapper
+from stlog.base import GLOBAL_LOGGING_CONFIG, check_env_false
 from stlog.output import Output, make_stream_or_rich_stream_output
 
 DEFAULT_LEVEL: str = os.environ.get("STLOG_LEVEL", "INFO")
 DEFAULT_CAPTURE_WARNINGS: bool = check_env_false("STLOG_CAPTURE_WARNINGS", True)
-DEFAULT_REINJECT_CONTEXT_IN_STANDARD_LOGGING: bool = check_env_false(
-    "STLOG_REINJECT_CONTEXT_IN_STANDARD_LOGGING", True
-)
-DEFAULT_READ_EXTRA_KWARG_FROM_STANDARD_LOGGING: bool = check_env_true(
-    "STLOG_READ_EXTRA_KWARGS_FROM_STANDARD_LOGGING", False
-)
 DEFAULT_PROGRAM_NAME: str | None = os.environ.get("STLOG_PROGRAM_NAME", None)
 
 
@@ -60,8 +53,8 @@ def setup(
     ]
     | None = _logging_excepthook,
     extra_levels: typing.Mapping[str, str | int] = {},
-    reinject_context_in_standard_logging: bool = DEFAULT_REINJECT_CONTEXT_IN_STANDARD_LOGGING,
-    read_extra_kwarg_from_standard_logging: bool = False,
+    reinject_context_in_standard_logging: bool | None = None,
+    read_extra_kwargs_from_standard_logging: bool | None = None,
 ) -> None:
     """Set up the Python logging with stlog (globally).
 
@@ -81,10 +74,19 @@ def setup(
         extra_levels: dict "logger name => log level" for quick override of
             the root log level (for some loggers).
         reinject_context_in_standard_logging: if True, reinject the LogContext
-            in log record emitted with python standard loggers.
-        read_extra_kwarg_from_standard_logging: if try to reinject the extra kwargs from standard logging.
+            in log record emitted with python standard loggers (note: can be overriden per `stlog.output.Output`,
+            default to `STLOG_REINJECT_CONTEXT_IN_STANDARD_LOGGING` env var or True if not set).
+        read_extra_kwargs_from_standard_logging: if try to reinject the extra kwargs from standard logging
+            (note: can be overriden per `stlog.output.Output`, default to `STLOG_READ_EXTRA_KWARGS_FROM_STANDARD_LOGGING` env var
+            or False if not set).
+
     """
-    root_logger = logging.getLogger(None)
+    GLOBAL_LOGGING_CONFIG.reinject_context_in_standard_logging = (
+        reinject_context_in_standard_logging
+    )
+    GLOBAL_LOGGING_CONFIG.read_extra_kwargs_from_standard_logging = (
+        read_extra_kwargs_from_standard_logging
+    )
     if program_name is not None:
         GLOBAL_LOGGING_CONFIG.program_name = program_name
 
@@ -93,6 +95,7 @@ def setup(
         for key in list(logging.Logger.manager.loggerDict.keys()):
             logging.Logger.manager.loggerDict.pop(key)
 
+    root_logger = logging.getLogger(None)
     # Remove all handlers
     for handler in list(root_logger.handlers):
         root_logger.removeHandler(handler)
@@ -101,14 +104,7 @@ def setup(
     if outputs is None:
         outputs = _make_default_outputs()
     for out in outputs:
-        if reinject_context_in_standard_logging:
-            handler = ContextReinjectHandlerWrapper(
-                wrapped=out.get_handler(),
-                read_extra_kwarg_from_standard_logging=read_extra_kwarg_from_standard_logging,
-            )
-        else:
-            handler = out.get_handler()
-        root_logger.addHandler(handler)
+        root_logger.addHandler(out.get_handler())
 
     root_logger.setLevel(level)
 

@@ -425,9 +425,9 @@ This variable can change the default value of `reinject_context_in_standard_logg
 
 ### `STLOG_READ_EXTRA_KWARGS_FROM_STANDARD_LOGGING`
 
-This variable can change the default value of `read_extra_kwarg_from_standard_logging` parameter of the {{apilink("setup")}} function: 
+This variable can change the default value of `read_extra_kwargs_from_standard_logging` parameter of the {{apilink("setup")}} function: 
 
-- if set to `1`, `TRUE`, `YES`: default value of `read_extra_kwarg_from_standard_logging` is set to `True`
+- if set to `1`, `TRUE`, `YES`: default value of `read_extra_kwargs_from_standard_logging` is set to `True`
 
 ### `STLOG_ENV_JSON_CONTEXT` and `STLOG_ENV_CONTEXT_*`
 

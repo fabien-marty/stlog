@@ -7,7 +7,12 @@ import sys
 import typing
 from dataclasses import dataclass, field
 
-from stlog.base import StlogError
+from stlog.base import (
+    GLOBAL_LOGGING_CONFIG,
+    StlogError,
+    check_env_false,
+)
+from stlog.filter import ContextReinjectFilter
 from stlog.formatter import (
     Formatter,
     HumanFormatter,
@@ -46,6 +51,11 @@ class Output:
             (None means "use the global logging level").
         filters: list of logging Filters (or simple callables) to filter some LogRecord
             for this specific output.
+        reinject_context_in_standard_logging: if True, reinject the LogContext
+            in log record emitted with python standard loggers
+            (note: override `stlog.setup` default value for this output).
+        read_extra_kwargs_from_standard_logging: if try to reinject the extra kwargs from standard logging
+            (note: override `stlog.setup` default value for this output).
 
     """
 
@@ -55,6 +65,26 @@ class Output:
     filters: typing.Iterable[
         typing.Callable[[logging.LogRecord], bool] | logging.Filter
     ] = field(default_factory=list)
+    reinject_context_in_standard_logging: bool | None = None
+    read_extra_kwargs_from_standard_logging: bool | None = None
+
+    @property
+    def _reinject_context_in_standard_logging(self) -> bool:
+        # lazy evaluation because Output are built before setup() call
+        if self.reinject_context_in_standard_logging is not None:
+            return self.reinject_context_in_standard_logging
+        if GLOBAL_LOGGING_CONFIG.reinject_context_in_standard_logging is not None:
+            return GLOBAL_LOGGING_CONFIG.reinject_context_in_standard_logging
+        return check_env_false("STLOG_REINJECT_CONTEXT_IN_STANDARD_LOGGING", True)
+
+    @property
+    def _read_extra_kwargs_from_standard_logging(self) -> bool:
+        # lazy evaluation because Output are built before setup() call
+        if self.read_extra_kwargs_from_standard_logging is not None:
+            return self.read_extra_kwargs_from_standard_logging
+        if GLOBAL_LOGGING_CONFIG.read_extra_kwargs_from_standard_logging is not None:
+            return GLOBAL_LOGGING_CONFIG.read_extra_kwargs_from_standard_logging
+        return check_env_false("STLOG_READ_EXTRA_KWARGS_FROM_STANDARD_LOGGING", True)
 
     def set_handler(
         self,
@@ -65,6 +95,12 @@ class Output:
         self._handler.setFormatter(self.get_formatter_or_raise())
         if self.level is not None:
             self._handler.setLevel(self.level)
+        if self._reinject_context_in_standard_logging:
+            self._handler.addFilter(
+                ContextReinjectFilter(
+                    read_extra_kwargs_from_standard_logging=self._read_extra_kwargs_from_standard_logging
+                )
+            )
         for filter in self.filters:
             self._handler.addFilter(filter)
 

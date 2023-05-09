@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 
 from stlog.base import StlogError
 from stlog.formatter import (
+    Formatter,
     HumanFormatter,
     RichHumanFormatter,
 )
@@ -118,7 +119,8 @@ class RichStreamOutput(StreamOutput):
 def make_stream_or_rich_stream_output(
     stream: typing.TextIO = sys.stderr,
     use_rich: bool | None = DEFAULT_USE_RICH,
-    formatter_kwargs: dict[str, typing.Any] | None = None,
+    rich_formatter: Formatter | None = None,
+    not_rich_formatter: Formatter | None = None,
     **kwargs,
 ) -> StreamOutput:
     """Create automatically a `stlog.output.RichStreamOutput` or a (classic)`stlog.output.StreamOutput`.
@@ -137,12 +139,13 @@ def make_stream_or_rich_stream_output(
         stream: the stream to use (`typing.TextIO`), default to `sys.stderr`.
         use_rich: if None, use [rich output](https://github.com/Textualize/rich/blob/master/README.md) if possible
             (rich installed and supported tty), if True/False force the usage (or not).
-        formatter_kwargs: extra parameters for the formatter (can be a `HumanFormatter` or a `RichHumanFormatter`)
+        rich_formatter: Formatter to use if rich is available/selected (None => default RichHumanFormatter instance).
+        not_rich_formatter: Formatter to use if rich is not available/selected (None => default HumanFormatter instance).
 
     """
     if "formatter" in kwargs:
         raise StlogError(
-            "you can't use formatter in kwargs for this function (buy you can use formatter_kwargs to tune it)"
+            "you can't use formatter in kwargs for this function (buy you can use rich_formatter/not_rich_formatter instead)"
         )
     _use_rich: bool = False
     if use_rich is not None:
@@ -156,12 +159,12 @@ def make_stream_or_rich_stream_output(
     if _use_rich:
         return RichStreamOutput(
             stream=stream,
-            formatter=RichHumanFormatter(**(formatter_kwargs or {})),
+            formatter=rich_formatter or RichHumanFormatter(),
             **kwargs,
         )
     else:
         return StreamOutput(
             stream=stream,
-            formatter=HumanFormatter(**(formatter_kwargs or {})),
+            formatter=not_rich_formatter or HumanFormatter(),
             **kwargs,
         )

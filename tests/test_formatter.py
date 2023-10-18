@@ -98,6 +98,18 @@ def test_json1(log_record, json_formatter):
     assert res["message"] == "foo foo bar bar"
 
 
+def test_json2(log_record):
+    json_formatter = JsonFormatter(include_extras_in_key=None)
+    res = json.loads(json_formatter.format(log_record))
+    print(res)
+    assert res["logger"] == log_record.name
+    assert res["source"]["path"] == log_record.pathname
+    assert str(res["source"]["lineno"]) == str(log_record.lineno)
+    assert res["level"] == "INFO"
+    assert res["time"].startswith("2023")
+    assert res["message"] == "foo foo bar bar"
+
+
 def test_logfmt(log_record, logfmt_formatter):
     res = logfmt_formatter.format(log_record)
     assert (

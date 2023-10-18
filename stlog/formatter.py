@@ -346,15 +346,17 @@ class JsonFormatter(Formatter):
             if k != "extras"
         }
         s = format_string(self.fmt, self.style, record_dict)
+        obj = json.loads(s)
         if self.include_extras_in_key is not None:
-            obj = json.loads(s)
-            extras_obj = json.loads(self._make_extras_string(record))
-            if self.include_extras_in_key == "":
-                for key, value in extras_obj.items():
-                    if key not in obj:
-                        obj[key] = value
-            else:
-                obj[self.include_extras_in_key] = extras_obj
+            extras_str = self._make_extras_string(record)
+            if extras_str:
+                extras_obj = json.loads(extras_str)
+                if self.include_extras_in_key == "":
+                    for key, value in extras_obj.items():
+                        if key not in obj:
+                            obj[key] = value
+                else:
+                    obj[self.include_extras_in_key] = extras_obj
         if self.exc_info_key:
             if record.exc_info:
                 obj[self.exc_info_key] = self.formatException(record.exc_info)

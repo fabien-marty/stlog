@@ -30,7 +30,7 @@ class _KeywordArgumentAdapter(logging.LoggerAdapter):
             # kvs passed during getLogger() call
             check_json_types_or_raise(self.extra)
             extra = dict(self.extra)
-        if "extra" in kwargs:
+        if kwargs.get("extra"):
             # when you use the "extra" standard kwargs at log() time
             extra.update(kwargs.pop("extra"))
         # Move any unknown keyword arguments into the extra

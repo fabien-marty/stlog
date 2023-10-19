@@ -29,3 +29,7 @@ def test_reinject_handler(context):
     assert json.loads(target_list[0])["foo"] == "bar"
     assert json.loads(target_list[0])["foo2"] == "bar2"
     assert json.loads(target_list[0])["foo3"] == "bar3"
+
+
+def test_extra_none():
+    getLogger("standard").info("foo", extra=None)

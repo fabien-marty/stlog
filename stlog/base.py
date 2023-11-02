@@ -85,12 +85,12 @@ RESERVED_ATTRS: tuple[str, ...] = (
 def check_json_types_or_raise(to_check: Any) -> None:
     if to_check is None:
         return
-    if not isinstance(to_check, (dict, list, bool, str, int, float, bool)):
+    if not isinstance(to_check, (dict, tuple, list, bool, str, int, float, bool)):
         raise StlogError(
-            "to_check should be a dict/list/bool/str/int/float/bool/None, found %s"
+            "to_check should be a dict/tuple/list/bool/str/int/float/bool/None, found %s"
             % type(to_check)
         )
-    if isinstance(to_check, list):
+    if isinstance(to_check, (list, tuple)):
         for item in to_check:
             check_json_types_or_raise(item)
     elif isinstance(to_check, dict):

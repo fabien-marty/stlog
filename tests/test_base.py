@@ -20,6 +20,7 @@ from stlog.base import (
 def test_check_json_types_or_raise():
     check_json_types_or_raise(None)
     check_json_types_or_raise("foo")
+    check_json_types_or_raise(("foo", "bar"))
     check_json_types_or_raise([{"foo": 123, "bar": 456}, None, [1, 2, 3]])
     with pytest.raises(StlogError):
         # invalid type

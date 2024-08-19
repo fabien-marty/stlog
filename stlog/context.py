@@ -72,6 +72,11 @@ class LogContext:
         return copy.deepcopy(_LOGGING_CONTEXT_VAR.get().get(key, default))
 
     @classmethod
+    def getall(cls) -> dict:
+        """Get the full context as dict."""
+        return copy.deepcopy(_LOGGING_CONTEXT_VAR.get())
+
+    @classmethod
     @contextmanager
     def bind(cls, **kwargs: Any):
         """Temporary bind some key / values to the execution log context (context manager)."""

@@ -28,6 +28,12 @@ def test_basic(context):
     assert context.get("foo") is None
 
 
+def test_getall(context):
+    assert context.getall() == {}
+    context.add(foo="bar", foo2="bar2")
+    assert context.getall() == {"foo": "bar", "foo2": "bar2"}
+
+
 def test_bad_types(context):
     with pytest.raises(StlogError):
         context.add(foo=set())

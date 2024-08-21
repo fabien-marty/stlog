@@ -399,11 +399,28 @@ As we love {{twelvefactorapp}} plenty of default behavior of `stlog` can be conf
     - environment variables
     - explicit configuration in the code (always wins)
 
+### `STLOG_LEVEL`
+
+This variable can tune the default "log level". Use `CRITICAL`, `FATAL`, `ERROR`, `WARN`, `WARNING`, `INFO`, `DEBUG` or `NOTSET` as value.
+
+### `STLOG_DESTINATION`
+
+This variable can tune the default destination. Use `stdout` or `stderr` as value. Default to `stderr`.
+
+### `STLOG_OUTPUT`
+
+This variable can set the default output and format. You can use:
+
+- `console`: the output will be sent to `stdout` or `stderr` (depending on `STLOG_DESTINATION` value) with a "human formatter" and will be use a `rich` (colors...) output depending in `STLOG_USE_RICH` value. By default, `rich` output will be automatically used if the terminal support it and if the `rich` library is installed.
+- `json`: the output will be sent to `stdout` or `stderr` (depending on `STLOG_DESTINATION` value) with a generic "JSON formatter" in a compact mode (without indentation) 
+- `json-human`: the output will be sent to `stdout` or `stderr` (depending on `STLOG_DESTINATION` value) with a generic "JSON formatter" in an indented way
+- `json-gcp`: the output will be sent to `stdout` or `stderr` (depending on `STLOG_DESTINATION` value) with a GCP "JSON formatter" (to be automatically decoded and displayed in GCP logging products)
+
 ### `STLOG_USE_RICH`
 
 This variable can tune the behavior of {{apilink("output.make_stream_or_rich_stream_output")}} function:
 
-- if empty or set to `NONE`  or `AUTO` => nothing (the function makes automatically a `StreamOuput` or a `RichStreamOutput`, see above for details)
+- if empty or set to `NONE`  or `AUTO` => nothing (the function makes automatically a `StreamOuput` or a `RichStreamOutput` depending on the terminal support and if the `rich` library is installed)
 - if set to `1`, `TRUE`, `YES` => the function will always return a `RichStreamOutput` (even the log stream is redirected to a file!)
 - else (`0`, `FALSE`, `NO`...) => the function will always return a standard `StreamOutput` (with colors and fancy things)
 
@@ -433,13 +450,23 @@ This variable can change the default value of `read_extra_kwargs_from_standard_l
 
 These variables can be used to inject a global context. See [usage documentation](../usage) for details.
 
+### `STLOG_DEFAULT_IGNORE_COMPOUND_TYPES`
+
+- if set to `1`, `TRUE`, `YES`: compound types (dict, list...) are silently ignored in `LogFmtKVFormatter` (used by default by "human" outputs)
+- else (`0`, `FALSE`, `NO`...): compound type will be displayed
+
+The default is to ignore.
+
+!!! note "What about JSON outputs?"
+
+    This variable has no effect on JSON outputs.
+
 ### `STLOG_UNIT_TESTS_MODE`
 
 !!! warning "Private feature!"
 
     This is a private feature (DON'T USE IT) to get always the same output (fixed date, fixed process number...)
 
-### FIXME (document)
+### `STLOG_PROGRAM_NAME`
 
-- STLOG_IGNORE_COMPOUND_TYPES
-- STLOG_PROGRAM_NAME
+Default program name when getting a logger without name. If not set, we will try to guess.

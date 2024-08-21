@@ -47,6 +47,24 @@ DEFAULT_STLOG_JSON_FORMAT = """
     }}
 }}
 """
+DEFAULT_STLOG_GCP_JSON_FORMAT = """
+{{
+    "timestamp": {asctime},
+    "logger": {name},
+    "severity": {levelname},
+    "message": {message},
+    "source": {{
+        "path": {pathname},
+        "lineno": {lineno},
+        "module": {module},
+        "funcName": {funcName},
+        "process": {process},
+        "processName": {processName},
+        "thread": {thread},
+        "threadName": {threadName}
+    }}
+}}
+"""
 DEFAULT_STLOG_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 

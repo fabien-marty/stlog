@@ -10,15 +10,48 @@ import warnings
 
 from stlog.adapter import getLogger
 from stlog.base import GLOBAL_LOGGING_CONFIG, check_env_false
-from stlog.output import Output, make_stream_or_rich_stream_output
+from stlog.formatter import DEFAULT_STLOG_GCP_JSON_FORMAT, JsonFormatter
+from stlog.output import Output, StreamOutput, make_stream_or_rich_stream_output
 
 DEFAULT_LEVEL: str = os.environ.get("STLOG_LEVEL", "INFO")
 DEFAULT_CAPTURE_WARNINGS: bool = check_env_false("STLOG_CAPTURE_WARNINGS", True)
 DEFAULT_PROGRAM_NAME: str | None = os.environ.get("STLOG_PROGRAM_NAME", None)
+DEFAULT_DESTINATION: str = os.environ.get("STLOG_DESTINATION", "stderr").lower()
+DEFAULT_OUTPUT: str = os.environ.get("STLOG_OUTPUT", "console").lower()
+
+
+def _make_default_stream() -> typing.TextIO:
+    if DEFAULT_DESTINATION == "stderr":
+        return sys.stderr
+    elif DEFAULT_DESTINATION == "stdout":
+        return sys.stdout
+    raise Exception(
+        f"bad value:{DEFAULT_DESTINATION} for STLOG_DESTINATION env var => must be 'stderr' or 'stdout'"
+    )
 
 
 def _make_default_outputs() -> list[Output]:
-    return [make_stream_or_rich_stream_output(stream=sys.stderr)]
+    if DEFAULT_OUTPUT == "console":
+        return [make_stream_or_rich_stream_output(stream=_make_default_stream())]
+    elif DEFAULT_OUTPUT == "json":
+        return [StreamOutput(stream=_make_default_stream(), formatter=JsonFormatter())]
+    elif DEFAULT_OUTPUT == "json-human":
+        return [
+            StreamOutput(
+                stream=_make_default_stream(), formatter=JsonFormatter(indent=4)
+            )
+        ]
+    elif DEFAULT_OUTPUT == "json-gcp":
+        return [
+            StreamOutput(
+                stream=_make_default_stream(),
+                formatter=JsonFormatter(fmt=DEFAULT_STLOG_GCP_JSON_FORMAT),
+            )
+        ]
+    else:
+        raise Exception(
+            f"bad value:{DEFAULT_OUTPUT} for STLOG_OUTPUT env var => must be 'console', 'json', 'json-human' or 'json-gcp'"
+        )
 
 
 def _logging_excepthook(

@@ -19,3 +19,5 @@ jobs:
         with:
           github-token: ${{ github.token }}
           log-level: DEBUG
+          repository: ${{ github.repository }}
+          repository-owner: ${{ github.repository-owner }}

@@ -21,3 +21,7 @@ jobs:
           log-level: DEBUG
           repository: ${{ github.repository }}
           repository-owner: ${{ github.repository-owner }}
+      - name: test
+        run: |
+          echo ${{ steps.foo.outputs.latest-version }}
+          echo ${{ steps.foo.outputs.next-version }}

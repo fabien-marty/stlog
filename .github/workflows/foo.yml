@@ -1,0 +1,21 @@
+name: foo
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  main_ci:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0 # we need this because fetch-tags=true and because of a GHA bug: https://github.com/actions/checkout/issues/1471
+          fetch-tags: true # important for the "scripts/version.sh" to get the "good" version
+      - name: foo
+        uses: fabien-marty/github-next-semantic-version@some-various-improvements
+        with:
+          github-token: ${{ github.token }}
+          log-level: DEBUG

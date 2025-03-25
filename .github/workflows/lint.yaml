@@ -125,15 +125,15 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps: 
       - name: Download API doc artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: apidoc
       - name: Download API doc artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: publicdoc
       - name: Download COVERAGE artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: coverage
           path: coverage

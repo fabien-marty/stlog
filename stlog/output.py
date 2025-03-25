@@ -187,11 +187,10 @@ def make_stream_or_rich_stream_output(
     if use_rich is not None:
         # manual mode
         _use_rich = use_rich
-    else:
-        # automatic mode
-        if RICH_INSTALLED:
-            c = Console(file=stream)
-            _use_rich = c.is_terminal
+    # automatic mode
+    elif RICH_INSTALLED:
+        c = Console(file=stream)
+        _use_rich = c.is_terminal
     if _use_rich:
         return RichStreamOutput(
             stream=stream,
@@ -204,3 +203,75 @@ def make_stream_or_rich_stream_output(
             formatter=not_rich_formatter or HumanFormatter(),
             **kwargs,
         )
+
+
+@dataclass
+class FileOutput(Output):
+    """Represent an output to a file.
+
+    Attributes:
+        filename: the filename to use.
+        mode: the mode to use, default to "a".
+        encoding: the encoding to use, default to None.
+        delay: if True, the file is not opened until the first call to emit().
+        errors: the errors to use, default to None.
+
+    """
+
+    filename: str = ""
+    mode: str = "a"
+    encoding: str | None = None
+    delay: bool = False
+    errors: str | None = None
+
+    def __post_init__(self):
+        if not self.filename:
+            raise StlogError("filename is not set")
+        if self.formatter is None:
+            self.formatter = HumanFormatter()
+        self.set_handler(
+            logging.FileHandler(
+                self.filename,
+                mode=self.mode,
+                encoding=self.encoding,
+                delay=self.delay,
+                errors=self.errors,
+            ),
+        )
+
+
+@dataclass
+class RotatingFileOutput(FileOutput):
+    """Represent an output to a rotating file.
+
+    Attributes:
+        filename: the filename to use.
+        mode: the mode to use, default to "a".
+        maxBytes: the maximum number of bytes to use, default to 0.
+        backupCount: the number of backup files to use, default to 0.
+        encoding: the encoding to use, default to None.
+        delay: if True, the file is not opened until the first call to emit().
+        errors: the errors to use, default to None.
+
+    """
+
+    maxBytes: int = 0
+    backupCount: int = 0
+
+    def __post_init__(self):
+        if not self.filename:
+            raise StlogError("filename is not set")
+        if self.formatter is None:
+            self.formatter = HumanFormatter()
+        self.set_handler(
+            logging.handlers.RotatingFileHandler(
+                self.filename,
+                mode=self.mode,
+                maxBytes=self.maxBytes,
+                backupCount=self.backupCount,
+                encoding=self.encoding,
+                delay=self.delay,
+                errors=self.errors,
+            ),
+        )
+

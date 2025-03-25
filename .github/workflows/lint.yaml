@@ -2,6 +2,8 @@ name: lint
 
 on:
   push:
+    branches:
+      - main
   release:
   pull_request:
 
@@ -12,7 +14,7 @@ env:
 jobs:
 
   lint_and_test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
@@ -60,25 +62,26 @@ jobs:
           poetry run invoke test --coverage
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
-        if: matrix.python-version == '3.7'
+        if: matrix.python-version == '3.12'
       - name: Make docs
+        if: matrix.python-version == '3.12'
         run: |
           poetry run invoke docs
       - name: Upload API doc as an artifact
-        if: matrix.python-version == '3.7'
-        uses: actions/upload-artifact@v3
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
         with:
           name: apidoc
           path: apihtml/
       - name: Upload PUBLIC doc as an artifact
-        if: matrix.python-version == '3.7'
-        uses: actions/upload-artifact@v3
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
         with:
           name: publicdoc
           path: html/
       - name: Upload COVERAGE as an artifact
-        if: matrix.python-version == '3.7'
-        uses: actions/upload-artifact@v3
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: htmlcov/
@@ -135,10 +138,10 @@ jobs:
           name: coverage
           path: coverage
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v4
         with:
           # Upload entire repository
           path: '.'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4

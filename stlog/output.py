@@ -214,7 +214,7 @@ class FileOutput(Output):
         mode: the mode to use, default to "a".
         encoding: the encoding to use, default to None.
         delay: if True, the file is not opened until the first call to emit().
-        errors: the errors to use, default to None.
+        errors: the errors to use, default to None (python >= 3.9 only)
 
     """
 
@@ -229,14 +229,15 @@ class FileOutput(Output):
             raise StlogError("filename is not set")
         if self.formatter is None:
             self.formatter = HumanFormatter()
+        kwargs = {
+            "mode": self.mode,
+            "encoding": self.encoding,
+            "delay": self.delay,
+        }
+        if sys.version_info >= (3, 9):
+            kwargs["errors"] = self.errors
         self.set_handler(
-            logging.FileHandler(
-                self.filename,
-                mode=self.mode,
-                encoding=self.encoding,
-                delay=self.delay,
-                errors=self.errors,
-            ),
+            logging.FileHandler(self.filename, **kwargs),  # type: ignore
         )
 
 
@@ -247,31 +248,33 @@ class RotatingFileOutput(FileOutput):
     Attributes:
         filename: the filename to use.
         mode: the mode to use, default to "a".
-        maxBytes: the maximum number of bytes to use, default to 0.
-        backupCount: the number of backup files to use, default to 0.
+        max_bytes: the maximum number of bytes to use, default to 0.
+        backup_count: the number of backup files to use, default to 0.
         encoding: the encoding to use, default to None.
         delay: if True, the file is not opened until the first call to emit().
         errors: the errors to use, default to None.
 
     """
 
-    maxBytes: int = 0
-    backupCount: int = 0
+    max_bytes: int = 0
+    backup_count: int = 0
 
     def __post_init__(self):
         if not self.filename:
             raise StlogError("filename is not set")
         if self.formatter is None:
             self.formatter = HumanFormatter()
+        kwargs = {
+            "mode": self.mode,
+            "encoding": self.encoding,
+            "delay": self.delay,
+            "backupCount": self.backup_count,
+            "maxBytes": self.max_bytes,
+        }
+        if sys.version_info >= (3, 9):
+            kwargs["errors"] = self.errors
         self.set_handler(
             logging.handlers.RotatingFileHandler(
-                self.filename,
-                mode=self.mode,
-                maxBytes=self.maxBytes,
-                backupCount=self.backupCount,
-                encoding=self.encoding,
-                delay=self.delay,
-                errors=self.errors,
+                self.filename, **kwargs  # type: ignore
             ),
         )
-

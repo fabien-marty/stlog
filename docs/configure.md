@@ -45,7 +45,7 @@ which takes a list of {{apilink("output.Output")}} objects.
 
 You can see how to create your own outputs in the [extend page](../extend).
 
-For now, you can use two kind of outputs:
+For now, you can use four output types:
 
 - a {{apilink("output.StreamOutput")}} object which represents a standard stream output (for example on the console `stdout` or `stderr`)
 - a {{apilink("output.RichStreamOutput")}} object which represents a "rich" stream output for a real and modern terminal emulator (with colors and fancy stuff)
@@ -68,12 +68,12 @@ Each `Output` can provide custom options but there are two common ones:
 Here is an example to configure two outputs: 
 
 - one classic stream output to `stderr` with an overridden formatter and an overridden log level
-- one classic stream output to `stdout` with a JSON formatter
+- one classic file output to `/tmp/stlog.log` with a JSON formatter
 
 ```python
 import sys
 from stlog import setup
-from stlog.output import StreamOutput
+from stlog.output import FileOutput, StreamOutput
 from stlog.formatter import HumanFormatter, JsonFormatter
 
 setup(
@@ -84,7 +84,7 @@ setup(
             formatter=HumanFormatter(exclude_extras_keys_fnmatchs=["*"]),
             level="WARNING",
         ),
-        StreamOutput(stream=sys.stdout, formatter=JsonFormatter(indent=4)),
+        FileOutput(filename=sys.stdout, formatter=JsonFormatter(indent=4)),
     ]
 )
 ```

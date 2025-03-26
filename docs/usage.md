@@ -101,6 +101,15 @@ As this context is global
 
     You can considerer that {{ apilink("LogContext") }} is just a light wrapper on {{contextvars}}.
 
+
+Note: you can also use the {{apilink("LogContext")}} class as a context manager
+
+```python
+{{ code_example("usage3bis.py") }}
+```
+
+{{ code_example_to_svg("usage3bis.py") }}
+
 ### (3) At the logger instantiation
 
 ```python

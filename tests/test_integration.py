@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import tempfile
 import warnings
 from unittest.mock import MagicMock
 
@@ -9,7 +11,7 @@ import pytest
 
 from stlog import LogContext, getLogger, setup
 from stlog.formatter import JsonFormatter
-from stlog.output import RichStreamOutput
+from stlog.output import FileOutput, RichStreamOutput
 from stlog.setup import (
     _logging_excepthook,
     critical,
@@ -214,3 +216,12 @@ def test_root_logger():
             assert "function is deprecated" in d["message"]
         if msg == "exception":
             assert "Traceback" in d["exc_info"]
+
+
+def test_file_output():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filename = os.path.join(tmpdir, "test.log")
+        setup(outputs=[FileOutput(filename=filename)], level="DEBUG")
+        info("info")
+        with open(filename) as f:
+            assert f.read() == "2023-03-29T14:48:37Z root [   INFO   ] info\n"

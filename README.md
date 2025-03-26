@@ -31,7 +31,7 @@
 - provides nice outputs **for humans AND for machines** *(you can produce both at the same time)*
 - structured with 4 levels of context you can choose or combine:
     - a global one set by environment variables *(read at process start)*
-    - a kind of global one (thanks to [contextvars](https://docs.python.org/3/library/contextvars.html))
+    - a kind of smart global one (thanks to [contextvars](https://docs.python.org/3/library/contextvars.html))
     - a context linked to the logger object itself (defined during its building)
     - a context linked to the log message itself
 - a lot of configuration you can do with environment variables (in the spirit of [Twelve-Factor App](https://12factor.net/) principles)
@@ -39,7 +39,7 @@
 ## Non-Features
 
 - *"A twelve-factor app never concerns itself with routing or storage of its output stream."*
-    - we are going to make an exception on this for log files *(see roadmap)*
+    - we are going to make an exception on this for log files
     - but we don't want to introduce complex/network outputs like syslog, elasticsearch, loki...
 - standard, standard, standard: we do not want to move away from [standard python logging](https://docs.python.org/3/library/logging.html) compatibility 
 
@@ -246,9 +246,3 @@ JSON ouput (on `stdout`) for machines:
 ```
 
 <!--quickstart-end-->
-
-## Roadmap
-
-- [ ] add `file` outputs
-- [x] add a full `logfmt` formatter
-- [ ] more configuration options through env vars

@@ -1,9 +1,6 @@
 name: lint
 
 on:
-  push:
-    branches:
-      - main
   release:
   pull_request:
 
@@ -62,6 +59,14 @@ jobs:
         with:
           name: coverage
           path: htmlcov/
+
+  mergify-ci-status: # this is a special job for mergify
+    runs-on: ubuntu-24.04
+    needs: ["lint_and_test"]
+    steps:
+      - name: Status
+        run: |
+          echo "OK"
 
   publish_pypi:
     runs-on: ubuntu-latest

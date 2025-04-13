@@ -1,6 +1,7 @@
 name: lint
 
 on:
+  push:
   release:
   pull_request:
 

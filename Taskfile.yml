@@ -67,6 +67,8 @@ tasks:
   publish:
     desc: "Publish the package (to pypi)"
     cmds:
+      - "{{.WRAP}} {{.UV}} run python .task/taskfiles/utils/set-version.py stlog/__init__.py pyproject.toml"
+      - git diff
       - |
           if [ "${UV_PUBLISH_TOKEN:-}" = "" ]; then
             echo "UV_PUBLISH_TOKEN is not set"

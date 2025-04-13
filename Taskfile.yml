@@ -27,29 +27,35 @@ tasks:
 
   install:
     desc: "Install the venv" 
+    silent: true
     deps:
       - uv:sync
 
   lint:
     desc: "Lint the code"
+    silent: true
     cmds:
       - task: uv:lint
-      - "{{.UV}} run python .task/make-readme.py --lint"
+      - "{{.WRAP}} {{.UV}} run python .task/make-readme.py --lint"
+      - '{{.ECHO_OK}} "Linting OK"'
 
   test:
     desc: "Test the code"
-    deps:
-      - uv:test
+    silent: true
+    cmds:
+      - task: uv:test
+      - '{{.ECHO_OK}} "Tests OK"'
 
   doc:
     desc: "Generate documentation"
+    silent: true
     deps:
       - install
     cmds:
       - rm -Rf html apihtml
-      - "{{.WRAP}} mkdocs build --site-dir html"
-      - "{{.WRAP}} pdoc3 --html --output-dir=apihtml stlog"
-      - "{{.UV}} run python .task/make-readme.py"
+      - "{{.WRAP}} {{.UV}} run mkdocs build --site-dir html"
+      - "{{.WRAP}} {{.UV}} run pdoc3 --html --output-dir=apihtml stlog"
+      - "{{.WRAP}} {{.UV}} run python .task/make-readme.py"
 
   no-dirty:
     desc: "Check that the repository is clean"

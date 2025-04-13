@@ -87,8 +87,7 @@ def check_json_types_or_raise(to_check: Any) -> None:
         return
     if not isinstance(to_check, (dict, tuple, list, bool, str, int, float, bool)):
         raise StlogError(
-            "to_check should be a dict/tuple/list/bool/str/int/float/bool/None, found %s"
-            % type(to_check)
+            f"to_check should be a dict/tuple/list/bool/str/int/float/bool/None, found {type(to_check)}"
         )
     if isinstance(to_check, (list, tuple)):
         for item in to_check:
@@ -96,7 +95,7 @@ def check_json_types_or_raise(to_check: Any) -> None:
     elif isinstance(to_check, dict):
         for key, value in to_check.items():
             if not isinstance(key, str):
-                raise StlogError("dict keys should be str, found %s" % type(key))
+                raise StlogError(f"dict keys should be str, found {type(key)}")
             check_json_types_or_raise(value)
 
 
@@ -250,7 +249,7 @@ def parse_format(fmt: str | None, style: str) -> list[str]:
     elif style == "%":
         formatter_style_pattern = re.compile(r"%\((.+?)\)", re.IGNORECASE)
     else:
-        raise ValueError("Unsupported style: %s" % style)
+        raise ValueError(f"Unsupported style: {style}")
     return formatter_style_pattern.findall(fmt)
 
 
@@ -263,4 +262,4 @@ def format_string(fmt: str | None, style: str, record_dict: dict[str, Any]) -> s
         return fmt.format(**record_dict)
     elif style == "%":
         return fmt % record_dict
-    raise StlogError("Invalid style: %s" % style)
+    raise StlogError(f"Invalid style: {style}")

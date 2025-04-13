@@ -16,18 +16,18 @@ from stlog.setup import (
 )
 
 __all__ = [
-    "setup",
-    "getLogger",
     "LogContext",
-    "log",
-    "debug",
-    "info",
-    "warning",
-    "warn",
-    "error",
     "critical",
-    "fatal",
+    "debug",
+    "error",
     "exception",
+    "fatal",
+    "getLogger",
+    "info",
+    "log",
+    "setup",
+    "warn",
+    "warning",
 ]
 __pdoc__ = {
     "base": False,

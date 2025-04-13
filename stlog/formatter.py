@@ -113,7 +113,9 @@ class Formatter(logging.Formatter):
 
     def __post_init__(self):
         super().__init__(  # explicit call because logging.Formatter is not a dataclass
-            fmt=self.fmt, datefmt=self.datefmt, style=self.style  # type: ignore
+            fmt=self.fmt,
+            datefmt=self.datefmt,
+            style=self.style,  # type: ignore
         )
         if self.extra_key_max_length is None:
             self.extra_key_max_length = 32
@@ -258,7 +260,7 @@ class RichHumanFormatter(HumanFormatter):
         record.rich_escaped_extras = rich_markup_escape(record.extras)  # type: ignore
         level = record.levelname.lower()
         if level in ["notset", "debug", "info", "critical"]:
-            record.rich_level_style = "logging.level.%s" % level
+            record.rich_level_style = f"logging.level.{level}"
         elif level == "warning":
             record.rich_level_style = "logging.level.error"
         elif level == "error":

@@ -1,0 +1,76 @@
+version: '3'
+
+includes:
+  uv: .task/taskfiles/Taskfile-python-uv.yml
+  misc: .task/taskfiles/Taskfile-misc.yml
+
+vars:
+  WRAP: '{{ .ROOT_DIR }}/.task/taskfiles/utils/wrap'
+  ECHO_OK: '{{ .ROOT_DIR }}/.task/taskfiles/utils/echo_ok'
+
+tasks:
+
+  clean:
+    desc: "Clean the repository"
+    silent: true
+    cmds:
+      - task: uv:clean
+      - rm -Rf apihtml html
+
+  mrproper:
+    desc: "Clean the repository (including downloaded tools)"
+    silent: true
+    deps: 
+      - clean
+    cmds:
+      - task: uv:mrproper
+
+  install:
+    desc: "Install the venv" 
+    silent: true
+    deps:
+      - uv:sync
+
+  lint:
+    desc: "Lint the code"
+    silent: true
+    cmds:
+      - task: uv:lint
+      - "{{.WRAP}} {{.UV}} run python .task/make-readme.py --lint"
+      - '{{.ECHO_OK}} "Linting OK"'
+
+  test:
+    desc: "Test the code"
+    silent: true
+    cmds:
+      - task: uv:test
+      - '{{.ECHO_OK}} "Tests OK"'
+
+  doc:
+    desc: "Generate documentation"
+    silent: true
+    deps:
+      - install
+    cmds:
+      - rm -Rf html apihtml
+      - "{{.WRAP}} {{.UV}} run mkdocs build --site-dir html"
+      - "{{.WRAP}} {{.UV}} run pdoc3 --html --output-dir=apihtml stlog"
+      - "{{.WRAP}} {{.UV}} run python .task/make-readme.py"
+
+  no-dirty:
+    desc: "Check that the repository is clean"
+    silent: true
+    cmds:
+      - task: misc:no-dirty
+      - '{{.ECHO_OK}} "Repository is clean"'
+
+  publish:
+    desc: "Publish the package (to pypi)"
+    cmds:
+      - |
+          if [ "${UV_PUBLISH_TOKEN:-}" = "" ]; then
+            echo "UV_PUBLISH_TOKEN is not set"
+            exit 1
+          fi
+      - task: uv:build
+      - task: uv:publish

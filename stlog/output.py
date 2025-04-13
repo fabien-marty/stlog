@@ -275,6 +275,7 @@ class RotatingFileOutput(FileOutput):
             kwargs["errors"] = self.errors
         self.set_handler(
             logging.handlers.RotatingFileHandler(
-                self.filename, **kwargs  # type: ignore
+                self.filename,
+                **kwargs,  # type: ignore
             ),
         )

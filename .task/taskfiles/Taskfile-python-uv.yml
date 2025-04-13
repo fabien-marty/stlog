@@ -16,6 +16,12 @@ vars:
   # (can be set by children taskfiles)
   COVERAGE: "{{.COVERAGE | default ._DEFAULT_COVERAGE}}"
 
+  _DEFAULT_COVERAGE_PKG: ""
+
+  # If set, run the tests with coverage for this package only
+  # (can be set by children taskfiles)
+  COVERAGE_PKG: "{{.COVERAGE_PKG | default ._DEFAULT_COVERAGE_PKG}}"
+
 
   ##### UV #####
 
@@ -112,7 +118,7 @@ vars:
             echo "{{.TEST_PYTEST | default .DEFAULT_TEST_PYTEST}}"
           fi
 
-  _DEFAULT_PYTEST_COVERAGE_OPTS: "--no-cov-on-fail --cov=jinja_tree --cov-report=term --cov-report=html --cov-report=xml"
+  _DEFAULT_PYTEST_COVERAGE_OPTS: "--no-cov-on-fail --cov-report=term --cov-report=html --cov-report=xml"
   PYTEST_COVERAGE_OPTS: "{{.PYTEST_COVERAGE_OPTS | default ._DEFAULT_PYTEST_COVERAGE_OPTS}}"
 
   _DEFAULT_PYTEST_ARGS: "tests"
@@ -230,7 +236,11 @@ tasks:
           if [ "{{.TEST_PYTEST}}" = "1" ]; then
             {{._ECHO_RUNNING}} "=> Running tests..."
             if [ "{{.COVERAGE}}" = "1" ]; then
-              {{._WRAP}} {{._PYTEST}} {{.PYTEST_OPTS}} {{.PYTEST_COVERAGE_OPTS}} {{._PYTEST_ARGS}}
+              if [ "{{.COVERAGE_PKG}}" != "" ]; then
+                {{._WRAP}} {{._PYTEST}} {{.PYTEST_OPTS}} {{.PYTEST_COVERAGE_OPTS}} --cov {{.COVERAGE_PKG}} {{._PYTEST_ARGS}}
+              else
+                {{._WRAP}} {{._PYTEST}} {{.PYTEST_OPTS}} {{.PYTEST_COVERAGE_OPTS}} {{._PYTEST_ARGS}}
+              fi
             else
               {{._WRAP}} {{._PYTEST}} {{.PYTEST_OPTS}} {{._PYTEST_ARGS}}
             fi

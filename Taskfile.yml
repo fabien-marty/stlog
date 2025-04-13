@@ -44,6 +44,9 @@ tasks:
     silent: true
     cmds:
       - task: uv:test
+        vars:
+          COVERAGE: 1
+          COVERAGE_PKG: "stlog"
       - '{{.ECHO_OK}} "Tests OK"'
 
   doc:

@@ -66,6 +66,8 @@ tasks:
 
   publish:
     desc: "Publish the package (to pypi)"
+    deps:
+      - install
     cmds:
       - "{{.WRAP}} {{.UV}} run python .task/taskfiles/utils/set-version.py stlog/__init__.py pyproject.toml"
       - git diff

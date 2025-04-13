@@ -104,7 +104,7 @@ def test_warnings():
             )
         ],
     )
-    warnings.warn("this is a warning", DeprecationWarning)
+    warnings.warn("this is a warning", DeprecationWarning, stacklevel=2)
     assert len(target_list) == 1
     decoded = json.loads(target_list[0])
     assert decoded["level"] == "WARNING"

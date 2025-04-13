@@ -74,7 +74,7 @@ def _logging_excepthook(
         print(traceback.format_exc(), file=sys.stderr)
 
 
-def setup(
+def setup(  # noqa: PLR0913
     *,
     level: str | int = DEFAULT_LEVEL,
     outputs: typing.Iterable[Output] | None = None,
@@ -199,7 +199,7 @@ def warn(msg, *args, **kwargs):
     ):  # we do this here to be able to capture the next warning
         setup()
     warnings.warn(
-        "The 'warn' function is deprecated, " "use 'warning' instead",
+        "The 'warn' function is deprecated, use 'warning' instead",
         DeprecationWarning,
         2,
     )

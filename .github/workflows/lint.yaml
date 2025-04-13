@@ -19,54 +19,31 @@ jobs:
       matrix:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event. Selected python version is ${{ matrix.python-version }}."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Install Task
+        uses: arduino/setup-task@v2
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Cache deps install
-        id: cache-deps
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ env.POETRY_HOME }}
-            ${{ env.POETRY_CACHE }}
-          key: cachepoetry-${{ hashFiles('poetry.lock', '.github/workflows/**') }}-${{ matrix.python-version }}
-      - name: Install poetry
-        if: steps.cache-deps.outputs.cache-hit != 'true'
-        run: |
-          python3 -m venv $POETRY_HOME
-          $POETRY_HOME/bin/pip install poetry
-      - name: Fix github path
-        run: |
-          echo "$POETRY_HOME/bin" >> "$GITHUB_PATH"
-      - name: Configure poetry
-        run: |
-          poetry config virtualenvs.create true
-          poetry config virtualenvs.in-project false
-          poetry config cache-dir $POETRY_CACHE
-          poetry config virtualenvs.path $POETRY_CACHE/venv
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install requirements
-        if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
-          poetry install
-      - name: Run lint
+          task install
+        env:
+          UV_PYTHON: ${{ matrix.python-version }}
+      - name: Lint
         run: |
-          poetry run invoke lint --no-fix
+          task lint
       - name: Run tests / coverage
         run: |
-          poetry run invoke test --coverage
+          task test
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         if: matrix.python-version == '3.12'
       - name: Make docs
         if: matrix.python-version == '3.12'
         run: |
-          poetry run invoke docs
+          task doc
       - name: Upload API doc as an artifact
         if: matrix.python-version == '3.12'
         uses: actions/upload-artifact@v4
@@ -93,22 +70,16 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Install poetry
-        run: |
-          python3 -m venv $POETRY_HOME
-          $POETRY_HOME/bin/pip install poetry
-      - name: Fix github path
-        run: |
-          echo "$POETRY_HOME/bin" >> "$GITHUB_PATH"
-      - name: Install requirements
-        run: |
-          poetry install
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish on Pypi
         run: |
-          poetry run invoke bump-version
-          poetry config pypi-token.pypi "${{ secrets.PYPI_TOKEN }}"
-          poetry build
-          poetry publish
+          task publish
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
 
   githubpages:
     runs-on: ubuntu-latest

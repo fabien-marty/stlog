@@ -1,10 +1,12 @@
 pull_request_rules:
+
   - name: Automatic merge
     conditions:
       - "-label=Merge: Manual"
       - "label~=^Type:"
     actions:
       queue:
+
   - name: Delete branches 24 hours post-merge
     conditions:
       - merged-at < 1 day ago
@@ -13,6 +15,7 @@ pull_request_rules:
 
 
 queue_rules:
+
   - name: default
     merge_method: squash
     commit_message_template: '{{ title }}'
@@ -21,4 +24,7 @@ queue_rules:
       - "-draft"
       - "-closed"
       - "-conflict"
-
+      - "label~=^Type:.*"
+      - or:
+          - "author=fabien-marty"
+          - "#approved-reviews-by >= 1"

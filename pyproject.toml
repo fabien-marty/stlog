@@ -3,7 +3,7 @@ name = "stlog"
 version = "0.0.0"
 description = ""
 authors = [{ name = "Fabien MARTY", email = "fabien.marty@gmail.com" }]
-requires-python = ">=3.7,<4.0"
+requires-python = ">=3.7"
 readme = "README.md"
 license = "MIT"
 
@@ -17,13 +17,12 @@ dev = [
     "pytest",
     "pytest-cov",
     "mkdocs-macros-plugin",
-    "mkdocs-include-markdown-plugin>=4.0.4 ; python_version < '3.12'",
-    "mkdocs-include-markdown-plugin>=6.0.4 ; python_version >= '3.12'",
-    "setuptools>=69.0.3 ; python_version >= '3.12'",
-    "types-pyyaml>=6.0.12.8",
-    "jinja2-shell-extension>=2.0.0",
-    "termtosvg>=1.1.0",
-    "dunamai>=1.16.0",
+    "mkdocs-include-markdown-plugin",
+    "setuptools",
+    "types-pyyaml",
+    "jinja2-shell-extension",
+    "termtosvg",
+    "dunamai",
 ]
 
 [tool.hatch.build.targets.sdist]

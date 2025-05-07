@@ -136,20 +136,15 @@ class StreamOutput(Output):
 @dataclass
 class RichStreamOutput(StreamOutput):
     force_terminal: bool = False
-    console: typing.Any = None
 
     def __post_init__(self):
         if not RICH_INSTALLED:
             raise StlogError("Rich is not installed and RichStreamOutput is specified")
         if self.formatter is None:
             self.formatter = RichHumanFormatter()
-        if self.console is None:
-            self.console = Console(
-                file=self.stream,
-                force_terminal=True if self.force_terminal else None,
-                highlight=False,
-            )
-        self.set_handler(CustomRichHandler(console=self.console))
+        self.set_handler(
+            CustomRichHandler(stream=self.stream, force_terminal=self.force_terminal)
+        )
 
 
 def make_stream_or_rich_stream_output(

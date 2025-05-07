@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+from io import StringIO
 from logging import StreamHandler
 
 from stlog.formatter import (
@@ -24,3 +26,22 @@ def test_automatic_rich():
     y = make_stream_or_rich_stream_output(use_rich=True)
     assert isinstance(y, RichStreamOutput)
     assert isinstance(y.get_handler(), CustomRichHandler)
+
+
+def test_custom_rich_handler():
+    record = logging.LogRecord(
+        name="test",
+        level=logging.INFO,
+        pathname="",
+        lineno=0,
+        msg="Test message",
+        args=(),
+        exc_info=None,
+    )
+    output = StringIO()
+    h = CustomRichHandler(stream=output, force_terminal=True)
+    h.emit(record)
+    assert (
+        output.getvalue().encode("utf-8")
+        == b"\xe2\x96\xb6 \x1b[2;36m2023-03-29T14:48:37Z\x1b[0m test \x1b[34m  INFO  \x1b[0m \x1b[1mTest message\x1b[0m\n"
+    )

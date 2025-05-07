@@ -5,7 +5,7 @@ import logging
 import os
 import tempfile
 import warnings
-from unittest.mock import MagicMock
+from io import StringIO
 
 import pytest
 
@@ -53,16 +53,13 @@ def test_multiple_contexts(context):
 def test_rich_handler(context):
     context.add(at_context_level="foo1")
     logger = getLogger("foo", at_logger_level="foo2")
-    output = RichStreamOutput(force_terminal=True)
+    stream = StringIO()
+    output = RichStreamOutput(stream=stream, force_terminal=True)
     setup(outputs=[output])
-    output.console.print = MagicMock(return_value=None)
     logger.info("message %s", "foo", at_info_level="foo3")
-    print(output.console.print.call_args[0][0])
-    print(
-        ":arrow_forward: [log.time]2023-03-29T14:48:37Z[/log.time] foo [logging.level.info]  INFO  [/logging.level.info] [bold]message foo[/bold]\n    :arrow_right_hook: [repr.attrib_name]at_context_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo1[/repr.attrib_value] [repr.attrib_name]at_info_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo3[/repr.attrib_value] [repr.attrib_name]at_logger_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo2[/repr.attrib_value]"
-    )
-    output.console.print.assert_called_with(
-        ":arrow_forward: [log.time]2023-03-29T14:48:37Z[/log.time] foo [logging.level.info]  INFO  [/logging.level.info] [bold]message foo[/bold]\n    :arrow_right_hook: [repr.attrib_name]at_context_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo1[/repr.attrib_value] [repr.attrib_name]at_info_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo3[/repr.attrib_value] [repr.attrib_name]at_logger_level[/repr.attrib_name][repr.attrib_equal]=[/repr.attrib_equal][repr.attrib_value]foo2[/repr.attrib_value]"
+    assert (
+        stream.getvalue().encode("utf-8")
+        == b"\xe2\x96\xb6 \x1b[2;36m2023-03-29T14:48:37Z\x1b[0m foo \x1b[34m  INFO  \x1b[0m \x1b[1mmessage foo\x1b[0m\n    \xe2\x86\xaa \x1b[33mat_context_level\x1b[0m\x1b[1m=\x1b[0m\x1b[35mfoo1\x1b[0m \x1b[33mat_info_level\x1b[0m\x1b[1m=\x1b[0m\x1b[35mfoo3\x1b[0m \x1b[33mat_logger_level\x1b[0m\x1b[1m=\x1b[0m\x1b[35mfoo2\x1b[0m\n"
     )
 
 

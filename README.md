@@ -223,7 +223,7 @@ JSON ouput (on `stdout`) for machines:
         "thread": 12345,
         "threadName": "MainThread"
     },
-    "time": "2023-03-29T14:48:37Z",
+    "time": "2023-03-29T14:48:37.000Z",
     "x": 123
 }
 {
@@ -243,7 +243,7 @@ JSON ouput (on `stdout`) for machines:
         "thread": 12345,
         "threadName": "MainThread"
     },
-    "time": "2023-03-29T14:48:37Z"
+    "time": "2023-03-29T14:48:37.000Z"
 }
  
 ```

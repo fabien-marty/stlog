@@ -8,7 +8,6 @@ import pytest
 from stlog.base import STLOG_EXTRA_KEY
 from stlog.formatter import (
     DEFAULT_STLOG_DATE_FORMAT_HUMAN,
-    DEFAULT_STLOG_DATE_FORMAT_JSON,
     DEFAULT_STLOG_HUMAN_FORMAT,
     DEFAULT_STLOG_LOGFMT_FORMAT,
     HumanFormatter,
@@ -45,7 +44,7 @@ def human_formatter() -> logging.Formatter:
 
 @pytest.fixture
 def json_formatter() -> logging.Formatter:
-    return JsonFormatter(datefmt=DEFAULT_STLOG_DATE_FORMAT_JSON)
+    return JsonFormatter()
 
 
 @pytest.fixture

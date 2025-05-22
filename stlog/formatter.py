@@ -100,7 +100,7 @@ class Formatter(logging.Formatter):
     """
 
     fmt: str | None = None
-    datefmt: str | None = DEFAULT_STLOG_DATE_FORMAT_HUMAN
+    datefmt: str | None = None
     style: str = "{"
     include_extras_keys_fnmatchs: Sequence[str] | None = None
     exclude_extras_keys_fnmatchs: Sequence[str] | None = None
@@ -114,6 +114,8 @@ class Formatter(logging.Formatter):
     )
 
     def __post_init__(self):
+        if self.datefmt is None:
+            self.datefmt = DEFAULT_STLOG_DATE_FORMAT_HUMAN
         super().__init__(  # explicit call because logging.Formatter is not a dataclass
             fmt=self.fmt,
             datefmt=self.datefmt,
@@ -346,6 +348,8 @@ class JsonFormatter(Formatter):
     stack_info_key: str | None = "stack_info"
 
     def __post_init__(self):
+        if self.datefmt is None:
+            self.datefmt = DEFAULT_STLOG_DATE_FORMAT_JSON
         if self.extra_key_max_length is None:
             self.extra_key_max_length = 0
         if self.kv_formatter is None:

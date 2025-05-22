@@ -11,7 +11,6 @@ import warnings
 from stlog.adapter import getLogger
 from stlog.base import GLOBAL_LOGGING_CONFIG, check_env_false
 from stlog.formatter import (
-    DEFAULT_STLOG_DATE_FORMAT_JSON,
     DEFAULT_STLOG_GCP_JSON_FORMAT,
     JsonFormatter,
 )
@@ -41,16 +40,14 @@ def _make_default_outputs() -> list[Output]:
         return [
             StreamOutput(
                 stream=_make_default_stream(),
-                formatter=JsonFormatter(datefmt=DEFAULT_STLOG_DATE_FORMAT_JSON),
+                formatter=JsonFormatter(),
             )
         ]
     elif DEFAULT_OUTPUT == "json-human":
         return [
             StreamOutput(
                 stream=_make_default_stream(),
-                formatter=JsonFormatter(
-                    datefmt=DEFAULT_STLOG_DATE_FORMAT_JSON, indent=4
-                ),
+                formatter=JsonFormatter(indent=4),
             )
         ]
     elif DEFAULT_OUTPUT == "json-gcp":
@@ -58,7 +55,6 @@ def _make_default_outputs() -> list[Output]:
             StreamOutput(
                 stream=_make_default_stream(),
                 formatter=JsonFormatter(
-                    datefmt=DEFAULT_STLOG_DATE_FORMAT_JSON,
                     fmt=DEFAULT_STLOG_GCP_JSON_FORMAT,
                 ),
             )

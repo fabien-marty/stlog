@@ -7,7 +7,8 @@ import pytest
 
 from stlog.base import STLOG_EXTRA_KEY
 from stlog.formatter import (
-    DEFAULT_STLOG_DATE_FORMAT,
+    DEFAULT_STLOG_DATE_FORMAT_HUMAN,
+    DEFAULT_STLOG_DATE_FORMAT_JSON,
     DEFAULT_STLOG_HUMAN_FORMAT,
     DEFAULT_STLOG_LOGFMT_FORMAT,
     HumanFormatter,
@@ -38,19 +39,19 @@ def log_record() -> logging.LogRecord:
 @pytest.fixture
 def human_formatter() -> logging.Formatter:
     return HumanFormatter(
-        fmt=DEFAULT_STLOG_HUMAN_FORMAT, datefmt=DEFAULT_STLOG_DATE_FORMAT
+        fmt=DEFAULT_STLOG_HUMAN_FORMAT, datefmt=DEFAULT_STLOG_DATE_FORMAT_HUMAN
     )
 
 
 @pytest.fixture
 def json_formatter() -> logging.Formatter:
-    return JsonFormatter()
+    return JsonFormatter(datefmt=DEFAULT_STLOG_DATE_FORMAT_JSON)
 
 
 @pytest.fixture
 def logfmt_formatter() -> logging.Formatter:
     return LogFmtFormatter(
-        fmt=DEFAULT_STLOG_LOGFMT_FORMAT, datefmt=DEFAULT_STLOG_DATE_FORMAT
+        fmt=DEFAULT_STLOG_LOGFMT_FORMAT, datefmt=DEFAULT_STLOG_DATE_FORMAT_HUMAN
     )
 
 
@@ -79,7 +80,7 @@ def test_truncate_keys(log_record):
     log_record.abcdefghijk = "value2"
     human_formatter = HumanFormatter(
         fmt=DEFAULT_STLOG_HUMAN_FORMAT,
-        datefmt=DEFAULT_STLOG_DATE_FORMAT,
+        datefmt=DEFAULT_STLOG_DATE_FORMAT_HUMAN,
         extra_key_max_length=5,
     )
     res = human_formatter.format(log_record)

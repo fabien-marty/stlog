@@ -38,6 +38,8 @@ tasks:
       - task: uv:lint
       - "{{.WRAP}} {{.UV}} run python .task/make-readme.py --lint"
       - '{{.ECHO_OK}} "Linting OK"'
+    env:
+      STLOG_UNIT_TESTS_MODE: 1
 
   test:
     desc: "Test the code"
@@ -59,6 +61,8 @@ tasks:
       - "{{.WRAP}} {{.UV}} run mkdocs build --site-dir html"
       - "{{.WRAP}} {{.UV}} run pdoc3 --html --output-dir=apihtml stlog"
       - "{{.WRAP}} {{.UV}} run python .task/make-readme.py"
+    env:
+      STLOG_UNIT_TESTS_MODE: 1
 
   no-dirty:
     desc: "Check that the repository is clean"

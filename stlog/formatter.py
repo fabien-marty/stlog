@@ -65,7 +65,9 @@ DEFAULT_STLOG_GCP_JSON_FORMAT = """
     }}
 }}
 """
-DEFAULT_STLOG_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+DEFAULT_STLOG_DATE_FORMAT_HUMAN = "%Y-%m-%dT%H:%M:%SZ"
+DEFAULT_STLOG_DATE_FORMAT_JSON = "%Y-%m-%dT%H:%M:%S.%fZ"
+DEFAULT_STLOG_DATE_FORMAT = DEFAULT_STLOG_DATE_FORMAT_HUMAN  # deprecated
 
 
 def _unit_tests_converter(val: float | None) -> time.struct_time:
@@ -98,7 +100,7 @@ class Formatter(logging.Formatter):
     """
 
     fmt: str | None = None
-    datefmt: str | None = DEFAULT_STLOG_DATE_FORMAT
+    datefmt: str | None = DEFAULT_STLOG_DATE_FORMAT_HUMAN
     style: str = "{"
     include_extras_keys_fnmatchs: Sequence[str] | None = None
     exclude_extras_keys_fnmatchs: Sequence[str] | None = None
@@ -180,6 +182,12 @@ class Formatter(logging.Formatter):
             self.extra_key_max_length if self.extra_key_max_length is not None else 0,
         )
 
+    def formatTime(self, record, datefmt=None):  # noqa: N802
+        # Override the standard formatTime to support %f in the datefmt
+        s = super().formatTime(record, datefmt=datefmt)
+        msecs = int(record.msecs)
+        return s.replace("%f", f"{msecs:03d}")
+
     def format(self, record: logging.LogRecord) -> str:
         if GLOBAL_LOGGING_CONFIG._unit_tests_mode:
             # FIXME: it would be better as a Filter, wouldn't be?
@@ -190,6 +198,7 @@ class Formatter(logging.Formatter):
             record.process = 6789
             record.processName = "MainProcess"
             record.threadName = "MainThread"
+            record.msecs = 0
         return super().format(record)
 
 

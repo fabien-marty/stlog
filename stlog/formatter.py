@@ -186,9 +186,12 @@ class Formatter(logging.Formatter):
 
     def formatTime(self, record, datefmt=None):  # noqa: N802
         # Override the standard formatTime to support %f in the datefmt
-        s = super().formatTime(record, datefmt=datefmt)
+        # note: as strftime with %f returns nothing on alpine
+        # we replace it first with @@@MSECS@@@ placeholder
+        # then we replace @@@MSECS@@@ with the actual msecs value
+        s = super().formatTime(record, datefmt=datefmt.replace("%f", "@@@MSECS@@@"))
         msecs = int(record.msecs)
-        return s.replace("%f", f"{msecs:03d}")
+        return s.replace("@@@MSECS@@@", f"{msecs:03d}")
 
     def format(self, record: logging.LogRecord) -> str:
         if GLOBAL_LOGGING_CONFIG._unit_tests_mode:

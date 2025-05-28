@@ -1,11 +1,24 @@
 [project]
 name = "stlog"
 version = "0.0.0"
-description = ""
+description = 'Dependency free structured logging library fully compatible with standard Python logging with "good/opinionated" default values'
 authors = [{ name = "Fabien MARTY", email = "fabien.marty@gmail.com" }]
+maintainers = [{ name = "Fabien MARTY", email = "fab@fabien-marty.dev" }]
 requires-python = ">=3.7"
 readme = "README.md"
 license = "MIT"
+keywords = ["structured", "logging"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: System :: Logging",
+]
+
+[project.urls]
+Homepage = "https://github.com/fabien-marty/stlog"
+Documentation = "https://fabien-marty.github.io/stlog/"
+Repository = "https://github.com/fabien-marty/stlog.git"
 
 [dependency-groups]
 dev = [

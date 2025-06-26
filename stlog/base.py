@@ -26,6 +26,10 @@ FALSE_VALUES = ("0", "false", "no")
 ALLOWED_CHARS_WITHOUT_LOGFMT_QUOTING: set = set(
     string.ascii_letters + string.digits + ",-.@_~:"
 )
+RICH_DUMP_EXCEPTION_ON_CONSOLE_SHOW_LOCALS = (
+    os.environ.get("RICH_DUMP_EXCEPTION_ON_CONSOLE_SHOW_LOCALS", "0").lower()
+    in TRUE_VALUES
+)
 
 
 class StlogError(Exception):
@@ -201,7 +205,7 @@ def rich_dump_exception_on_console(
             extra_lines=3,
             theme=None,
             word_wrap=False,
-            show_locals=True,
+            show_locals=RICH_DUMP_EXCEPTION_ON_CONSOLE_SHOW_LOCALS,
             locals_max_length=10,
             locals_max_string=80,
             locals_hide_dunder=True,

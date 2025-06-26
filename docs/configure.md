@@ -470,3 +470,7 @@ The default is to ignore.
 ### `STLOG_PROGRAM_NAME`
 
 Default program name when getting a logger without name. If not set, we will try to guess.
+
+### `RICH_DUMP_EXCEPTION_ON_CONSOLE_SHOW_LOCALS`
+
+If set to `1`, `TRUE` or `YES`: when using rich output on console, dump exceptions with local variables.

@@ -20,7 +20,7 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
     steps:
       - name: Check out repository code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - name: Setup Python 3.7
         if: matrix.python-version == '3.7'
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
@@ -82,7 +82,7 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'created'
     steps:
       - name: Check out repository code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
       - name: Install Task
         uses: arduino/setup-task@v2
         with:

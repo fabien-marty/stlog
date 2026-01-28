@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-      - uses: renovatebot/github-action@ea850436a5fe75c0925d583c7a02c60a5865461d # v43.0.20
+      - uses: renovatebot/github-action@eaf12548c13069dcc28bb75c4ee4610cdbe400c5 # v44.2.6
         env:
           RENOVATE_REPOSITORIES: "${{ github.repository }}"
           RENOVATE_ONBOARDING: "false"

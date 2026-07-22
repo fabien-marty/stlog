@@ -33,3 +33,10 @@ def test_reinject_handler(context):
 
 def test_extra_none():
     getLogger("standard").info("foo", extra=None)
+
+
+def test_logger_context(context):
+    logger = getLogger("standard")
+    assert logger.context is LogContext
+    logger.context.add(foo="bar")
+    assert logger.context.get("foo") == "bar"

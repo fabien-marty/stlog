@@ -1,11 +1,13 @@
-from stlog import setup, getLogger, LogContext
+from stlog import setup, getLogger
 
 # in the main
 setup()
 
+logger = getLogger("myloggername")
+
 # somewhere (wsgi/asgi middlewares...)
-LogContext.reset_context()
-LogContext.add(request_id=15843224, http_method="GET", authenticated=True)
+logger.context.reset_context()
+logger.context.add(request_id=15843224, http_method="GET", authenticated=True)
 
 # elsewhere
-getLogger("myloggername").info("this is a test")
+logger.info("this is a test")

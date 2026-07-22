@@ -45,7 +45,15 @@ class _KeywordArgumentAdapter(logging.LoggerAdapter):
 
 
 class StLogLoggerAdapter(_KeywordArgumentAdapter):
-    """stlog `LoggerAdapter` with `stlog.LogContext` support."""
+    """stlog `LoggerAdapter` with `stlog.LogContext` support.
+
+    Attributes:
+        context: reference to the `stlog.LogContext` static class, so you can
+            manipulate the (global) execution log context directly from the
+            logger, e.g. `logger.context.add(foo="bar")`.
+    """
+
+    context = LogContext
 
     def __init__(self, logger, extra, ignore_global_logging_context: bool = False):
         self.ignore_global_logging_context = ignore_global_logging_context

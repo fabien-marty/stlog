@@ -77,10 +77,13 @@ In both cases, env variables are only read once (at program startup).
 
 You can completly disable this feature by setting `STLOG_IGNORE_ENV_CONTEXT=1`.
 
-### (2) With `LogContext` static class
+### (2) With the `logger.context` object
 
-You can use the static class {{apilink("LogContext")}} where you want to define some key/values that will be copied
-to each logger call context. 
+Every logger returned by {{apilink("getLogger")}} exposes a `context` attribute (pointing to the
+{{apilink("LogContext")}} static class) where you can define some key/values that will be copied
+to each logger call context.
+
+This is the recommended way to manipulate the (global) execution log context: `logger.context.add(...)`.
 
 In a web context for example, a common practice is to set some key/values in a middleware.
 
@@ -102,7 +105,7 @@ As this context is global
     You can considerer that {{ apilink("LogContext") }} is just a light wrapper on {{contextvars}}.
 
 
-Note: you can also use the {{apilink("LogContext")}} class as a context manager
+Note: you can also use `logger.context` as a context manager
 
 ```python
 {{ code_example("usage3bis.py") }}

@@ -1,5 +1,5 @@
 import sys
-from stlog import LogContext, getLogger, setup
+from stlog import getLogger, setup
 from stlog.output import StreamOutput
 from stlog.formatter import HumanFormatter, JsonFormatter
 
@@ -13,10 +13,11 @@ setup(
     ]
 )
 
-# See previous example for details
-LogContext.reset_context()
-LogContext.add(request_id="4c2383f5")
-LogContext.add(client_id=456, http_method="GET")
 logger = getLogger(__name__)
+
+# See previous example for details
+logger.context.reset_context()
+logger.context.add(request_id="4c2383f5")
+logger.context.add(client_id=456, http_method="GET")
 logger.info("It works", foo="bar", x=123)
 logger.critical("Houston, we have a problem!")
